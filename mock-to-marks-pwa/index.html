@@ -247,6 +247,19 @@ td.change-pos{color:var(--good);font-weight:600;}
 td.change-neg{color:var(--danger);font-weight:600;}
 tr:last-child td{border-bottom:none;}
 
+/* ---------- Profile / dashboard ---------- */
+.stat-row{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+.stat-tile{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:16px 18px;}
+.stat-num{font-size:28px;font-weight:700;color:var(--ink);line-height:1.1;}
+.stat-label{font-size:12px;color:var(--ink-soft);margin-top:6px;}
+.stat-sub{font-size:11px;color:var(--ink-faint);margin-top:2px;}
+.mock-history{display:flex;flex-direction:column;gap:10px;}
+.mock-row{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+.mock-row-name{font-family:var(--serif);font-weight:600;font-size:14.5px;}
+.mock-row-meta{font-size:12px;color:var(--ink-faint);margin-top:3px;}
+.mock-row-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.role-pill{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-faint);border:1px solid var(--border);border-radius:99px;padding:2px 7px;margin-left:6px;}
+
 /* ---------- misc ---------- */
 .banner{border:1px solid var(--warn);background:var(--warn-soft);color:var(--warn);border-radius:9px;padding:12px 16px;font-size:13px;margin-bottom:20px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;}
 .page{padding:36px 0 64px;}
@@ -320,7 +333,7 @@ var NUM_Q = 25;
 
 /* ---------------- state ---------------- */
 function emptyState(){
-  return { route:'landing', routeParams:{}, mocks:[], plans:[], demo:false, profile:{name:'',examTarget:''} };
+  return { route:'landing', routeParams:{}, mocks:[], plans:[], demo:false, profile:{name:'',examTarget:'',notifyEnabled:false} };
 }
 var state = load();
 
@@ -331,7 +344,8 @@ function load(){
     var parsed = JSON.parse(raw);
     if(!parsed || !Array.isArray(parsed.mocks)) return emptyState();
     parsed.route = 'landing'; parsed.routeParams = {}; parsed.demo=false;
-    if(!parsed.profile) parsed.profile = {name:'',examTarget:''};
+    if(!parsed.profile) parsed.profile = {name:'',examTarget:'',notifyEnabled:false};
+    if(!Array.isArray(parsed.plans)) parsed.plans = [];
     return parsed;
   }catch(e){ return emptyState(); }
 }
@@ -762,16 +776,121 @@ var App = {
     nav('landing');
   },
 
-  openProfile: function(){ state.routeParams.profileOpen = true; render(); },
-  closeProfile: function(){ delete state.routeParams.profileOpen; render(); },
+  openProfile: function(){ nav('profile'); },
   saveProfile: function(){
     var g = function(id){ return document.getElementById(id); };
     state.profile = state.profile || {};
     state.profile.name = (g('p_name').value||'').trim();
     state.profile.examTarget = (g('p_target').value||'').trim();
     persist();
-    delete state.routeParams.profileOpen;
     render();
+    window.scrollTo(0,0);
+  },
+
+  deleteMock: function(el){
+    var id = el.dataset.id;
+    var mock = findMock(id); if(!mock) return;
+    if(!window.confirm('Delete "'+mock.name+'" and its 14-day plan? This cannot be undone.')) return;
+    state.mocks = state.mocks.filter(function(m){ return m.id!==id; });
+    state.plans = state.plans.filter(function(p){ return p.mockId!==id; });
+    persist();
+    render();
+  },
+
+  exportData: function(){
+    var data = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      profile: state.profile,
+      mocks: state.mocks.filter(function(m){ return m.id!=='demo'; }),
+      plans: state.plans.filter(function(p){ return p.mockId!=='demo'; })
+    };
+    var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'mock-to-marks-backup-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  },
+  triggerImport: function(){
+    var inp = document.getElementById('importFileInput');
+    if(inp) inp.click();
+  },
+  importData: function(el){
+    var file = el.files && el.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var data = JSON.parse(String(reader.result));
+        if(!data || typeof data!=='object' || !Array.isArray(data.mocks) || !Array.isArray(data.plans)){
+          throw new Error('unrecognised backup format');
+        }
+        var existingMockIds = {}; state.mocks.forEach(function(m){ existingMockIds[m.id]=true; });
+        var newMocks = data.mocks.filter(function(m){
+          return m && typeof m==='object' && typeof m.id==='string' && typeof m.name==='string' && Array.isArray(m.questions) && !existingMockIds[m.id];
+        });
+        var existingPlanIds = {}; state.plans.forEach(function(p){ existingPlanIds[p.id]=true; });
+        var newPlans = data.plans.filter(function(p){
+          return p && typeof p==='object' && typeof p.id==='string' && Array.isArray(p.blocks) && !existingPlanIds[p.id];
+        });
+        if(newMocks.length===0 && newPlans.length===0){
+          window.alert('Nothing new to import — this backup’s mocks and plans are already on this device.');
+          el.value=''; return;
+        }
+        if(!window.confirm('Import '+newMocks.length+' mock(s) and '+newPlans.length+' plan(s) from this file? Existing data on this device is kept as-is.')) { el.value=''; return; }
+        state.mocks = state.mocks.concat(newMocks);
+        state.plans = state.plans.concat(newPlans);
+        if(data.profile && typeof data.profile==='object'){
+          state.profile = state.profile || {name:'',examTarget:''};
+          if(!state.profile.name && typeof data.profile.name==='string') state.profile.name = data.profile.name;
+          if(!state.profile.examTarget && typeof data.profile.examTarget==='string') state.profile.examTarget = data.profile.examTarget;
+        }
+        persist();
+        render();
+      }catch(e){
+        window.alert('This file could not be read as a Mock-to-Marks backup.');
+      }
+      el.value='';
+    };
+    reader.readAsText(file);
+  },
+
+  toggleReminders: function(el){
+    if(el.checked){
+      if(!('Notification' in window)){
+        window.alert('Notifications are not supported in this browser.');
+        el.checked=false; return;
+      }
+      Notification.requestPermission().then(function(perm){
+        state.profile = state.profile || {};
+        if(perm==='granted'){ state.profile.notifyEnabled = true; App.maybeNotifyToday(); }
+        else { state.profile.notifyEnabled = false; el.checked=false; }
+        persist();
+      });
+    } else {
+      state.profile = state.profile || {};
+      state.profile.notifyEnabled = false;
+      persist();
+    }
+  },
+  maybeNotifyToday: function(){
+    if(!state.profile || !state.profile.notifyEnabled) return;
+    if(!('Notification' in window) || Notification.permission!=='granted') return;
+    var todayKey = new Date().toISOString().slice(0,10);
+    var todaysBlock = null;
+    state.plans.forEach(function(p){
+      if(todaysBlock || p.mockId==='demo') return;
+      var start = new Date(p.startDate || Date.now());
+      p.blocks.forEach(function(b){
+        if(todaysBlock || b.completed) return;
+        var d = new Date(start); d.setDate(d.getDate() + (b.day-1));
+        if(d.toISOString().slice(0,10)===todayKey) todaysBlock = b;
+      });
+    });
+    if(todaysBlock){
+      try{ new Notification('Today’s Mock-to-Marks block', {body: todaysBlock.title+' — '+todaysBlock.timeMin+' min', icon:'icon-192.png'}); }catch(e){}
+    }
   }
 };
 window.App = App;
@@ -1064,7 +1183,7 @@ function calendarBody(mock, plan){
         return '<div class="block" data-action="openTask" data-id="'+b.id+'">'+
           '<div class="block-check'+(b.completed?' checked':'')+'">'+(b.completed?'✓':'')+'</div>'+
           '<div class="block-dot" style="background:var('+catColorVar(b.catId)+');"></div>'+
-          '<div class="block-body"><div class="block-title'+(b.completed?' done':'')+'">'+b.title+'</div><div class="block-why">'+why+'</div></div>'+
+          '<div class="block-body"><div class="block-title'+(b.completed?' done':'')+'">'+esc(b.title)+'</div><div class="block-why">'+why+'</div></div>'+
           '<div class="block-time">'+b.timeMin+' min</div>'+
         '</div>';
       }).join('')+
@@ -1097,14 +1216,14 @@ function calendarBody(mock, plan){
 function taskOverlay(block, mock){
   var cat = CAT_BY_ID[block.catId];
   var checks = (block.checks||[]).map(function(c,i){
-    return '<li><input type="checkbox" id="chk'+i+'"><label for="chk'+i+'">'+c+'</label></li>';
+    return '<li><input type="checkbox" id="chk'+i+'"><label for="chk'+i+'">'+esc(c)+'</label></li>';
   }).join('');
   return '<div class="overlay-bg" data-action="__noop"><div class="overlay-panel" onclick="event.stopPropagation()">'+
     '<button class="overlay-close" data-action="closeTask">✕ Close</button>'+
-    '<div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--primary);font-weight:700;">'+(cat?cat.label:'Mixed practice')+' &middot; Day '+block.day+'</div>'+
-    '<h3 style="font-size:20px;margin-top:8px;">'+block.title+'</h3>'+
+    '<div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--primary);font-weight:700;">'+(cat?esc(cat.label):'Mixed practice')+' &middot; Day '+block.day+'</div>'+
+    '<h3 style="font-size:20px;margin-top:8px;">'+esc(block.title)+'</h3>'+
     (block.chapter ? '<p style="font-size:12.5px;color:var(--ink-faint);margin-top:4px;">Focused on: '+esc(block.chapter)+'</p>' : '')+
-    '<p style="font-size:14px;color:var(--ink-soft);margin-top:14px;line-height:1.6;">'+block.instr+'</p>'+
+    '<p style="font-size:14px;color:var(--ink-soft);margin-top:14px;line-height:1.6;">'+esc(block.instr)+'</p>'+
     '<div class="timer-box"><div class="timer-num mono" id="timerDisplay">'+String(block.timeMin).padStart(2,'0')+':00</div>'+
       '<div class="timer-controls">'+
         '<button class="btn btn-ghost btn-sm" onclick="TimerApp.toggle()" id="timerToggleBtn">Start</button>'+
@@ -1117,18 +1236,139 @@ function taskOverlay(block, mock){
   '</div></div>';
 }
 
-function profileOverlay(){
+/* ---------------- dashboard computation ---------------- */
+function realMocks(){ return state.mocks.filter(function(m){ return m.id!=='demo'; }); }
+function realPlans(){ return state.plans.filter(function(p){ return p.mockId!=='demo'; }); }
+
+function computeStreak(plans){
+  var doneDates = {};
+  plans.forEach(function(p){
+    var start = new Date(p.startDate || Date.now());
+    p.blocks.forEach(function(b){
+      if(!b.completed) return;
+      var d = new Date(start); d.setDate(d.getDate() + (b.day-1));
+      doneDates[d.toISOString().slice(0,10)] = true;
+    });
+  });
+  var cursor = new Date(); cursor.setHours(0,0,0,0);
+  if(!doneDates[cursor.toISOString().slice(0,10)]) cursor.setDate(cursor.getDate()-1);
+  var streak = 0;
+  while(doneDates[cursor.toISOString().slice(0,10)]){
+    streak++; cursor.setDate(cursor.getDate()-1);
+  }
+  return streak;
+}
+
+function computeDashboard(){
+  var mocks = realMocks(), plans = realPlans();
+  var totalBlocks=0, doneBlocks=0;
+  plans.forEach(function(p){ p.blocks.forEach(function(b){ totalBlocks++; if(b.completed) doneBlocks++; }); });
+  var agg = {}; CATEGORIES.forEach(function(c){ agg[c.id] = {score:0, affected:0}; });
+  var analysed = 0;
+  mocks.forEach(function(m){
+    if(!m.questions.every(function(q){ return q.result; })) return;
+    analysed++;
+    computeScores(m.questions).forEach(function(c){ agg[c.id].score += c.score; agg[c.id].affected += c.affectedCount; });
+  });
+  var aggList = CATEGORIES.map(function(c){
+    return {id:c.id, label:c.label, score:Math.round(agg[c.id].score*100)/100, affected:agg[c.id].affected};
+  }).filter(function(c){ return c.score>0; }).sort(function(a,b){ return b.score-a.score; });
+  var maxScore = aggList.length ? aggList[0].score : 0;
+  return {
+    mocks: mocks, plans: plans, analysedMocks: analysed,
+    totalBlocks: totalBlocks, doneBlocks: doneBlocks,
+    completionPct: totalBlocks ? Math.round(doneBlocks/totalBlocks*100) : 0,
+    aggList: aggList, maxScore: maxScore,
+    streak: computeStreak(plans)
+  };
+}
+
+/* ---------------- view: profile / dashboard ---------------- */
+function viewProfile(){
   var p = state.profile || {name:'',examTarget:''};
-  return '<div class="overlay-bg" data-action="closeProfile"><div class="overlay-panel" onclick="event.stopPropagation()">'+
-    '<button class="overlay-close" data-action="closeProfile">✕ Close</button>'+
-    '<div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--primary);font-weight:700;">Student profile</div>'+
-    '<h3 style="font-size:20px;margin-top:8px;">Your profile</h3>'+
-    '<p style="font-size:12.5px;color:var(--ink-faint);margin-top:4px;line-height:1.55;">Stored only on this device, in your browser. No account, no password, nothing sent anywhere — just a name to personalise your plan.</p>'+
-    '<div class="field" style="margin-top:18px;"><label for="p_name">Name</label><input type="text" id="p_name" value="'+esc(p.name)+'" placeholder="e.g. Rohan Verma"></div>'+
-    '<div class="field"><label for="p_target">Target exam</label><input type="text" id="p_target" value="'+esc(p.examTarget)+'" placeholder="e.g. JEE Main 2027"></div>'+
-    (state.mocks.length ? '<div class="field"><label>Data on this device</label><div style="padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);font-size:13px;color:var(--ink-soft);">'+state.mocks.length+' mock'+(state.mocks.length===1?'':'s')+' saved, '+state.plans.length+' plan'+(state.plans.length===1?'':'s')+'.</div></div>' : '')+
-    '<button class="btn btn-primary" data-action="saveProfile" style="width:100%;margin-top:6px;">Save</button>'+
-  '</div></div>';
+  var dash = computeDashboard();
+  var mocksSorted = dash.mocks.slice().sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
+
+  var statTiles = [
+    {label:'Mocks analysed', value: dash.mocks.length},
+    {label:'Plans generated', value: dash.plans.length},
+    {label:'Blocks completed', value: dash.completionPct+'%', sub: dash.doneBlocks+' of '+dash.totalBlocks},
+    {label:'Current streak', value: dash.streak+(dash.streak===1?' day':' days')}
+  ].map(function(s){
+    return '<div class="stat-tile"><div class="stat-num mono">'+s.value+'</div><div class="stat-label">'+s.label+'</div>'+(s.sub?'<div class="stat-sub mono">'+esc(s.sub)+'</div>':'')+'</div>';
+  }).join('');
+
+  var weakFronts = dash.aggList.length ? dash.aggList.map(function(c,i){
+    var barPct = dash.maxScore>0 ? Math.round(c.score/dash.maxScore*100) : 0;
+    return '<div class="catrow" style="padding:14px 16px;">'+
+      '<div class="catrow-body">'+
+        '<div class="catrow-top"><span class="cattitle" style="font-size:14.5px;">'+c.label+'</span><span style="font-size:12px;color:var(--ink-faint);">'+c.affected+' question'+(c.affected===1?'':'s')+' across your mocks</span></div>'+
+        '<div class="catbar-track" style="margin-top:10px;"><div class="catbar-fill" style="width:'+barPct+'%;"></div></div>'+
+      '</div></div>';
+  }).join('') : '<div class="empty" style="padding:30px 20px;">Finish analysing at least one mock to see your recurring weak fronts here.</div>';
+
+  var mockRows = mocksSorted.length ? mocksSorted.map(function(m){
+    var plan = findPlan(m.id);
+    var complete = m.questions.every(function(q){ return q.result; });
+    return '<div class="mock-row">'+
+      '<div class="mock-row-main">'+
+        '<div class="mock-row-name">'+esc(m.name)+(m.role==='followup'?' <span class="role-pill">follow-up</span>':'')+'</div>'+
+        '<div class="mock-row-meta mono">'+fmtDate(m.date)+' &middot; '+m.marksScored+'/'+m.targetMarks+' marks'+(complete?'':' &middot; incomplete')+'</div>'+
+      '</div>'+
+      '<div class="mock-row-actions">'+
+        (complete ? '<button class="btn btn-ghost btn-sm" data-action="toDiagnosis" data-id="'+m.id+'">Diagnosis</button>' : '<button class="btn btn-ghost btn-sm" data-action="toAnalyze" data-id="'+m.id+'">Continue</button>')+
+        (plan ? '<button class="btn btn-ghost btn-sm" data-action="toCalendar" data-id="'+m.id+'">Plan</button>' : '')+
+        '<button class="btn btn-danger btn-sm" data-action="deleteMock" data-id="'+m.id+'" title="Delete this mock">Delete</button>'+
+      '</div>'+
+    '</div>';
+  }).join('') : '<div class="empty" style="padding:30px 20px;">No mocks yet. <button class="btn btn-text" data-action="toCreate">Analyse your first mock →</button></div>';
+
+  return topbar() + '<div class="shell page">'+
+    '<button class="page-back" data-action="toLanding">← Back</button>'+
+    '<h2 style="font-size:23px;">Your profile</h2>'+
+    '<p class="section-lead" style="margin-top:4px;">Stored only on this device, in your browser. No account, no server — export a backup if you want a copy elsewhere.</p>'+
+
+    '<div class="card" style="margin-top:22px;">'+
+      '<div class="field-row">'+
+        '<div class="field" style="margin-bottom:0;"><label for="p_name">Name</label><input type="text" id="p_name" value="'+esc(p.name)+'" placeholder="e.g. Rohan Verma"></div>'+
+        '<div class="field" style="margin-bottom:0;"><label for="p_target">Target exam</label><input type="text" id="p_target" value="'+esc(p.examTarget)+'" placeholder="e.g. JEE Main 2027"></div>'+
+      '</div>'+
+      '<button class="btn btn-primary btn-sm" data-action="saveProfile" style="margin-top:16px;">Save</button>'+
+    '</div>'+
+
+    '<div class="stat-row">'+statTiles+'</div>'+
+
+    '<div class="section" style="padding-top:36px;border-top:none;">'+
+      '<h2>Where marks keep slipping</h2>'+
+      '<p class="section-lead">Aggregated across every fully-analysed mock — not just your latest one.</p>'+
+      '<div class="catlist" style="margin-top:16px;">'+weakFronts+'</div>'+
+    '</div>'+
+
+    '<div class="section">'+
+      '<h2>Your mocks</h2>'+
+      '<div class="mock-history" style="margin-top:16px;">'+mockRows+'</div>'+
+    '</div>'+
+
+    '<div class="section">'+
+      '<h2>Reminders</h2>'+
+      '<p class="section-lead">Best-effort: this notifies you when you open the app on a day you have an unfinished block. It cannot notify you while the app is fully closed.</p>'+
+      '<label style="display:flex;align-items:center;gap:10px;margin-top:14px;font-size:13.5px;color:var(--ink);cursor:pointer;">'+
+        '<input type="checkbox" id="notifyToggle" onchange="App.toggleReminders(this)" '+(p.notifyEnabled?'checked':'')+' style="width:17px;height:17px;">'+
+        'Remind me about today’s plan block when I open the app'+
+      '</label>'+
+    '</div>'+
+
+    '<div class="section">'+
+      '<h2>Your data</h2>'+
+      '<p class="section-lead">Export a backup file, restore one on a new device, or clear everything on this device.</p>'+
+      '<div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">'+
+        '<button class="btn btn-ghost" data-action="exportData">Export backup (.json)</button>'+
+        '<button class="btn btn-ghost" data-action="triggerImport">Import backup</button>'+
+        '<input type="file" id="importFileInput" accept="application/json" hidden onchange="App.importData(this)">'+
+        (state.mocks.length ? '<button class="btn btn-danger" data-action="startFresh">Clear all data</button>' : '')+
+      '</div>'+
+    '</div>'+
+  '</div>';
 }
 
 /* simple timer, isolated so overlay markup stays string-based */
@@ -1244,9 +1484,9 @@ function render(){
     case 'diagnosis': html = viewDiagnosis(); break;
     case 'calendar': html = viewCalendar(); break;
     case 'compare': html = viewCompare(); break;
+    case 'profile': html = viewProfile(); break;
     default: html = viewLanding();
   }
-  if(state.routeParams.profileOpen) html += profileOverlay();
   app.innerHTML = html;
 }
 
@@ -1295,8 +1535,56 @@ if('serviceWorker' in navigator){
   });
 }
 
+/* ---------------- keyboard shortcuts: question analysis grid ---------------- */
+document.addEventListener('keydown', function(e){
+  if(state.route!=='analyze') return;
+  var tgt = e.target;
+  var tag = (tgt.tagName||'').toLowerCase();
+  if(tag==='textarea' || (tag==='input' && (tgt.type==='text'||tgt.type==='number')) || tag==='select') return;
+  var card = tgt.closest && tgt.closest('.qcard');
+  if(!card) return;
+  if(e.key>='1' && e.key<='6'){
+    var cat = CATEGORIES[Number(e.key)-1]; if(!cat) return;
+    var radio = card.querySelector('input[type=radio][data-field$=".primary"][value="'+cat.id+'"]');
+    if(!radio) return;
+    e.preventDefault();
+    radio.checked = true;
+    radio.dispatchEvent(new Event('change', {bubbles:true}));
+    radio.focus();
+  } else if((e.key==='ArrowDown' || e.key==='ArrowUp') && e.altKey){
+    e.preventDefault();
+    var cards = Array.prototype.slice.call(document.querySelectorAll('.qcard'));
+    var next = cards[cards.indexOf(card) + (e.key==='ArrowDown'?1:-1)];
+    if(next){
+      var focusTarget = next.querySelector('input[type=radio]:checked') || next.querySelector('input, select');
+      if(focusTarget){ focusTarget.focus(); if(focusTarget.scrollIntoView) focusTarget.scrollIntoView({block:'center', behavior:'smooth'}); }
+    }
+  }
+});
+
+/* ---------------- entry routing (PWA shortcuts) ---------------- */
+function handleEntryRoute(){
+  try{
+    var params = new URLSearchParams(location.search);
+    var r = params.get('route');
+    if(!r) return;
+    if(r==='new'){
+      state.route = 'create'; state.routeParams = {role:'initial'};
+    } else if(r==='today'){
+      var withPlan = realMocks().filter(function(m){ return findPlan(m.id); })
+        .sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
+      if(withPlan.length) { state.route = 'calendar'; state.routeParams = {mockId: withPlan[0].id}; }
+    }
+    history.replaceState(null, '', location.pathname);
+  }catch(e){ /* URLSearchParams unsupported or blocked - fall through to normal landing */ }
+}
+
 /* hot-reload friendliness for republishes */
-function boot(){ render(); }
+function boot(){
+  handleEntryRoute();
+  render();
+  App.maybeNotifyToday();
+}
 if(window.claude && window.claude.hot){
   window.claude.hot.ready ? window.claude.hot.ready(boot) : boot();
 } else {

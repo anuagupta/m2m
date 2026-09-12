@@ -1,5 +1,5 @@
 // Mock-to-Marks — minimal offline app-shell cache.
-var CACHE_NAME = 'mtm-cache-v1';
+var CACHE_NAME = 'mtm-cache-v2';
 var ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', function (event) {
