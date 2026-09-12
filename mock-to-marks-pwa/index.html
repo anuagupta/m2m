@@ -1715,6 +1715,16 @@ if('serviceWorker' in navigator){
   window.addEventListener('load', function(){
     navigator.serviceWorker.register('sw.js').catch(function(){ /* offline caching unavailable - app still works online */ });
   });
+  // A stale cached bundle here isn't just cosmetic - it can mean a student sees
+  // an old readiness score or an ungated build. Reload once, automatically,
+  // the moment a newer service worker takes control, instead of waiting for a
+  // manual refresh.
+  var swReloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function(){
+    if(swReloaded) return;
+    swReloaded = true;
+    location.reload();
+  });
 }
 
 /* ---------------- keyboard shortcuts: question analysis grid ---------------- */
