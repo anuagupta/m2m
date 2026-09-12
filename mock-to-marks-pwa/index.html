@@ -1,4 +1,5 @@
 <title>Mock-to-Marks — ProDJEE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#05060a">
 <meta name="mobile-web-app-capable" content="yes">
@@ -22,7 +23,7 @@
   --border-soft:#1a1c22;
   --ink:#eef0f4;
   --ink-soft:#9aa2b1;
-  --ink-faint:#666c78;
+  --ink-faint:#7b8292;
   --primary:#f5b93d;
   --primary-strong:#ffd166;
   --primary-soft:#2a2210;
@@ -39,6 +40,7 @@
   --mono:'JetBrains Mono', SFMono-Regular, Menlo, monospace;
 }
 *{box-sizing:border-box;}
+html{color-scheme:dark;}
 html,body{margin:0;padding:0;}
 body{
   background:var(--bg);
@@ -53,6 +55,14 @@ p{margin:0;}
 button{font-family:inherit;cursor:pointer;}
 input,select,textarea{font-family:inherit;font-size:inherit;color:inherit;}
 a{color:var(--primary);}
+::selection{background:var(--primary);color:var(--on-primary);}
+::placeholder{color:var(--ink-faint);opacity:1;}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px;}
+::-webkit-scrollbar{width:12px;height:12px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;border:3px solid var(--bg);}
+::-webkit-scrollbar-thumb:hover{background:var(--ink-faint);}
+*{scrollbar-color:var(--border) var(--bg);scrollbar-width:thin;}
 .mono{font-family:var(--mono);font-variant-numeric:tabular-nums;}
 .shell{max-width:900px;margin:0 auto;padding:0 20px;}
 .shell-wide{max-width:1120px;margin:0 auto;padding:0 20px;}
@@ -95,7 +105,6 @@ a{color:var(--primary);}
 
 /* ---------- Landing ---------- */
 .hero{padding:64px 0 40px;}
-.hero-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--primary);margin-bottom:16px;}
 .hero h1{font-size:clamp(30px,5vw,46px);line-height:1.12;max-width:14ch;}
 .hero-sub{margin-top:18px;font-size:17px;color:var(--ink-soft);max-width:52ch;line-height:1.6;}
 .hero-cta{margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
@@ -105,8 +114,7 @@ a{color:var(--primary);}
 }
 .loop-step{flex:1 1 140px;padding:20px 18px;position:relative;}
 .loop-step + .loop-step{border-left:1px solid var(--border-soft);}
-.loop-num{font-family:var(--mono);font-size:11px;color:var(--ink-faint);}
-.loop-label{font-family:var(--serif);font-weight:600;font-size:16px;margin-top:6px;}
+.loop-label{font-family:var(--serif);font-weight:600;font-size:16px;}
 .loop-desc{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
 
 .section{padding:56px 0;border-top:1px solid var(--border-soft);}
@@ -114,8 +122,7 @@ a{color:var(--primary);}
 .section-lead{color:var(--ink-soft);margin-top:8px;max-width:56ch;font-size:14.5px;}
 .causes-grid{margin-top:28px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
 .cause-card{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:16px;}
-.cause-num{font-family:var(--mono);color:var(--primary);font-size:13px;}
-.cause-title{font-family:var(--serif);font-weight:600;font-size:15.5px;margin-top:6px;}
+.cause-title{font-family:var(--serif);font-weight:600;font-size:15.5px;}
 .cause-desc{font-size:13px;color:var(--ink-soft);margin-top:5px;}
 .sd-wrap{margin-top:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;}
 .sd-card{border:1px solid var(--border);background:var(--surface-2);border-radius:14px;padding:18px;}
@@ -928,15 +935,14 @@ function demoBanner(){
 /* ---------------- view: landing ---------------- */
 function viewLanding(){
   var causes = [
-    ['1','Language',"Didn't understand what the question was saying."],
-    ['2','Situation',"Understood the words, not the picture."],
-    ['3','Approach',"Understood it, but didn't know where to start."],
-    ['4','Formula / law',"Knew the approach, forgot the formula."],
-    ['5','Silly mistake',"Knew it cold, lost it in execution."],
-    ['6','Time management',"Could solve it, spent the minutes badly."]
+    ['Language',"Didn't understand what the question was saying."],
+    ['Situation',"Understood the words, not the picture."],
+    ['Approach',"Understood it, but didn't know where to start."],
+    ['Formula / law',"Knew the approach, forgot the formula."],
+    ['Silly mistake',"Knew it cold, lost it in execution."],
+    ['Time management',"Could solve it, spent the minutes badly."]
   ];
   return topbar() + '<div class="shell hero">'+
-    '<div class="hero-eyebrow">Post-mock recovery, not another test series</div>'+
     '<h1>Stop repeating the same mock-test mistakes.</h1>'+
     '<p class="hero-sub">Tell us why you lost marks in your last mock, and get a specific two-week practice plan built around your actual gaps — not a generic study schedule.</p>'+
     '<div class="hero-cta">'+
@@ -944,17 +950,17 @@ function viewLanding(){
       '<button class="btn btn-text" data-action="loadDemo">See a sample analysis →</button>'+
     '</div>'+
     '<div class="loop">'+
-      '<div class="loop-step"><div class="loop-num">01</div><div class="loop-label">Mock</div><div class="loop-desc">Log results for 25 questions, 10 minutes flat.</div></div>'+
-      '<div class="loop-step"><div class="loop-num">02</div><div class="loop-label">Diagnose</div><div class="loop-desc">Six root causes, ranked by marks lost.</div></div>'+
-      '<div class="loop-step"><div class="loop-num">03</div><div class="loop-label">Plan</div><div class="loop-desc">14 days, two focused blocks a day.</div></div>'+
-      '<div class="loop-step"><div class="loop-num">04</div><div class="loop-label">Retest</div><div class="loop-desc">Next mock, marks compared side by side.</div></div>'+
+      '<div class="loop-step"><div class="loop-label">Mock</div><div class="loop-desc">Log results for 25 questions, 10 minutes flat.</div></div>'+
+      '<div class="loop-step"><div class="loop-label">Diagnose</div><div class="loop-desc">Six root causes, ranked by marks lost.</div></div>'+
+      '<div class="loop-step"><div class="loop-label">Plan</div><div class="loop-desc">14 days, two focused blocks a day.</div></div>'+
+      '<div class="loop-step"><div class="loop-label">Retest</div><div class="loop-desc">Next mock, marks compared side by side.</div></div>'+
     '</div>'+
   '</div>'+
   '<div class="section"><div class="shell">'+
     '<h2>Six reasons students lose marks</h2>'+
     '<p class="section-lead">Almost every lost mark traces back to one of these. We ask you to pick exactly one primary reason per question — no vague "I made a mistake."</p>'+
     '<div class="causes-grid">'+ causes.map(function(c){
-      return '<div class="cause-card"><div class="cause-num">'+c[0]+'</div><div class="cause-title">'+c[1]+'</div><div class="cause-desc">'+c[2]+'</div></div>';
+      return '<div class="cause-card"><div class="cause-title">'+c[0]+'</div><div class="cause-desc">'+c[1]+'</div></div>';
     }).join('') +'</div>'+
   '</div></div>'+
   '<div class="section"><div class="shell">'+
