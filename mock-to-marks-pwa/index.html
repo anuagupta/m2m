@@ -250,8 +250,18 @@ a{color:var(--primary);}
 .overlay-panel{width:min(440px,100%);background:var(--surface);height:100%;overflow-y:auto;padding:26px 24px 40px;box-shadow:-8px 0 30px hsl(var(--shadow-color) / .25);animation:panelSlideIn .28s cubic-bezier(.16,1,.3,1);}
 @keyframes overlayFade{from{opacity:0;}to{opacity:1;}}
 @keyframes panelSlideIn{from{transform:translateX(100%);}to{transform:translateX(0);}}
-@media (prefers-reduced-motion:reduce){.overlay-bg,.overlay-panel,.block-check.checked,.radar-data{animation:none;}}
+@media (prefers-reduced-motion:reduce){.overlay-bg,.overlay-panel,.block-check.checked,.radar-data,.gate-bg,.gate-card{animation:none;}}
 ::view-transition-old(root),::view-transition-new(root){animation-duration:.22s;}
+
+/* ---------- Access gate ---------- */
+.gate-bg{position:fixed;inset:0;background:rgba(5,6,10,.55);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;animation:overlayFade .25s ease;}
+.gate-card{width:min(380px,100%);background:color-mix(in srgb, var(--surface) 55%, transparent);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid color-mix(in srgb, var(--border) 70%, transparent);border-radius:20px;padding:32px 28px;box-shadow:0 24px 60px hsl(var(--shadow-color)/.5), inset 0 1px 0 rgba(255,255,255,.06);animation:panelPop .3s cubic-bezier(.16,1,.3,1);}
+@keyframes panelPop{from{transform:scale(.94) translateY(10px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
+.gate-card h3{font-size:21px;}
+.gate-sub{font-size:13px;color:var(--ink-soft);margin-top:6px;line-height:1.55;}
+.gate-card input{width:100%;margin-top:20px;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:color-mix(in srgb, var(--surface-2) 70%, transparent);color:var(--ink);font-size:15px;letter-spacing:.06em;}
+.gate-card input:focus-visible{outline:2px solid var(--primary);outline-offset:1px;}
+.gate-error{font-size:12.5px;color:var(--danger);margin-top:10px;}
 .overlay-close{background:none;border:none;color:var(--ink-faint);font-size:14px;margin-bottom:18px;padding:4px 0;transition:color .15s, transform .15s;display:inline-block;}
 .overlay-close:hover{color:var(--ink);transform:scale(1.06);}
 .timer-box{border:1px solid var(--border);border-radius:14px;background:var(--surface-2);padding:18px;text-align:center;margin:18px 0;}
@@ -665,7 +675,42 @@ function demoMock(){
 }
 
 /* ---------------- routing ---------------- */
+/* ---------------- access gate ----------------
+   ponytail: this proves possession of a passcode, not identity, and it
+   cannot stop a determined user from calling App/scoring functions
+   directly from devtools - the compute logic still ships to the client.
+   Real access control needs the scoring/plan logic to move server-side
+   behind real auth. This is a casual-sharing deterrent, matched to what's
+   actually buildable without new OAuth/payment accounts. */
+var GATE_API_URL = 'GATE_API_URL_PLACEHOLDER';
+var GATE_TOKEN_KEY = 'mtm_gate_token';
+var gatePending = null;
+function gateUnlocked(){
+  try{
+    var raw = localStorage.getItem(GATE_TOKEN_KEY);
+    if(!raw) return false;
+    return Number(raw.split('.')[0]) > Date.now();
+  }catch(e){ return false; }
+}
+function gateOverlayHtml(){
+  return '<div class="gate-bg" data-action="closeGate"><div class="gate-card" onclick="event.stopPropagation()">'+
+    '<h3>Enter your passcode</h3>'+
+    '<p class="gate-sub">This app is available to enrolled students only.</p>'+
+    '<input type="password" id="gatePasscodeInput" placeholder="Passcode" autocomplete="off">'+
+    '<div class="gate-error" id="gateError" hidden>That passcode isn’t right. Try again.</div>'+
+    '<button class="btn btn-primary" data-action="gateSubmit" style="width:100%;margin-top:16px;">Unlock</button>'+
+  '</div></div>';
+}
+function showGate(route, params){
+  gatePending = {route:route, params:params};
+  document.getElementById('app').insertAdjacentHTML('beforeend', gateOverlayHtml());
+  var input = document.getElementById('gatePasscodeInput');
+  input.focus();
+  input.addEventListener('keydown', function(e){ if(e.key==='Enter') App.gateSubmit(); });
+}
+
 function nav(route, params){
+  if(route!=='landing' && !state.demo && !gateUnlocked()){ showGate(route, params); return; }
   state.route=route; state.routeParams=params||{}; persist();
   var apply = function(){ render(); window.scrollTo(0,0); };
   var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -840,6 +885,42 @@ var App = {
     persist();
     try{ localStorage.removeItem(STORE_KEY); }catch(e){}
     nav('landing');
+  },
+
+  closeGate: function(){
+    var el = document.getElementById('gatePasscodeInput');
+    var overlay = el && el.closest('.gate-bg');
+    if(overlay) overlay.remove();
+    gatePending = null;
+  },
+  gateSubmit: function(){
+    var input = document.getElementById('gatePasscodeInput');
+    var btn = document.querySelector('.gate-card [data-action="gateSubmit"]');
+    var errEl = document.getElementById('gateError');
+    var passcode = (input.value||'').trim();
+    errEl.hidden = true;
+    if(!passcode) return;
+    btn.disabled = true; btn.textContent = 'Checking…';
+    fetch(GATE_API_URL, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({passcode: passcode})
+    }).then(function(r){ return r.json().then(function(data){ return {ok:r.ok, data:data}; }); })
+      .then(function(res){
+        if(res.ok && res.data && res.data.ok){
+          localStorage.setItem(GATE_TOKEN_KEY, res.data.token);
+          var pending = gatePending; gatePending = null;
+          App.closeGate();
+          if(pending) nav(pending.route, pending.params);
+        } else {
+          errEl.hidden = false;
+          btn.disabled = false; btn.textContent = 'Unlock';
+          input.select();
+        }
+      }).catch(function(){
+        errEl.textContent = 'Could not reach the access server. Check your connection and try again.';
+        errEl.hidden = false;
+        btn.disabled = false; btn.textContent = 'Unlock';
+      });
   },
 
   openProfile: function(){ nav('profile'); },
