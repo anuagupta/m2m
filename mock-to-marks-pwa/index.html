@@ -75,6 +75,8 @@ a{color:var(--primary);}
   border-bottom:1px solid var(--border-soft);
 }
 .topbar-inner{max-width:1120px;margin:0 auto;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.topbar-progress{height:3px;background:var(--border-soft);}
+.topbar-progress-fill{height:100%;background:var(--primary);transition:width .2s;}
 .wordmark{display:flex;align-items:center;gap:12px;cursor:pointer;background:none;border:none;padding:0;}
 .wordmark-logo{width:38px;height:38px;border-radius:9px;display:block;flex:none;}
 .wordmark-text-wrap{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;}
@@ -197,7 +199,8 @@ a{color:var(--primary);}
 
 /* ---------- Readiness radar ---------- */
 .radar-section{display:flex;gap:30px;flex-wrap:wrap;align-items:center;}
-.radar-chart-wrap{flex:none;line-height:0;}
+.radar-chart-wrap{flex:none;line-height:0;max-width:100%;}
+.radar-chart-wrap svg{display:block;max-width:100%;height:auto;}
 .radar-side{flex:1 1 220px;min-width:200px;}
 .radar-stat-label{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint);}
 .radar-stat-value{font-family:var(--sans);font-weight:700;font-size:50px;color:var(--ink);line-height:1;margin-top:6px;}
@@ -481,8 +484,8 @@ function ptsStr(pts){ return pts.map(function(p){ return p[0].toFixed(1)+','+p[1
 
 function buildRadarSVG(series, opts){
   opts = opts || {};
-  var size=272, cx=size/2, cy=size/2-4, R=86;
-  var svg = '<svg viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'" role="img" aria-label="'+esc(opts.ariaLabel||'Preparedness across six fronts')+'">';
+  var svgW=440, svgH=272, cx=svgW/2, cy=svgH/2-4, R=86;
+  var svg = '<svg viewBox="0 0 '+svgW+' '+svgH+'" width="'+svgW+'" height="'+svgH+'" role="img" aria-label="'+esc(opts.ariaLabel||'Preparedness across six fronts')+'">';
   [25,50,75,100].forEach(function(ring){
     var pts = CATEGORIES.map(function(c,i){ return hexPt(cx,cy,R,i,ring); });
     svg += '<polygon points="'+ptsStr(pts)+'" style="fill:none;stroke:var(--border);stroke-width:1;" />';
@@ -516,6 +519,18 @@ function buildRadarSVG(series, opts){
   }
   svg += '</svg>';
   return svg;
+}
+function buildProgressRing(pct, size){
+  size = size || 52;
+  var stroke = 5, r = (size-stroke)/2, c = 2*Math.PI*r;
+  pct = Math.max(0, Math.min(100, pct));
+  var off = c * (1 - pct/100);
+  var cx = size/2, cy = size/2;
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" role="img" aria-label="'+pct+'% of blocks completed" style="flex:none;">'+
+    '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="var(--border-soft)" stroke-width="'+stroke+'" />'+
+    '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="var(--primary)" stroke-width="'+stroke+'" stroke-linecap="round" stroke-dasharray="'+c.toFixed(2)+'" stroke-dashoffset="'+off.toFixed(2)+'" transform="rotate(-90 '+cx+' '+cy+')" />'+
+    '<text x="'+cx+'" y="'+(cy+4)+'" text-anchor="middle" style="font-family:var(--mono);font-size:12px;font-weight:600;fill:var(--ink);">'+pct+'%</text>'+
+  '</svg>';
 }
 function radarLegendHtml(items){
   return '<div class="radar-legend">'+items.map(function(it){
@@ -703,6 +718,8 @@ var App = {
     if(badge) badge.textContent = done+' of '+NUM_Q+' completed';
     var fill = document.getElementById('progressFill');
     if(fill) fill.style.width = (done/NUM_Q*100)+'%';
+    var stickyFill = document.getElementById('topbarProgressFill');
+    if(stickyFill) stickyFill.style.width = (done/NUM_Q*100)+'%';
     var btn = document.getElementById('genPlanBtn');
     if(btn) btn.disabled = done < NUM_Q;
   },
@@ -913,6 +930,11 @@ function topbar(){
   var profileName = (state.profile && state.profile.name) ? state.profile.name.trim() : '';
   var initial = profileName ? profileName.charAt(0).toUpperCase() : '?';
   var profileBtn = '<button class="avatar-btn" data-action="openProfile" title="'+(profileName?esc(profileName)+' — profile':'Set up your profile')+'">'+initial+'</button>';
+  var stickyProgress = '';
+  if(state.route==='analyze' && mock){
+    var doneCount = mock.questions.filter(function(q){ return q.result; }).length;
+    stickyProgress = '<div class="topbar-progress"><div class="topbar-progress-fill" id="topbarProgressFill" style="width:'+Math.round(doneCount/NUM_Q*100)+'%;"></div></div>';
+  }
   return '<div class="topbar"><div class="topbar-inner">'+
     '<button class="wordmark" data-action="toLanding"><img class="wordmark-logo" src="'+LOGO_DATA_URI+'" alt="ProDJEE logo">'+
       '<span class="wordmark-text-wrap"><span class="wordmark-text">Mock-to-Marks</span><span class="wordmark-byline">by ProDJEE</span></span>'+
@@ -921,7 +943,7 @@ function topbar(){
     '<button class="btn btn-primary btn-sm" data-action="toCreate">New mock</button>'+
     (state.mocks.length ? '<button class="btn btn-ghost btn-sm" data-action="startFresh" title="Clear all data on this device">Start fresh</button>' : '')+
     profileBtn+
-    '</div></div></div>';
+    '</div></div>'+stickyProgress+'</div>';
 }
 
 function demoBanner(){
@@ -1209,11 +1231,12 @@ function calendarBody(mock, plan){
       : '<p style="font-size:13px;color:var(--ink-soft);">Take your next mock, then log it the same way — we’ll compare it against Day 1 automatically.</p><button class="btn btn-primary btn-sm day-cta" data-action="toCreate" data-role="followup" data-for-mock-id="'+mock.id+'">Log next mock & compare</button>')+
     '</div>');
 
+  var progressPct = totalBlocks ? Math.round(doneBlocks/totalBlocks*100) : 0;
   return '<div class="shell page">'+
     (state.demo?'':'<button class="page-back" data-action="toDiagnosis" data-id="'+mock.id+'">← Diagnosis</button>')+
     '<div class="plan-summary">'+
       '<div><h2 style="font-size:22px;">14-day plan — '+esc(mock.name)+'</h2><p style="font-size:13px;color:var(--ink-soft);margin-top:4px;">Two focused blocks a day. Tap a block for full instructions and a timer.</p></div>'+
-      '<div class="plan-progress-ring"><span class="plan-progress-num mono">'+doneBlocks+'/'+totalBlocks+'</span><span style="font-size:12px;color:var(--ink-faint);">blocks<br>done</span></div>'+
+      '<div class="plan-progress-ring">'+buildProgressRing(progressPct)+'<span class="plan-progress-num mono">'+doneBlocks+'/'+totalBlocks+'</span><span style="font-size:12px;color:var(--ink-faint);">blocks<br>done</span></div>'+
     '</div>'+
     '<div class="daylist">'+cards.join('')+'</div>'+
   '</div>';
