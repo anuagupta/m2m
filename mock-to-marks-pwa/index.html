@@ -248,6 +248,7 @@ a{color:var(--primary);}
 @keyframes overlayFade{from{opacity:0;}to{opacity:1;}}
 @keyframes panelSlideIn{from{transform:translateX(100%);}to{transform:translateX(0);}}
 @media (prefers-reduced-motion:reduce){.overlay-bg,.overlay-panel,.block-check.checked,.radar-data{animation:none;}}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.22s;}
 .overlay-close{background:none;border:none;color:var(--ink-faint);font-size:14px;margin-bottom:18px;padding:4px 0;transition:color .15s, transform .15s;display:inline-block;}
 .overlay-close:hover{color:var(--ink);transform:scale(1.06);}
 .timer-box{border:1px solid var(--border);border-radius:14px;background:var(--surface-2);padding:18px;text-align:center;margin:18px 0;}
@@ -650,7 +651,19 @@ function demoMock(){
 }
 
 /* ---------------- routing ---------------- */
-function nav(route, params){ state.route=route; state.routeParams=params||{}; persist(); render(); window.scrollTo(0,0); }
+function nav(route, params){
+  state.route=route; state.routeParams=params||{}; persist();
+  var apply = function(){ render(); window.scrollTo(0,0); };
+  var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(document.startViewTransition && !reduced){
+    // ponytail: catches cover real clicks; two nav() calls fired in the same
+    // synchronous tick (no realistic click does this) can still log a
+    // benign "transition skipped" rejection.
+    var vt = document.startViewTransition(apply);
+    var noop = function(){};
+    vt.ready.catch(noop); vt.updateCallbackDone.catch(noop); vt.finished.catch(noop);
+  } else apply();
+}
 
 var App = {
   toLanding: function(){ state.demo=false; nav('landing'); },
