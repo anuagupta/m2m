@@ -1,0 +1,1306 @@
+<title>Mock-to-Marks — ProDJEE</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#05060a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mock-to-Marks">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ProDJEE brand system: near-black surface, gold/red/green accents, Manrope + JetBrains Mono.
+   Committed single dark identity (matches the pitch deck / product screens built in Claude Design) —
+   not a light/dark pair. */
+:root{
+  --bg:#05060a;
+  --surface:#0d0f14;
+  --surface-2:#14161d;
+  --border:#22262f;
+  --border-soft:#1a1c22;
+  --ink:#eef0f4;
+  --ink-soft:#9aa2b1;
+  --ink-faint:#666c78;
+  --primary:#f5b93d;
+  --primary-strong:#ffd166;
+  --primary-soft:#2a2210;
+  --on-primary:#14110a;
+  --good:#4cd68a;
+  --good-soft:#12271c;
+  --warn:#f5b93d;
+  --warn-soft:#2a2210;
+  --danger:#ef6461;
+  --danger-soft:#2a1615;
+  --shadow-color:0 0% 0%;
+  --serif:'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --sans:'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mono:'JetBrains Mono', SFMono-Regular, Menlo, monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:700;color:var(--ink);margin:0;text-wrap:balance;}
+p{margin:0;}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;font-size:inherit;color:inherit;}
+a{color:var(--primary);}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums;}
+.shell{max-width:900px;margin:0 auto;padding:0 20px;}
+.shell-wide{max-width:1120px;margin:0 auto;padding:0 20px;}
+
+/* ---------- Top bar ---------- */
+.topbar{
+  position:sticky;top:0;z-index:40;
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border-soft);
+}
+.topbar-inner{max-width:1120px;margin:0 auto;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.wordmark{display:flex;align-items:center;gap:12px;cursor:pointer;background:none;border:none;padding:0;}
+.wordmark-logo{width:38px;height:38px;border-radius:9px;display:block;flex:none;}
+.wordmark-text-wrap{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;}
+.wordmark-text{font-family:var(--serif);font-weight:800;font-size:22px;color:var(--ink);letter-spacing:-0.01em;}
+.wordmark-byline{font-family:var(--mono);font-weight:600;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--primary);}
+.topnav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.topnav-mockname{font-size:13px;color:var(--ink-soft);padding:0 10px;border-right:1px solid var(--border);margin-right:2px;}
+.avatar-btn{width:34px;height:34px;border-radius:99px;background:var(--primary);color:var(--on-primary);border:none;font-family:var(--sans);font-weight:800;font-size:13.5px;display:inline-flex;align-items:center;justify-content:center;flex:none;margin-left:2px;transition:background .15s, transform .1s;}
+.avatar-btn:hover{background:var(--primary-strong);}
+.avatar-btn:active{transform:translateY(1px);}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:10px 18px;border-radius:8px;border:1px solid transparent;
+  font-size:14px;font-weight:600;line-height:1;white-space:nowrap;
+  transition:background .15s, border-color .15s, color .15s, transform .1s;
+}
+.btn:active{transform:translateY(1px);}
+.btn-primary{background:var(--primary);color:var(--on-primary);}
+.btn-primary:hover{background:var(--primary-strong);}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--border);}
+.btn-ghost:hover{background:var(--surface-2);border-color:var(--ink-faint);}
+.btn-text{background:none;border:none;color:var(--primary);font-weight:600;font-size:14px;padding:6px 4px;}
+.btn-sm{padding:7px 12px;font-size:13px;border-radius:7px;}
+.btn-danger{background:transparent;color:var(--danger);border-color:var(--danger);}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+
+/* ---------- Landing ---------- */
+.hero{padding:64px 0 40px;}
+.hero-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--primary);margin-bottom:16px;}
+.hero h1{font-size:clamp(30px,5vw,46px);line-height:1.12;max-width:14ch;}
+.hero-sub{margin-top:18px;font-size:17px;color:var(--ink-soft);max-width:52ch;line-height:1.6;}
+.hero-cta{margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+.loop{
+  margin-top:52px;display:flex;align-items:center;gap:0;flex-wrap:wrap;
+  border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden;
+}
+.loop-step{flex:1 1 140px;padding:20px 18px;position:relative;}
+.loop-step + .loop-step{border-left:1px solid var(--border-soft);}
+.loop-num{font-family:var(--mono);font-size:11px;color:var(--ink-faint);}
+.loop-label{font-family:var(--serif);font-weight:600;font-size:16px;margin-top:6px;}
+.loop-desc{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
+
+.section{padding:56px 0;border-top:1px solid var(--border-soft);}
+.section h2{font-size:24px;}
+.section-lead{color:var(--ink-soft);margin-top:8px;max-width:56ch;font-size:14.5px;}
+.causes-grid{margin-top:28px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+.cause-card{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:16px;}
+.cause-num{font-family:var(--mono);color:var(--primary);font-size:13px;}
+.cause-title{font-family:var(--serif);font-weight:600;font-size:15.5px;margin-top:6px;}
+.cause-desc{font-size:13px;color:var(--ink-soft);margin-top:5px;}
+.sd-wrap{margin-top:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;}
+.sd-card{border:1px solid var(--border);background:var(--surface-2);border-radius:14px;padding:18px;}
+.sd-card h3{font-size:16px;}
+.sd-card ol{margin:10px 0 0;padding-left:18px;font-size:13.5px;color:var(--ink-soft);line-height:1.7;}
+.footnote{padding:28px 0 60px;font-size:12.5px;color:var(--ink-faint);border-top:1px solid var(--border-soft);}
+
+/* ---------- Cards / surfaces ---------- */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;}
+.card + .card{margin-top:14px;}
+.field{margin-bottom:18px;}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em;}
+.field input[type=text],.field input[type=number],.field input[type=date],.field textarea{
+  width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--ink);
+}
+.field input:focus,.field textarea:focus,.field select:focus{outline:2px solid var(--primary);outline-offset:1px;}
+.field-hint{font-size:12px;color:var(--ink-faint);margin-top:5px;}
+.field-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;}
+.form-title{font-size:21px;margin-bottom:4px;}
+.form-sub{color:var(--ink-soft);font-size:13.5px;margin-bottom:24px;}
+
+/* ---------- Chips (radios) ---------- */
+.chiprow{display:flex;flex-wrap:wrap;gap:7px;}
+.chip{position:relative;}
+.chip input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;}
+.chip span{
+  display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:99px;
+  border:1px solid var(--border);font-size:12.5px;color:var(--ink-soft);background:var(--surface);
+  transition:all .12s;
+}
+.chip input:checked + span{background:var(--primary);border-color:var(--primary);color:var(--on-primary);font-weight:600;}
+.chip input:focus-visible + span{outline:2px solid var(--primary);outline-offset:2px;}
+.chip .num{font-family:var(--mono);opacity:.8;font-size:11px;}
+
+/* ---------- Question analysis ---------- */
+.progressbar{height:6px;border-radius:99px;background:var(--border-soft);overflow:hidden;margin:14px 0 26px;}
+.progressbar-fill{height:100%;background:var(--primary);transition:width .2s;}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;}
+.qcard{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:16px;}
+.qcard-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.qnum{font-family:var(--mono);font-weight:600;font-size:13px;color:var(--ink);}
+.qcard select{border:1px solid var(--border);border-radius:6px;padding:5px 8px;background:var(--surface);font-size:12.5px;}
+.qcard .subrow{display:flex;gap:8px;margin-bottom:10px;}
+.qcard .subrow input[type=text]{flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:6px;font-size:12.5px;}
+.qcard .subrow input[type=number]{width:64px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12.5px;}
+.qcard-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint);margin:10px 0 6px;}
+.qcard-label:first-of-type{margin-top:0;}
+.reasons{display:block;}
+.qcard:has(input[value="correct"]:checked) .reasons{display:none;}
+.qcard.done{border-color:var(--good);background:color-mix(in srgb, var(--good-soft) 55%, var(--surface));}
+
+/* ---------- Diagnosis ---------- */
+.diag-hero{border:1px solid var(--primary-soft);background:var(--primary-soft);border-radius:12px;padding:20px 22px;margin-bottom:22px;}
+.diag-hero p{color:var(--ink);font-size:14.5px;line-height:1.6;}
+.diag-hero b{font-family:var(--serif);}
+.catlist{display:flex;flex-direction:column;gap:12px;}
+.catrow{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:18px 20px;display:flex;gap:18px;align-items:flex-start;}
+.catrank{font-family:var(--serif);font-weight:700;font-size:20px;color:var(--ink-faint);width:28px;flex:none;}
+.catrow-body{flex:1;min-width:0;}
+.catrow-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+.cattitle{font-family:var(--serif);font-weight:600;font-size:17px;}
+.priority-pill{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:3px 8px;border-radius:99px;}
+.priority-high{background:var(--danger-soft);color:var(--danger);}
+.priority-medium{background:var(--warn-soft);color:var(--warn);}
+.priority-low{background:var(--good-soft);color:var(--good);}
+.catdesc{font-size:13.5px;color:var(--ink-soft);margin-top:4px;}
+.catmeta{display:flex;gap:18px;margin-top:10px;flex-wrap:wrap;}
+.catmeta div{font-size:12px;color:var(--ink-faint);}
+.catmeta b{display:block;font-family:var(--mono);font-size:15px;color:var(--ink);font-weight:600;}
+.catbar-track{height:6px;background:var(--border-soft);border-radius:99px;margin-top:12px;overflow:hidden;}
+.catbar-fill{height:100%;background:var(--primary);}
+
+/* ---------- Readiness radar ---------- */
+.radar-section{display:flex;gap:30px;flex-wrap:wrap;align-items:center;}
+.radar-chart-wrap{flex:none;line-height:0;}
+.radar-side{flex:1 1 220px;min-width:200px;}
+.radar-stat-label{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint);}
+.radar-stat-value{font-family:var(--sans);font-weight:700;font-size:50px;color:var(--ink);line-height:1;margin-top:6px;}
+.radar-stat-value sup{font-size:19px;font-weight:600;color:var(--ink-faint);margin-left:2px;top:-.6em;}
+.radar-stat-note{font-size:12.5px;color:var(--ink-soft);margin-top:10px;max-width:34ch;line-height:1.55;}
+.radar-legend{display:flex;gap:16px;margin-top:14px;flex-wrap:wrap;}
+.radar-legend-item{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-soft);}
+.legend-swatch{width:11px;height:11px;border-radius:99px;flex:none;display:inline-block;}
+.legend-swatch.hollow{background:transparent;border:2px solid var(--ink-faint);}
+.legend-swatch.filled{background:var(--primary);}
+.radar-mini-table{margin-top:16px;}
+
+/* ---------- Plan / calendar ---------- */
+.plan-summary{display:flex;gap:24px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.plan-progress-ring{display:flex;align-items:center;gap:10px;}
+.plan-progress-num{font-family:var(--serif);font-size:28px;font-weight:700;}
+.daylist{display:flex;flex-direction:column;gap:12px;}
+.daycard{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:16px 18px;}
+.daycard.special{background:var(--primary-soft);border-color:var(--primary-soft);}
+.daycard-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+.daycard-title{font-family:var(--serif);font-weight:600;font-size:15.5px;}
+.daycard-date{font-size:12px;color:var(--ink-faint);font-family:var(--mono);}
+.block{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-top:1px solid var(--border-soft);cursor:pointer;}
+.block:first-of-type{border-top:none;}
+.block:hover .block-title{color:var(--primary);}
+.block-check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border);flex:none;margin-top:1px;display:flex;align-items:center;justify-content:center;}
+.block-check.checked{background:var(--good);border-color:var(--good);color:#fff;}
+.block-dot{width:7px;height:7px;border-radius:99px;flex:none;margin-top:6px;}
+.block-body{flex:1;min-width:0;}
+.block-title{font-size:13.5px;font-weight:600;color:var(--ink);}
+.block-title.done{text-decoration:line-through;color:var(--ink-faint);}
+.block-why{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+.block-time{font-size:11.5px;color:var(--ink-faint);font-family:var(--mono);flex:none;margin-top:2px;}
+.day-cta{margin-top:12px;}
+
+/* ---------- Task overlay ---------- */
+.overlay-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:80;display:flex;justify-content:flex-end;}
+.overlay-panel{width:min(440px,100%);background:var(--surface);height:100%;overflow-y:auto;padding:26px 24px 40px;box-shadow:-8px 0 30px hsl(var(--shadow-color) / .25);}
+.overlay-close{background:none;border:none;color:var(--ink-faint);font-size:14px;margin-bottom:18px;padding:4px 0;}
+.timer-box{border:1px solid var(--border);border-radius:14px;background:var(--surface-2);padding:18px;text-align:center;margin:18px 0;}
+.timer-num{font-family:var(--mono);font-size:38px;font-weight:600;letter-spacing:.02em;}
+.timer-controls{display:flex;gap:8px;justify-content:center;margin-top:12px;}
+.checklist{list-style:none;padding:0;margin:14px 0;display:flex;flex-direction:column;gap:8px;}
+.checklist li{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--ink-soft);}
+.checklist input{margin-top:3px;}
+
+/* ---------- Compare table ---------- */
+.tablewrap{overflow-x:auto;border:1px solid var(--border);border-radius:14px;}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:480px;}
+th,td{text-align:left;padding:11px 16px;border-bottom:1px solid var(--border-soft);}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint);background:var(--surface-2);}
+td.num{font-family:var(--mono);text-align:right;}
+td.change-pos{color:var(--good);font-weight:600;}
+td.change-neg{color:var(--danger);font-weight:600;}
+tr:last-child td{border-bottom:none;}
+
+/* ---------- misc ---------- */
+.banner{border:1px solid var(--warn);background:var(--warn-soft);color:var(--warn);border-radius:9px;padding:12px 16px;font-size:13px;margin-bottom:20px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;}
+.page{padding:36px 0 64px;}
+.page-back{font-size:13px;color:var(--ink-soft);background:none;border:none;padding:0 0 18px;display:inline-flex;align-items:center;gap:5px;}
+.helper{font-size:12.5px;color:var(--ink-faint);margin-top:20px;}
+.divider{height:1px;background:var(--border-soft);margin:26px 0;}
+.empty{text-align:center;padding:60px 20px;color:var(--ink-soft);}
+.pwa-install-btn{
+  position:fixed;right:18px;bottom:18px;z-index:60;
+  display:inline-flex;align-items:center;gap:8px;
+  padding:11px 18px;border-radius:99px;border:none;
+  background:var(--primary);color:var(--on-primary);
+  font-family:var(--sans);font-weight:700;font-size:13.5px;
+  box-shadow:0 8px 24px hsl(var(--shadow-color) / .4);
+  cursor:pointer;
+}
+.pwa-install-btn:hover{background:var(--primary-strong);}
+@media (max-width:640px){
+  .pwa-install-btn{right:14px;bottom:14px;padding:10px 16px;font-size:13px;}
+}
+@media (max-width:640px){
+  .catrow{flex-direction:column;gap:8px;}
+  .catrank{width:auto;}
+  .qgrid{grid-template-columns:1fr;}
+}
+</style>
+
+<div id="app"></div>
+<button id="pwaInstallBtn" class="pwa-install-btn" hidden>⬇ Install app</button>
+
+<script>
+(function(){
+"use strict";
+
+var LOGO_DATA_URI = 'data:image/png;base64,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';
+
+var CATEGORIES = [
+  {id:'language', label:'Language', product:'Textbook clarity session', desc:'Struggled with the wording, terms, or exact phrasing of the question.'},
+  {id:'situation', label:'Situation', product:'Situation decoding drill', desc:"Understood the words, but couldn't visualise or interpret the physical situation."},
+  {id:'approach', label:'Approach', product:'Approach-building drill', desc:"Understood the question but couldn't find where to start."},
+  {id:'formula', label:'Formula / Law', product:'Formula recall & derivation', desc:"Knew the approach but couldn't recall the formula, law, or condition."},
+  {id:'silly', label:'Silly / Calculation', product:'20-minute accuracy test mode', desc:'Knew the method but lost marks during execution.'},
+  {id:'time', label:'Time management', product:'Search-and-Destroy time drill', desc:'Could solve it, but spent time badly, started late, or ran out.'}
+];
+var CAT_BY_ID = {}; CATEGORIES.forEach(function(c){ CAT_BY_ID[c.id]=c; });
+
+var RESULTS = [
+  {id:'correct', label:'Correct'},
+  {id:'wrong', label:'Wrong'},
+  {id:'left', label:'Left / Unattempted'},
+  {id:'slow', label:'Correct, too slow'},
+  {id:'guessed', label:'Correct, guessed'}
+];
+
+var CP_RESULTS = [
+  {id:'correct', label:'Correct'},
+  {id:'wrong', label:'Wrong'},
+  {id:'left', label:'Left'}
+];
+
+var WEIGHTS = {
+  wrong:{primary:1.0, secondary:0.4},
+  left:{primary:1.2, secondary:0.5},
+  slow:{primary:0.6, secondary:0.25},
+  guessed:{primary:0.7, secondary:0.3}
+};
+
+var SUBJECTS = ['Physics','Chemistry','Mathematics'];
+var STORE_KEY = 'mtm_state_v1';
+var NUM_Q = 25;
+
+/* ---------------- state ---------------- */
+function emptyState(){
+  return { route:'landing', routeParams:{}, mocks:[], plans:[], demo:false, profile:{name:'',examTarget:''} };
+}
+var state = load();
+
+function load(){
+  try{
+    var raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return emptyState();
+    var parsed = JSON.parse(raw);
+    if(!parsed || !Array.isArray(parsed.mocks)) return emptyState();
+    parsed.route = 'landing'; parsed.routeParams = {}; parsed.demo=false;
+    if(!parsed.profile) parsed.profile = {name:'',examTarget:''};
+    return parsed;
+  }catch(e){ return emptyState(); }
+}
+function persist(){
+  if(state.demo) return;
+  try{
+    var toSave = {mocks:state.mocks, plans:state.plans, profile:state.profile};
+    localStorage.setItem(STORE_KEY, JSON.stringify(toSave));
+  }catch(e){ /* storage unavailable - continue in-memory */ }
+}
+function uid(){ return Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4); }
+
+function findMock(id){ return state.mocks.find(function(m){return m.id===id;}); }
+function findPlan(mockId){ return state.plans.find(function(p){return p.mockId===mockId;}); }
+
+/* ---------------- scoring / allocation ---------------- */
+function computeScores(questions){
+  var scores={}, affected={};
+  CATEGORIES.forEach(function(c){ scores[c.id]=0; affected[c.id]=new Set(); });
+  questions.forEach(function(q, idx){
+    if(!q.result || q.result==='correct') return;
+    var w = WEIGHTS[q.result]; if(!w) return;
+    if(q.primary && scores.hasOwnProperty(q.primary)){ scores[q.primary]+=w.primary; affected[q.primary].add(idx); }
+    if(q.secondary && scores.hasOwnProperty(q.secondary)){ scores[q.secondary]+=w.secondary; affected[q.secondary].add(idx); }
+  });
+  return CATEGORIES.map(function(c){
+    return {id:c.id, label:c.label, product:c.product, desc:c.desc,
+      score: Math.round(scores[c.id]*100)/100, affectedCount: affected[c.id].size};
+  });
+}
+
+function finalizeAllocation(active, raw, base, remaining){
+  var floors = raw.map(Math.floor);
+  var used = floors.reduce(function(a,b){return a+b;},0);
+  var leftover = remaining - used;
+  var order = raw.map(function(r,i){ return {i:i, rem:r-floors[i]}; }).sort(function(a,b){ return b.rem-a.rem; });
+  for(var k=0;k<leftover;k++){ floors[order[k % order.length].i]+=1; }
+  return active.map(function(c,i){ return Object.assign({}, c, {blocks: base+floors[i]}); });
+}
+
+function allocateBlocks(catScores, totalBlocks, basePerCat){
+  var active = catScores.filter(function(c){ return c.score>0; });
+  if(active.length===0) return [];
+  var baseTotal = active.length*basePerCat;
+  var base = basePerCat;
+  var remaining = totalBlocks - baseTotal;
+  if(remaining < 0){ base = 1; remaining = totalBlocks - active.length; }
+  var totalScore = active.reduce(function(s,c){ return s+c.score; },0);
+  var raw = active.map(function(c){ return totalScore>0 ? remaining*c.score/totalScore : remaining/active.length; });
+  return finalizeAllocation(active, raw, base, remaining);
+}
+
+function scheduleBlocks(allocation, days, slotsPerDay){
+  var pool=[];
+  allocation.forEach(function(a){ for(var i=0;i<a.blocks;i++) pool.push(a.id); });
+  var totalSlots = days*slotsPerDay;
+  while(pool.length < totalSlots) pool.push('mixed');
+  var counts={}; pool.forEach(function(id){ counts[id]=(counts[id]||0)+1; });
+  var schedule=[], prev=null;
+  for(var s=0;s<totalSlots;s++){
+    var candidates = Object.keys(counts).filter(function(id){ return counts[id]>0; });
+    candidates.sort(function(a,b){ return counts[b]-counts[a]; });
+    var choice = candidates.filter(function(id){ return id!==prev; })[0];
+    if(choice===undefined) choice = candidates[0];
+    counts[choice]--; schedule.push(choice); prev=choice;
+  }
+  return schedule;
+}
+
+function chaptersForCategory(questions, catId){
+  var list=[];
+  questions.forEach(function(q){
+    if(q.result && q.result!=='correct' && (q.primary===catId || q.secondary===catId) && q.chapter && q.chapter.trim()){
+      list.push(q.chapter.trim());
+    }
+  });
+  return list;
+}
+
+function blockContent(catId, chapter){
+  switch(catId){
+    case 'language': return {title:'Textbook clarity session', time:30,
+      instr:'Read the NCERT (or your primary textbook) section on '+(chapter||'the topic that tripped you up')+' for at least 30 minutes. Focus only on definitions, stated conditions and exact wording — not problem-solving.',
+      checks:['Wrote 3 key statements or conditions in your own words','Underlined every technical term you were unsure of','Re-read the original mock question — does it make sense now?']};
+    case 'situation': return {title:'Situation decoding drill', time:35,
+      instr:'Solve 2 unfamiliar situation-based questions'+(chapter?(' from '+chapter):'')+'. Before attempting each, write down: known information, unknown quantity, a quick diagram, and the applicable principle — in that order.',
+      checks:['Identified known vs unknown before solving','Sketched or visualised the situation first','Named the applicable principle before calculating anything']};
+    case 'approach': return {title:'Approach-building drill', time:35,
+      instr:'Attempt 2 unfamiliar questions'+(chapter?(' from '+chapter):'')+'. Spend at least 15 minutes on each before looking at any hint or solution.',
+      checks:['Recorded your first attempted step','Recorded the actual first useful step, after checking','Noted the method that was ultimately needed']};
+    case 'formula': return {title:'Formula recall & derivation', time:30,
+      instr:'Revise the formula or law you missed'+(chapter?(' in '+chapter):'')+'. Derive it from first principles where possible, then close your notes and test recall from memory alone.',
+      checks:['Built a formula card: formula, meaning, conditions, derivation cue','Recalled it once with notes fully closed','Reapplied it to the original mock question']};
+    case 'silly': return {title:'20-minute accuracy test mode', time:20,
+      instr:'Solve 10 questions'+(chapter?(' covering '+chapter+' and similar topics'):'')+' in 20 minutes — no notes, no hints, no pausing. After the set, label every error: sign, unit, arithmetic, reading, option-marking, or setup.',
+      checks:['Completed all 10 within 20 minutes with no outside help','Labelled every error by its exact type','Noted the single most frequent error type below']};
+    case 'time': return {title:'Search-and-Destroy time drill', time:40,
+      instr:'Run one timed set under exam conditions. First pass: classify every question A (fast), B (solvable, slower) or C (unclear). Solve all A questions first, then B in order of expected marks per minute. Leave C for last, and reserve the final 5–10 minutes only for checking.',
+      checks:['Classified every question before solving any of them','Solved A questions first, then B by marks-per-minute','Reserved at least 5 minutes purely for checking']};
+    default: return {title:'Mixed spaced-revision block', time:30,
+      instr:'No single category dominated here — use this block for a short mixed-topic revision set covering whatever feels least fresh in your notes.',
+      checks:['Reviewed at least two different chapters','Flagged anything that needs a longer look later']};
+  }
+}
+
+/* ---------------- readiness radar ---------------- */
+function computePreparedness(mock){
+  var scores = computeScores(mock.questions);
+  var n = mock.numQuestions || NUM_Q;
+  var items = CATEGORIES.map(function(c){
+    var s = scores.find(function(x){ return x.id===c.id; });
+    var raw = 100 - (s.score / n * 100);
+    var prep = Math.round(Math.max(0, Math.min(100, raw)));
+    return {id:c.id, label:c.label, prep:prep};
+  });
+  var overall = Math.round(items.reduce(function(a,b){ return a+b.prep; },0) / items.length);
+  return {items:items, overall:overall};
+}
+
+function hexPt(cx,cy,R,axisIndex,value){
+  var angle = (-90 + axisIndex*60) * Math.PI/180;
+  var r = (Math.max(0,Math.min(100,value))/100) * R;
+  return [cx + r*Math.cos(angle), cy + r*Math.sin(angle)];
+}
+function ptsStr(pts){ return pts.map(function(p){ return p[0].toFixed(1)+','+p[1].toFixed(1); }).join(' '); }
+
+function buildRadarSVG(series, opts){
+  opts = opts || {};
+  var size=272, cx=size/2, cy=size/2-4, R=86;
+  var svg = '<svg viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'" role="img" aria-label="'+esc(opts.ariaLabel||'Preparedness across six fronts')+'">';
+  [25,50,75,100].forEach(function(ring){
+    var pts = CATEGORIES.map(function(c,i){ return hexPt(cx,cy,R,i,ring); });
+    svg += '<polygon points="'+ptsStr(pts)+'" style="fill:none;stroke:var(--border);stroke-width:1;" />';
+  });
+  CATEGORIES.forEach(function(c,i){
+    var edge = hexPt(cx,cy,R,i,100);
+    svg += '<line x1="'+cx+'" y1="'+cy+'" x2="'+edge[0].toFixed(1)+'" y2="'+edge[1].toFixed(1)+'" style="stroke:var(--border);stroke-width:1;" />';
+    var lp = hexPt(cx,cy,R+26,i,100);
+    var angle = -90 + i*60;
+    var cosA = Math.cos(angle*Math.PI/180);
+    var anchor = cosA>0.3 ? 'start' : (cosA<-0.3 ? 'end' : 'middle');
+    var dy = (angle===-90) ? -2 : (angle===90 ? 11 : 4);
+    svg += '<text x="'+lp[0].toFixed(1)+'" y="'+(lp[1]+dy).toFixed(1)+'" text-anchor="'+anchor+'" style="font-family:var(--sans);font-size:10.5px;fill:var(--ink-soft);">'+esc(c.label)+'</text>';
+  });
+  series.forEach(function(s){
+    var pts = s.values.map(function(v,i){ return hexPt(cx,cy,R,i,v); });
+    if(s.filled){
+      svg += '<polygon points="'+ptsStr(pts)+'" style="fill:var('+s.colorVar+');fill-opacity:0.14;stroke:var('+s.colorVar+');stroke-width:2;stroke-linejoin:round;" />';
+    } else {
+      svg += '<polygon points="'+ptsStr(pts)+'" style="fill:none;stroke:var('+s.colorVar+');stroke-width:2;stroke-linejoin:round;" />';
+    }
+    pts.forEach(function(p){
+      svg += '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="4.5" style="fill:var('+s.colorVar+');stroke:var(--surface);stroke-width:2;" />';
+    });
+  });
+  var last = series[series.length-1];
+  if(last){
+    var minIdx=0; last.values.forEach(function(v,i){ if(v<last.values[minIdx]) minIdx=i; });
+    var out = hexPt(cx,cy,R+13,minIdx,100);
+    svg += '<text x="'+out[0].toFixed(1)+'" y="'+out[1].toFixed(1)+'" text-anchor="middle" style="font-family:var(--mono);font-size:11px;font-weight:600;fill:var(--ink);">'+last.values[minIdx]+'</text>';
+  }
+  svg += '</svg>';
+  return svg;
+}
+function radarLegendHtml(items){
+  return '<div class="radar-legend">'+items.map(function(it){
+    return '<div class="radar-legend-item"><span class="legend-swatch '+it.cls+'"></span>'+esc(it.label)+'</div>';
+  }).join('')+'</div>';
+}
+
+function priorityForRank(rank){
+  if(rank<=2) return 'high';
+  if(rank<=4) return 'medium';
+  return 'low';
+}
+
+/* ---------------- plan generation ---------------- */
+function buildPlan(mock){
+  var scores = computeScores(mock.questions);
+  var allocation = allocateBlocks(scores, 24, 2);
+  var schedule = scheduleBlocks(allocation, 12, 2); // 24 slots -> days 2..13
+  var perCatIndex = {};
+  var startDate = new Date(mock.date || Date.now());
+  var blocks = schedule.map(function(catId, i){
+    var day = 2 + Math.floor(i/2); // 2..13
+    perCatIndex[catId] = (perCatIndex[catId]||0);
+    var chapters = catId==='mixed' ? [] : chaptersForCategory(mock.questions, catId);
+    var chapter = chapters.length ? chapters[perCatIndex[catId] % chapters.length] : null;
+    perCatIndex[catId]++;
+    var content = blockContent(catId, chapter);
+    var d = new Date(startDate); d.setDate(d.getDate() + (day-1));
+    return {
+      id: uid(), day:day, slot: (i%2), catId:catId,
+      title: content.title, timeMin: content.time, instr: content.instr, checks: content.checks,
+      chapter: chapter, dateLabel: fmtDate(d),
+      completed:false, reflection:''
+    };
+  });
+  return {
+    id: uid(), mockId: mock.id, startDate: mock.date,
+    blocks: blocks, checkpointDone:false, checkpointQuestions:null,
+    followupMockId:null
+  };
+}
+
+function reallocateFromCheckpoint(plan, checkpointQuestions){
+  var scores = computeScores(checkpointQuestions.map(function(q){ return {result:q.result, primary:q.primary, secondary:null}; }));
+  var allocation = allocateBlocks(scores, 12, 1); // days 8-13, 2 slots x 6 days
+  var schedule = scheduleBlocks(allocation, 6, 2);
+  var perCatIndex = {};
+  var mock = findMock(plan.mockId);
+  var startDate = new Date(plan.startDate || Date.now());
+  var newBlocks = schedule.map(function(catId, i){
+    var day = 8 + Math.floor(i/2);
+    perCatIndex[catId] = (perCatIndex[catId]||0);
+    var chapters = catId==='mixed' ? [] : chaptersForCategory(mock.questions, catId);
+    var chapter = chapters.length ? chapters[perCatIndex[catId] % chapters.length] : null;
+    perCatIndex[catId]++;
+    var content = blockContent(catId, chapter);
+    var d = new Date(startDate); d.setDate(d.getDate() + (day-1));
+    return {
+      id: uid(), day:day, slot:(i%2), catId:catId,
+      title: content.title, timeMin: content.time, instr: content.instr, checks: content.checks,
+      chapter: chapter, dateLabel: fmtDate(d),
+      completed:false, reflection:''
+    };
+  });
+  plan.blocks = plan.blocks.filter(function(b){ return b.day<8; }).concat(newBlocks);
+  plan.checkpointDone = true;
+  plan.checkpointQuestions = checkpointQuestions;
+}
+
+/* ---------------- helpers ---------------- */
+function fmtDate(d){
+  if(!(d instanceof Date)) d = new Date(d);
+  if(isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+}
+function esc(s){ return (s===undefined||s===null) ? '' : String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function pct(n){ return Math.round(n*10)/10; }
+
+function demoMock(){
+  var subs=['Physics','Chemistry','Mathematics'], chapters={
+    Physics:['Rotational Motion','Electrostatics','Modern Physics','Kinematics'],
+    Chemistry:['Chemical Bonding','Equilibrium','Organic — GOC'],
+    Mathematics:['Probability','Coordinate Geometry','Definite Integrals']
+  };
+  var pattern = [
+    ['wrong','approach','formula'],['correct',null,null],['left','time',null],['wrong','silly','approach'],
+    ['slow','time',null],['wrong','approach',null],['correct',null,null],['wrong','formula','silly'],
+    ['guessed','approach',null],['wrong','approach','situation'],['correct',null,null],['left','time',null],
+    ['wrong','silly',null],['wrong','approach','formula'],['correct',null,null],['slow','time','silly'],
+    ['wrong','formula',null],['left','approach',null],['correct',null,null],['wrong','silly',null],
+    ['guessed','approach','language'],['wrong','approach',null],['correct',null,null],['left','time','approach'],
+    ['wrong','language',null]
+  ];
+  var qs = pattern.map(function(p,i){
+    var subject = subs[i%3];
+    var chs = chapters[subject];
+    return {result:p[0], subject:subject, chapter:chs[i%chs.length], time:p[0]==='left'?null:(2+(i%5)), primary:p[1], secondary:p[2]};
+  });
+  return {id:'demo', name:'ALLEN Test Series — Mock 4 (example)', date: new Date().toISOString().slice(0,10),
+    marksScored:124, targetMarks:180, duration:180, marksPerQ:4, negMarks:1, role:'initial', numQuestions:NUM_Q, questions:qs, createdAt:Date.now()};
+}
+
+/* ---------------- routing ---------------- */
+function nav(route, params){ state.route=route; state.routeParams=params||{}; persist(); render(); window.scrollTo(0,0); }
+
+var App = {
+  toLanding: function(){ state.demo=false; nav('landing'); },
+  toCreate: function(el){ nav('create', {role: el && el.dataset.role || 'initial', forMockId: el && el.dataset.forMockId || null}); },
+  toDiagnosis: function(el){ nav('diagnosis', {mockId: el.dataset.id}); },
+  toAnalyze: function(el){ nav('analyze', {mockId: el.dataset.id}); },
+  toCalendar: function(el){ nav('calendar', {mockId: el.dataset.id}); },
+  toCompare: function(el){ nav('compare', {mockId: el.dataset.id}); },
+
+  loadDemo: function(){
+    state.demo = true;
+    var m = demoMock();
+    var existing = state.mocks.filter(function(x){return x.id!=='demo';});
+    state.mocks = existing.concat([m]);
+    var plan = buildPlan(m); plan.id='demo-plan';
+    state.plans = state.plans.filter(function(p){return p.mockId!=='demo';}).concat([plan]);
+    nav('diagnosis', {mockId:'demo'});
+  },
+  exitDemo: function(){
+    state.demo=false;
+    state.mocks = state.mocks.filter(function(m){return m.id!=='demo';});
+    state.plans = state.plans.filter(function(p){return p.mockId!=='demo';});
+    nav('landing');
+  },
+
+  submitCreate: function(){
+    var g = function(id){ return document.getElementById(id); };
+    var name = g('f_name').value.trim() || 'Untitled mock';
+    var role = state.routeParams.role || 'initial';
+    var mock = {
+      id: uid(), name:name, date: g('f_date').value || new Date().toISOString().slice(0,10),
+      marksScored: Number(g('f_scored').value)||0, targetMarks: Number(g('f_target').value)||0,
+      duration: Number(g('f_duration').value)||180,
+      marksPerQ: Number(g('f_mpq').value)||4, negMarks: Number(g('f_neg').value)||1,
+      role: role, numQuestions: NUM_Q,
+      questions: Array.from({length:NUM_Q}, function(){ return {result:'', subject:'Physics', chapter:'', time:null, primary:null, secondary:null}; }),
+      createdAt: Date.now(), linkedMockId: state.routeParams.forMockId||null
+    };
+    state.mocks.push(mock);
+    persist();
+    nav('analyze', {mockId:mock.id});
+  },
+
+  fieldChange: function(target){
+    var path = target.dataset.field; if(!path) return;
+    var parts = path.split('.');
+    if(parts[0]==='q'){
+      var qi = Number(parts[1]), field = parts[2];
+      var mockId = state.routeParams.mockId;
+      var mock = findMock(mockId); if(!mock) return;
+      var q = mock.questions[qi];
+      var val = target.value;
+      if(field==='time') val = val===''? null : Number(val);
+      if((field==='primary'||field==='secondary') && val==='') val=null;
+      if(field==='primary' && q.secondary===val) q.secondary=null;
+      q[field]=val;
+      if(field==='result' && val==='correct'){
+        q.primary=null; q.secondary=null;
+        var card = document.getElementById('qcard-'+qi);
+        if(card){ card.querySelectorAll('.reasons input[type=radio]').forEach(function(r){ r.checked = (r.value===''); }); }
+      }
+      persist();
+      App.refreshProgress();
+      if(field==='result'){ App.refreshCardDone(qi); }
+    }
+    if(parts[0]==='cp'){
+      var idx=Number(parts[1]), f=parts[2];
+      var cp = state.routeParams._cpDraft;
+      if(!cp) return;
+      var val2 = target.value;
+      if(f==='primary' && val2==='') val2=null;
+      cp[idx][f]=val2;
+      if(f==='result' && val2!=='wrong' && val2!=='left'){ cp[idx].primary=null; }
+      render();
+    }
+  },
+  refreshProgress: function(){
+    var mock = findMock(state.routeParams.mockId); if(!mock) return;
+    var done = mock.questions.filter(function(q){return q.result;}).length;
+    var badge = document.getElementById('progressBadge');
+    if(badge) badge.textContent = done+' of '+NUM_Q+' completed';
+    var fill = document.getElementById('progressFill');
+    if(fill) fill.style.width = (done/NUM_Q*100)+'%';
+    var btn = document.getElementById('genPlanBtn');
+    if(btn) btn.disabled = done < NUM_Q;
+  },
+  refreshCardDone: function(qi){
+    var mock = findMock(state.routeParams.mockId); if(!mock) return;
+    var card = document.getElementById('qcard-'+qi);
+    if(card){ card.classList.toggle('done', !!mock.questions[qi].result); }
+  },
+
+  generatePlan: function(){
+    var mock = findMock(state.routeParams.mockId); if(!mock) return;
+    var incomplete = mock.questions.some(function(q){return !q.result;});
+    if(incomplete) return;
+    if(mock.role==='followup'){
+      persist();
+      nav('compare', {mockId: mock.linkedMockId, followupId: mock.id});
+      return;
+    }
+    var plan = buildPlan(mock);
+    state.plans.push(plan);
+    persist();
+    nav('diagnosis', {mockId:mock.id});
+  },
+
+  openTask: function(el){
+    state.routeParams.taskId = el.dataset.id;
+    render();
+  },
+  closeTask: function(){
+    delete state.routeParams.taskId;
+    render();
+  },
+  toggleComplete: function(el){
+    var plan = findPlan(state.routeParams.mockId); if(!plan) return;
+    var block = plan.blocks.find(function(b){return b.id===el.dataset.id;});
+    if(!block) return;
+    block.completed = !block.completed;
+    if(block.completed){
+      var ta = document.getElementById('reflectInput');
+      if(ta) block.reflection = ta.value;
+    }
+    persist();
+    delete state.routeParams.taskId;
+    render();
+  },
+
+  startCheckpoint: function(){
+    state.routeParams._cpDraft = Array.from({length:8}, function(){ return {result:'', primary:null}; });
+    state.routeParams.checkpointMode = true;
+    render();
+  },
+  cancelCheckpoint: function(){
+    delete state.routeParams._cpDraft;
+    delete state.routeParams.checkpointMode;
+    render();
+  },
+  submitCheckpoint: function(){
+    var cp = state.routeParams._cpDraft;
+    var incomplete = !cp || cp.some(function(q){
+      if(!q.result) return true;
+      if((q.result==='wrong'||q.result==='left') && !q.primary) return true;
+      return false;
+    });
+    if(incomplete) return;
+    var plan = findPlan(state.routeParams.mockId); if(!plan) return;
+    reallocateFromCheckpoint(plan, cp);
+    persist();
+    delete state.routeParams._cpDraft;
+    delete state.routeParams.checkpointMode;
+    render();
+  },
+
+  startFresh: function(){
+    if(!window.confirm('Clear all saved mocks and plans on this device? This cannot be undone.')) return;
+    state = emptyState();
+    persist();
+    try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+    nav('landing');
+  },
+
+  openProfile: function(){ state.routeParams.profileOpen = true; render(); },
+  closeProfile: function(){ delete state.routeParams.profileOpen; render(); },
+  saveProfile: function(){
+    var g = function(id){ return document.getElementById(id); };
+    state.profile = state.profile || {};
+    state.profile.name = (g('p_name').value||'').trim();
+    state.profile.examTarget = (g('p_target').value||'').trim();
+    persist();
+    delete state.routeParams.profileOpen;
+    render();
+  }
+};
+window.App = App;
+
+/* ---------------- render: shared chrome ---------------- */
+function topbar(){
+  var mock = state.routeParams.mockId ? findMock(state.routeParams.mockId) : null;
+  var mockLabel = mock ? '<span class="topnav-mockname">'+esc(mock.name)+'</span>' : '';
+  var nav2 = mock ? (
+    '<button class="btn btn-ghost btn-sm" data-action="toDiagnosis" data-id="'+mock.id+'">Diagnosis</button>'+
+    (findPlan(mock.id) ? '<button class="btn btn-ghost btn-sm" data-action="toCalendar" data-id="'+mock.id+'">14-day plan</button>' : '')
+  ) : '';
+  var profileName = (state.profile && state.profile.name) ? state.profile.name.trim() : '';
+  var initial = profileName ? profileName.charAt(0).toUpperCase() : '?';
+  var profileBtn = '<button class="avatar-btn" data-action="openProfile" title="'+(profileName?esc(profileName)+' — profile':'Set up your profile')+'">'+initial+'</button>';
+  return '<div class="topbar"><div class="topbar-inner">'+
+    '<button class="wordmark" data-action="toLanding"><img class="wordmark-logo" src="'+LOGO_DATA_URI+'" alt="ProDJEE logo">'+
+      '<span class="wordmark-text-wrap"><span class="wordmark-text">Mock-to-Marks</span><span class="wordmark-byline">by ProDJEE</span></span>'+
+    '</button>'+
+    '<div class="topnav">'+mockLabel+nav2+
+    '<button class="btn btn-primary btn-sm" data-action="toCreate">New mock</button>'+
+    (state.mocks.length ? '<button class="btn btn-ghost btn-sm" data-action="startFresh" title="Clear all data on this device">Start fresh</button>' : '')+
+    profileBtn+
+    '</div></div></div>';
+}
+
+function demoBanner(){
+  if(!state.demo) return '';
+  return '<div class="shell-wide" style="padding-top:16px;"><div class="banner">'+
+    '<span><b>Example data</b> — this walkthrough uses a made-up mock so you can see the full loop. Nothing here is saved.</span>'+
+    '<button class="btn btn-ghost btn-sm" data-action="exitDemo">Exit example</button>'+
+    '</div></div>';
+}
+
+/* ---------------- view: landing ---------------- */
+function viewLanding(){
+  var causes = [
+    ['1','Language',"Didn't understand what the question was saying."],
+    ['2','Situation',"Understood the words, not the picture."],
+    ['3','Approach',"Understood it, but didn't know where to start."],
+    ['4','Formula / law',"Knew the approach, forgot the formula."],
+    ['5','Silly mistake',"Knew it cold, lost it in execution."],
+    ['6','Time management',"Could solve it, spent the minutes badly."]
+  ];
+  return topbar() + '<div class="shell hero">'+
+    '<div class="hero-eyebrow">Post-mock recovery, not another test series</div>'+
+    '<h1>Stop repeating the same mock-test mistakes.</h1>'+
+    '<p class="hero-sub">Tell us why you lost marks in your last mock, and get a specific two-week practice plan built around your actual gaps — not a generic study schedule.</p>'+
+    '<div class="hero-cta">'+
+      '<button class="btn btn-primary" data-action="toCreate">Analyse my mock</button>'+
+      '<button class="btn btn-text" data-action="loadDemo">See a sample analysis →</button>'+
+    '</div>'+
+    '<div class="loop">'+
+      '<div class="loop-step"><div class="loop-num">01</div><div class="loop-label">Mock</div><div class="loop-desc">Log results for 25 questions, 10 minutes flat.</div></div>'+
+      '<div class="loop-step"><div class="loop-num">02</div><div class="loop-label">Diagnose</div><div class="loop-desc">Six root causes, ranked by marks lost.</div></div>'+
+      '<div class="loop-step"><div class="loop-num">03</div><div class="loop-label">Plan</div><div class="loop-desc">14 days, two focused blocks a day.</div></div>'+
+      '<div class="loop-step"><div class="loop-num">04</div><div class="loop-label">Retest</div><div class="loop-desc">Next mock, marks compared side by side.</div></div>'+
+    '</div>'+
+  '</div>'+
+  '<div class="section"><div class="shell">'+
+    '<h2>Six reasons students lose marks</h2>'+
+    '<p class="section-lead">Almost every lost mark traces back to one of these. We ask you to pick exactly one primary reason per question — no vague "I made a mistake."</p>'+
+    '<div class="causes-grid">'+ causes.map(function(c){
+      return '<div class="cause-card"><div class="cause-num">'+c[0]+'</div><div class="cause-title">'+c[1]+'</div><div class="cause-desc">'+c[2]+'</div></div>';
+    }).join('') +'</div>'+
+  '</div></div>'+
+  '<div class="section"><div class="shell">'+
+    '<h2>Search-and-Destroy, for time management</h2>'+
+    '<p class="section-lead">Time management isn’t "solve faster." It’s choosing the most recoverable marks first.</p>'+
+    '<div class="sd-wrap">'+
+      '<div class="sd-card"><h3>Step 1 — Search</h3><ol><li>Scan the section and mark each question A (fast), B (solvable, slower), or C (unclear).</li><li>Solve every A question first. Don’t get stuck on a hard one early.</li></ol></div>'+
+      '<div class="sd-card"><h3>Step 2 — Destroy</h3><ol><li>Return to B questions, highest marks-per-minute first.</li><li>Attempt only B questions with a clear first step.</li><li>Leave C for last; keep 5–10 minutes to check signs, units and options.</li></ol></div>'+
+    '</div>'+
+  '</div></div>'+
+  '<div class="shell footnote">MVP scope: manual entry for 25 questions per mock, no OCR or answer-sheet scanning yet. Built for JEE Main aspirants scoring roughly 100–150.</div>';
+}
+
+/* ---------------- view: create mock ---------------- */
+function viewCreate(){
+  var role = state.routeParams.role || 'initial';
+  var linked = state.routeParams.forMockId ? findMock(state.routeParams.forMockId) : null;
+  var suggestedName = linked ? (linked.name+' — Retest') : '';
+  var title = role==='followup' ? 'Log your next mock' : 'New mock analysis';
+  var sub = role==='followup' ? 'Same 25-question walkthrough, so the Day 14 comparison is apples-to-apples.' : 'Fill this in right after the mock, while it’s fresh. Takes about a minute.';
+  return topbar() + '<div class="shell page">'+
+    '<button class="page-back" data-action="'+(role==='followup'?'toCalendar':'toLanding')+'" data-id="'+(linked?linked.id:'')+'">← Back</button>'+
+    '<div class="card" style="max-width:640px;">'+
+      '<div class="form-title">'+title+'</div><div class="form-sub">'+sub+'</div>'+
+      '<div class="field"><label for="f_name">Mock name</label><input type="text" id="f_name" value="'+esc(suggestedName)+'" placeholder="e.g. ALLEN Major Test 6"></div>'+
+      '<div class="field-row">'+
+        '<div class="field"><label for="f_date">Date</label><input type="date" id="f_date" value="'+new Date().toISOString().slice(0,10)+'"></div>'+
+        '<div class="field"><label for="f_duration">Duration (minutes)</label><input type="number" id="f_duration" value="180"></div>'+
+      '</div>'+
+      '<div class="field-row">'+
+        '<div class="field"><label for="f_scored">Marks scored</label><input type="number" id="f_scored" placeholder="e.g. 124"></div>'+
+        '<div class="field"><label for="f_target">Target marks</label><input type="number" id="f_target" placeholder="e.g. 180"></div>'+
+      '</div>'+
+      '<div class="field-row">'+
+        '<div class="field"><label for="f_mpq">Marks per correct answer</label><input type="number" id="f_mpq" value="4"><div class="field-hint">Used only to estimate marks recoverable. Edit if your exam differs.</div></div>'+
+        '<div class="field"><label for="f_neg">Negative marks per wrong answer</label><input type="number" id="f_neg" value="1"></div>'+
+      '</div>'+
+      '<div class="field"><label>Questions to analyse</label><div style="padding:10px 12px;border:1px solid var(--border);border-radius:7px;background:var(--surface-2);font-size:13.5px;color:var(--ink-soft);">Fixed at 25 for this version — pick your 25 most important or most recent questions.</div></div>'+
+      '<button class="btn btn-primary" data-action="submitCreate" style="width:100%;margin-top:6px;">Start analysing questions</button>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ---------------- view: analyze ---------------- */
+function reasonChips(name, qi, current, excludeVal){
+  return CATEGORIES.map(function(c,i){
+    if(excludeVal && c.id===excludeVal) return '';
+    var checked = current===c.id ? 'checked' : '';
+    return '<label class="chip"><input type="radio" name="'+name+qi+'" value="'+c.id+'" data-field="q.'+qi+'.'+(name.indexOf('sec')===0?'secondary':'primary')+'" '+checked+'><span><span class="num">'+(i+1)+'</span> '+c.label+'</span></label>';
+  }).join('');
+}
+
+function questionCard(q, qi){
+  var resultChips = RESULTS.map(function(r){
+    var checked = q.result===r.id ? 'checked' : '';
+    return '<label class="chip"><input type="radio" name="res'+qi+'" value="'+r.id+'" data-field="q.'+qi+'.result" '+checked+'><span>'+r.label+'</span></label>';
+  }).join('');
+  var subjOpts = SUBJECTS.map(function(s){ return '<option value="'+s+'"'+(q.subject===s?' selected':'')+'>'+s+'</option>'; }).join('');
+  return '<div class="qcard'+(q.result?' done':'')+'" id="qcard-'+qi+'">'+
+    '<div class="qcard-head"><span class="qnum">Q'+(qi+1)+'</span>'+
+      '<select data-field="q.'+qi+'.subject">'+subjOpts+'</select></div>'+
+    '<div class="subrow">'+
+      '<input type="text" placeholder="Chapter / topic (optional)" value="'+esc(q.chapter)+'" data-field="q.'+qi+'.chapter">'+
+      '<input type="number" placeholder="min" title="Time taken (min)" value="'+(q.time===null||q.time===undefined?'':q.time)+'" data-field="q.'+qi+'.time">'+
+    '</div>'+
+    '<div class="qcard-label">Result</div>'+
+    '<div class="chiprow">'+resultChips+'</div>'+
+    '<div class="reasons">'+
+      '<div class="qcard-label">Primary reason</div>'+
+      '<div class="chiprow">'+reasonChips('pri', qi, q.primary, null)+'</div>'+
+      '<div class="qcard-label">Secondary reason (optional)</div>'+
+      '<div class="chiprow">'+
+        '<label class="chip"><input type="radio" name="sec'+qi+'" value="" data-field="q.'+qi+'.secondary"'+(!q.secondary?' checked':'')+'><span>None</span></label>'+
+        reasonChips('sec', qi, q.secondary, q.primary)+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function viewAnalyze(){
+  var mock = findMock(state.routeParams.mockId);
+  if(!mock) return topbar()+'<div class="shell page"><div class="empty">Mock not found.</div></div>';
+  var done = mock.questions.filter(function(q){return q.result;}).length;
+  return topbar() + '<div class="shell-wide page">'+
+    '<button class="page-back" data-action="toLanding">← Back</button>'+
+    '<h2 style="font-size:22px;">'+esc(mock.name)+'</h2>'+
+    '<p style="color:var(--ink-soft);font-size:13.5px;margin-top:4px;" id="progressBadge">'+done+' of '+NUM_Q+' completed</p>'+
+    '<div class="progressbar"><div class="progressbar-fill" id="progressFill" style="width:'+(done/NUM_Q*100)+'%;"></div></div>'+
+    '<div class="qgrid">'+ mock.questions.map(function(q,i){ return questionCard(q,i); }).join('') +'</div>'+
+    '<div style="margin-top:26px;display:flex;justify-content:center;">'+
+      '<button class="btn btn-primary" id="genPlanBtn" data-action="generatePlan" '+(done<NUM_Q?'disabled':'')+' style="padding:13px 26px;">'+
+        (mock.role==='followup' ? 'Compare with Day 1' : 'Generate my 14-day plan')+'</button>'+
+    '</div>'+
+    '<p class="helper" style="text-align:center;">Mark every problematic question with exactly one primary reason. "Correct" hides the reason chips automatically.</p>'+
+  '</div>';
+}
+
+/* ---------------- view: diagnosis ---------------- */
+function viewDiagnosis(){
+  var mock = findMock(state.routeParams.mockId);
+  if(!mock) return topbar()+'<div class="shell page"><div class="empty">Mock not found.</div></div>';
+  var scores = computeScores(mock.questions).sort(function(a,b){ return b.score-a.score; });
+  var active = scores.filter(function(c){ return c.score>0; });
+  var totalScore = active.reduce(function(s,c){return s+c.score;},0);
+  var plan = findPlan(mock.id);
+  var top = active[0];
+  var heroText = top ?
+    'Your biggest recoverable loss is <b>'+top.label+'</b>. It affected '+top.affectedCount+' question'+(top.affectedCount===1?'':'s')+', roughly <b>'+(top.affectedCount*mock.marksPerQ)+' marks</b>.'+(plan?' Your plan includes '+(plan.blocks.filter(function(b){return b.catId===top.id;}).length)+' '+top.product.toLowerCase()+' sessions over the next two weeks.':'')
+    : 'No single mistake pattern stood out in this mock — a genuinely clean paper. Generate a light plan anyway to stay sharp.';
+  var prepData = computePreparedness(mock);
+  var radarSvg = buildRadarSVG(
+    [{values: prepData.items.map(function(i){return i.prep;}), colorVar:'--primary', filled:true}],
+    {ariaLabel:'Preparedness across six fronts for '+mock.name}
+  );
+  return topbar() + demoBanner() + '<div class="shell page">'+
+    (state.demo ? '' : '<button class="page-back" data-action="toLanding">← Back</button>') +
+    '<h2 style="font-size:23px;">Diagnosis — '+esc(mock.name)+'</h2>'+
+    '<p style="color:var(--ink-soft);font-size:13.5px;margin-top:5px;">'+esc(mock.marksScored)+' marks scored of '+esc(mock.targetMarks)+' target &middot; '+fmtDate(mock.date)+'</p>'+
+    '<div class="card radar-section" style="margin-top:22px;">'+
+      '<div class="radar-chart-wrap">'+radarSvg+'</div>'+
+      '<div class="radar-side">'+
+        '<div class="radar-stat-label">Readiness index (this mock)</div>'+
+        '<div class="radar-stat-value">'+prepData.overall+'<sup>/100</sup></div>'+
+        '<div class="radar-stat-note">A composite of the six fronts on the left, weighted by how often and how severely each one cost you marks. It\'s a single-mock estimate, not a predicted score or rank — track it across mocks for a real trend.</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="diag-hero" style="margin-top:16px;"><p>'+heroText+'</p></div>'+
+    '<div class="catlist">'+ active.map(function(c, i){
+      var rank=i+1, pr=priorityForRank(rank);
+      var barPct = totalScore>0 ? Math.round(c.score/totalScore*100) : 0;
+      return '<div class="catrow"><div class="catrank">'+String(rank).padStart(2,'0')+'</div>'+
+        '<div class="catrow-body">'+
+          '<div class="catrow-top"><span class="cattitle">'+c.label+'</span><span class="priority-pill priority-'+pr+'">'+pr+' priority</span></div>'+
+          '<div class="catdesc">'+c.desc+' — remedy: '+c.product+'.</div>'+
+          '<div class="catmeta">'+
+            '<div>Score<b>'+c.score+'</b></div>'+
+            '<div>Questions affected<b>'+c.affectedCount+'</b></div>'+
+            '<div>Share of losses<b>'+barPct+'%</b></div>'+
+            '<div>Approx. marks recoverable<b>'+(c.affectedCount*mock.marksPerQ)+'</b></div>'+
+          '</div>'+
+          '<div class="catbar-track"><div class="catbar-fill" style="width:'+barPct+'%;"></div></div>'+
+        '</div></div>';
+    }).join('') + (active.length===0 ? '<div class="empty">No repeated mistake pattern found — nice paper.</div>' : '') + '</div>'+
+    '<div style="margin-top:28px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">'+
+      (plan ? '<button class="btn btn-primary" data-action="toCalendar" data-id="'+mock.id+'" style="padding:13px 26px;">View my 14-day plan →</button>'
+            : '<button class="btn btn-primary" data-action="toAnalyze" data-id="'+mock.id+'" style="padding:13px 26px;">Finish analysis to generate plan</button>')+
+      (state.demo ? '<button class="btn btn-ghost" data-action="toCreate">Analyse my real mock →</button>' : '')+
+    '</div>'+
+  '</div>';
+}
+
+/* ---------------- view: calendar ---------------- */
+function dayLabel(day){
+  if(day===1) return 'Day 1 — Analysis';
+  if(day===7) return 'Day 7 — Checkpoint';
+  if(day===14) return 'Day 14 — Next mock';
+  return 'Day '+day;
+}
+function catColorVar(catId){
+  var map={language:'--primary',situation:'--good',approach:'--danger',formula:'--primary',silly:'--danger',time:'--good',mixed:'--ink-faint'};
+  return map[catId]||'--primary';
+}
+
+function checkpointForm(){
+  var cp = state.routeParams._cpDraft;
+  var rows = cp.map(function(q,i){
+    var resChips = CP_RESULTS.map(function(r){
+      return '<label class="chip"><input type="radio" name="cpres'+i+'" value="'+r.id+'" data-field="cp.'+i+'.result" '+(q.result===r.id?'checked':'')+'><span>'+r.label+'</span></label>';
+    }).join('');
+    var reasonChipsHtml = (q.result==='wrong'||q.result==='left') ? CATEGORIES.map(function(c,ci){
+      return '<label class="chip"><input type="radio" name="cppri'+i+'" value="'+c.id+'" data-field="cp.'+i+'.primary" '+(q.primary===c.id?'checked':'')+'><span><span class="num">'+(ci+1)+'</span> '+c.label+'</span></label>';
+    }).join('') : '';
+    return '<div class="qcard'+(q.result && (q.result==='correct' || q.primary) ? ' done':'')+'" style="margin-bottom:10px;">'+
+      '<div class="qcard-head"><span class="qnum">Checkpoint Q'+(i+1)+'</span></div>'+
+      '<div class="qcard-label">Result</div><div class="chiprow">'+resChips+'</div>'+
+      (reasonChipsHtml ? '<div class="qcard-label">Primary reason</div><div class="chiprow">'+reasonChipsHtml+'</div>' : '')+
+    '</div>';
+  }).join('');
+  return '<div class="card"><div class="form-title">Day 7 checkpoint</div>'+
+    '<div class="form-sub">A short timed set — 10 questions in 20 minutes is plenty. Log the outcome of each so we can re-weight your remaining 6 days.</div>'+
+    rows +
+    '<div style="display:flex;gap:10px;margin-top:6px;">'+
+      '<button class="btn btn-primary" data-action="submitCheckpoint" style="flex:1;">Adjust my plan</button>'+
+      '<button class="btn btn-ghost" data-action="cancelCheckpoint">Cancel</button>'+
+    '</div></div>';
+}
+
+function viewCalendar(){
+  var mock = findMock(state.routeParams.mockId);
+  var plan = mock && findPlan(mock.id);
+  if(!mock || !plan) return topbar()+'<div class="shell page"><div class="empty">No plan yet for this mock.</div></div>';
+
+  if(state.routeParams.taskId){
+    var block = plan.blocks.find(function(b){return b.id===state.routeParams.taskId;});
+    if(block) return topbar() + calendarBody(mock, plan) + taskOverlay(block, mock);
+  }
+
+  return topbar() + demoBanner() + calendarBody(mock, plan);
+}
+
+function calendarBody(mock, plan){
+  var totalBlocks = plan.blocks.length;
+  var doneBlocks = plan.blocks.filter(function(b){return b.completed;}).length;
+  var byDay = {};
+  plan.blocks.forEach(function(b){ (byDay[b.day]=byDay[b.day]||[]).push(b); });
+  var days = Object.keys(byDay).map(Number).sort(function(a,b){return a-b;});
+
+  var startDate = new Date(plan.startDate || Date.now());
+  var day1date = fmtDate(startDate);
+  var day7date = fmtDate(new Date(new Date(startDate).setDate(startDate.getDate()+6)));
+  var day14date = fmtDate(new Date(new Date(startDate).setDate(startDate.getDate()+13)));
+
+  var followup = plan.followupMockId ? findMock(plan.followupMockId) : null;
+
+  var cards = [];
+  cards.push('<div class="daycard special"><div class="daycard-head"><span class="daycard-title">Day 1 — Mock analysis</span><span class="daycard-date">'+day1date+'</span></div>'+
+    '<p style="font-size:13px;color:var(--ink-soft);">Analysis complete. Plan generated from '+mock.numQuestions+' questions.</p>'+
+    '<button class="btn btn-ghost btn-sm day-cta" data-action="toDiagnosis" data-id="'+mock.id+'">Review diagnosis</button></div>');
+
+  days.forEach(function(day){
+    var blocksForDay = byDay[day];
+    cards.push('<div class="daycard"><div class="daycard-head"><span class="daycard-title">'+dayLabel(day)+'</span><span class="daycard-date">'+blocksForDay[0].dateLabel+'</span></div>'+
+      blocksForDay.map(function(b){
+        var cat = CAT_BY_ID[b.catId];
+        var why = cat ? ('Assigned because '+cat.label.toLowerCase()+' was a recurring pattern in your mock.') : 'A mixed-revision block — no single category dominated.';
+        return '<div class="block" data-action="openTask" data-id="'+b.id+'">'+
+          '<div class="block-check'+(b.completed?' checked':'')+'">'+(b.completed?'✓':'')+'</div>'+
+          '<div class="block-dot" style="background:var('+catColorVar(b.catId)+');"></div>'+
+          '<div class="block-body"><div class="block-title'+(b.completed?' done':'')+'">'+b.title+'</div><div class="block-why">'+why+'</div></div>'+
+          '<div class="block-time">'+b.timeMin+' min</div>'+
+        '</div>';
+      }).join('')+
+    '</div>');
+
+    if(day===7 && !plan.checkpointDone){
+      cards.push(state.routeParams.checkpointMode ? checkpointForm() :
+        '<div class="daycard special"><div class="daycard-head"><span class="daycard-title">Checkpoint test</span><span class="daycard-date">'+day7date+'</span></div>'+
+        '<p style="font-size:13px;color:var(--ink-soft);">Run a short timed set, then adjust the remaining 6 days based on what’s still showing up.</p>'+
+        '<button class="btn btn-primary btn-sm day-cta" data-action="startCheckpoint">Start checkpoint test</button></div>');
+    }
+  });
+
+  cards.push('<div class="daycard special"><div class="daycard-head"><span class="daycard-title">Day 14 — Next mock</span><span class="daycard-date">'+day14date+'</span></div>'+
+    (followup ?
+      '<p style="font-size:13px;color:var(--ink-soft);">Comparison ready.</p><button class="btn btn-primary btn-sm day-cta" data-action="toCompare" data-id="'+mock.id+'">View comparison →</button>'
+      : '<p style="font-size:13px;color:var(--ink-soft);">Take your next mock, then log it the same way — we’ll compare it against Day 1 automatically.</p><button class="btn btn-primary btn-sm day-cta" data-action="toCreate" data-role="followup" data-for-mock-id="'+mock.id+'">Log next mock & compare</button>')+
+    '</div>');
+
+  return '<div class="shell page">'+
+    (state.demo?'':'<button class="page-back" data-action="toDiagnosis" data-id="'+mock.id+'">← Diagnosis</button>')+
+    '<div class="plan-summary">'+
+      '<div><h2 style="font-size:22px;">14-day plan — '+esc(mock.name)+'</h2><p style="font-size:13px;color:var(--ink-soft);margin-top:4px;">Two focused blocks a day. Tap a block for full instructions and a timer.</p></div>'+
+      '<div class="plan-progress-ring"><span class="plan-progress-num mono">'+doneBlocks+'/'+totalBlocks+'</span><span style="font-size:12px;color:var(--ink-faint);">blocks<br>done</span></div>'+
+    '</div>'+
+    '<div class="daylist">'+cards.join('')+'</div>'+
+  '</div>';
+}
+
+function taskOverlay(block, mock){
+  var cat = CAT_BY_ID[block.catId];
+  var checks = (block.checks||[]).map(function(c,i){
+    return '<li><input type="checkbox" id="chk'+i+'"><label for="chk'+i+'">'+c+'</label></li>';
+  }).join('');
+  return '<div class="overlay-bg" data-action="__noop"><div class="overlay-panel" onclick="event.stopPropagation()">'+
+    '<button class="overlay-close" data-action="closeTask">✕ Close</button>'+
+    '<div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--primary);font-weight:700;">'+(cat?cat.label:'Mixed practice')+' &middot; Day '+block.day+'</div>'+
+    '<h3 style="font-size:20px;margin-top:8px;">'+block.title+'</h3>'+
+    (block.chapter ? '<p style="font-size:12.5px;color:var(--ink-faint);margin-top:4px;">Focused on: '+esc(block.chapter)+'</p>' : '')+
+    '<p style="font-size:14px;color:var(--ink-soft);margin-top:14px;line-height:1.6;">'+block.instr+'</p>'+
+    '<div class="timer-box"><div class="timer-num mono" id="timerDisplay">'+String(block.timeMin).padStart(2,'0')+':00</div>'+
+      '<div class="timer-controls">'+
+        '<button class="btn btn-ghost btn-sm" onclick="TimerApp.toggle()" id="timerToggleBtn">Start</button>'+
+        '<button class="btn btn-ghost btn-sm" onclick="TimerApp.reset('+block.timeMin+')">Reset</button>'+
+      '</div></div>'+
+    '<div class="qcard-label">Verify before you close this out</div>'+
+    '<ul class="checklist">'+checks+'</ul>'+
+    '<div class="field"><label for="reflectInput">One thing you’ll do differently next time</label><textarea id="reflectInput" rows="2" placeholder="Optional, but worth 20 seconds.">'+esc(block.reflection)+'</textarea></div>'+
+    '<button class="btn btn-primary" data-action="toggleComplete" data-id="'+block.id+'" style="width:100%;">'+(block.completed?'Mark as not done':'Mark complete')+'</button>'+
+  '</div></div>';
+}
+
+function profileOverlay(){
+  var p = state.profile || {name:'',examTarget:''};
+  return '<div class="overlay-bg" data-action="closeProfile"><div class="overlay-panel" onclick="event.stopPropagation()">'+
+    '<button class="overlay-close" data-action="closeProfile">✕ Close</button>'+
+    '<div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--primary);font-weight:700;">Student profile</div>'+
+    '<h3 style="font-size:20px;margin-top:8px;">Your profile</h3>'+
+    '<p style="font-size:12.5px;color:var(--ink-faint);margin-top:4px;line-height:1.55;">Stored only on this device, in your browser. No account, no password, nothing sent anywhere — just a name to personalise your plan.</p>'+
+    '<div class="field" style="margin-top:18px;"><label for="p_name">Name</label><input type="text" id="p_name" value="'+esc(p.name)+'" placeholder="e.g. Rohan Verma"></div>'+
+    '<div class="field"><label for="p_target">Target exam</label><input type="text" id="p_target" value="'+esc(p.examTarget)+'" placeholder="e.g. JEE Main 2027"></div>'+
+    (state.mocks.length ? '<div class="field"><label>Data on this device</label><div style="padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);font-size:13px;color:var(--ink-soft);">'+state.mocks.length+' mock'+(state.mocks.length===1?'':'s')+' saved, '+state.plans.length+' plan'+(state.plans.length===1?'':'s')+'.</div></div>' : '')+
+    '<button class="btn btn-primary" data-action="saveProfile" style="width:100%;margin-top:6px;">Save</button>'+
+  '</div></div>';
+}
+
+/* simple timer, isolated so overlay markup stays string-based */
+var TimerApp = (function(){
+  var remaining=0, interval=null, running=false;
+  function render2(){
+    var el=document.getElementById('timerDisplay'); if(!el) return;
+    var m=Math.floor(remaining/60), s=remaining%60;
+    el.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
+  return {
+    reset:function(minutes){ clearInterval(interval); running=false; remaining=minutes*60; render2();
+      var btn=document.getElementById('timerToggleBtn'); if(btn) btn.textContent='Start'; },
+    toggle:function(){
+      var btn=document.getElementById('timerToggleBtn');
+      if(!remaining){ var disp=document.getElementById('timerDisplay'); if(disp){ var parts=disp.textContent.split(':'); remaining=Number(parts[0])*60+Number(parts[1]); } }
+      if(running){ clearInterval(interval); running=false; if(btn) btn.textContent='Start'; return; }
+      running=true; if(btn) btn.textContent='Pause';
+      interval=setInterval(function(){
+        remaining=Math.max(0,remaining-1); render2();
+        if(remaining<=0){ clearInterval(interval); running=false; if(btn) btn.textContent='Start'; }
+      },1000);
+    }
+  };
+})();
+window.TimerApp = TimerApp;
+
+/* ---------------- view: compare ---------------- */
+function viewCompare(){
+  var mock = findMock(state.routeParams.mockId);
+  var plan = mock && findPlan(mock.id);
+  var followupId = state.routeParams.followupId || (plan && plan.followupMockId);
+  var followup = followupId ? findMock(followupId) : null;
+
+  if(followup && plan && plan.followupMockId !== followup.id){
+    plan.followupMockId = followup.id; persist();
+  }
+
+  if(!mock || !followup) return topbar()+'<div class="shell page"><div class="empty">Comparison not ready yet.</div></div>';
+
+  var s1 = computeScores(mock.questions), s2 = computeScores(followup.questions);
+  function acc(m){
+    var attempted = m.questions.filter(function(q){return q.result && q.result!=='left';});
+    var correct = attempted.filter(function(q){return q.result==='correct'||q.result==='slow'||q.result==='guessed';});
+    return attempted.length ? Math.round(correct.length/attempted.length*1000)/10 : 0;
+  }
+  var acc1=acc(mock), acc2=acc(followup);
+  var marksDelta = followup.marksScored - mock.marksScored;
+  var accDelta = Math.round((acc2-acc1)*10)/10;
+
+  var top3 = s1.filter(function(c){return c.score>0;}).sort(function(a,b){return b.score-a.score;}).slice(0,3);
+  var rows = top3.map(function(c){
+    var c2 = s2.find(function(x){return x.id===c.id;});
+    var loss1 = c.affectedCount*mock.marksPerQ, loss2=c2.affectedCount*followup.marksPerQ;
+    var recovered = loss1-loss2;
+    return {label:c.label, loss1:loss1, loss2:loss2, recovered:recovered};
+  });
+  var biggestGain = rows.slice().sort(function(a,b){b.recovered-a.recovered; return b.recovered-a.recovered;})[0];
+  var stillOpen = s2.filter(function(c){return c.score>0;}).sort(function(a,b){return b.score-a.score;})[0];
+
+  var takeaway = 'You '+(marksDelta>=0?'gained ':'lost ')+Math.abs(marksDelta)+' marks.'+
+    (biggestGain && biggestGain.recovered>0 ? ' Your largest improvement came from '+biggestGain.label.toLowerCase()+'.' : '')+
+    (stillOpen ? ' Your next cycle should keep an eye on '+stillOpen.label.toLowerCase()+'.' : '');
+
+  var prep1 = computePreparedness(mock), prep2 = computePreparedness(followup);
+  var prepDelta = prep2.overall - prep1.overall;
+  var radarSvg2 = buildRadarSVG([
+    {values: prep1.items.map(function(i){return i.prep;}), colorVar:'--ink-faint', filled:false},
+    {values: prep2.items.map(function(i){return i.prep;}), colorVar:'--primary', filled:true}
+  ], {ariaLabel:'Readiness comparison, day 1 versus day 14'});
+
+  return topbar() + '<div class="shell page">'+
+    '<button class="page-back" data-action="toCalendar" data-id="'+mock.id+'">← Plan</button>'+
+    '<h2 style="font-size:22px;">Day 1 vs Day 14 — '+esc(mock.name)+'</h2>'+
+    '<div class="card radar-section" style="margin-top:20px;">'+
+      '<div class="radar-chart-wrap">'+radarSvg2+'</div>'+
+      '<div class="radar-side">'+
+        '<div class="radar-stat-label">Readiness index</div>'+
+        '<div class="radar-stat-value">'+prep2.overall+'<sup>/100</sup></div>'+
+        '<div class="radar-stat-note">'+(prepDelta>=0 ? 'Up '+prepDelta+' point'+(prepDelta===1?'':'s')+' from '+prep1.overall+'/100 on Day 1.' : 'Down '+Math.abs(prepDelta)+' point'+(Math.abs(prepDelta)===1?'':'s')+' from '+prep1.overall+'/100 on Day 1 — worth another cycle.')+'</div>'+
+        radarLegendHtml([{label:'Day 1 (baseline)',cls:'hollow'},{label:'Day 14 (now)',cls:'filled'}])+
+      '</div>'+
+    '</div>'+
+    '<div class="tablewrap radar-mini-table"><table>'+
+      '<thead><tr><th>Front</th><th style="text-align:right;">Day 1</th><th style="text-align:right;">Day 14</th><th style="text-align:right;">Change</th></tr></thead>'+
+      '<tbody>'+ prep1.items.map(function(it,i){
+        var p2 = prep2.items[i].prep, d = p2-it.prep;
+        return '<tr><td>'+it.label+'</td><td class="num">'+it.prep+'</td><td class="num">'+p2+'</td><td class="num '+(d>=0?'change-pos':'change-neg')+'">'+(d>=0?'+':'')+d+'</td></tr>';
+      }).join('') +'</tbody>'+
+    '</table></div>'+
+    '<div class="tablewrap" style="margin-top:20px;"><table>'+
+      '<thead><tr><th>Metric</th><th style="text-align:right;">Day 1 mock</th><th style="text-align:right;">Day 14 mock</th><th style="text-align:right;">Change</th></tr></thead>'+
+      '<tbody>'+
+        '<tr><td>Marks scored</td><td class="num">'+mock.marksScored+'</td><td class="num">'+followup.marksScored+'</td><td class="num '+(marksDelta>=0?'change-pos':'change-neg')+'">'+(marksDelta>=0?'+':'')+marksDelta+'</td></tr>'+
+        '<tr><td>Accuracy</td><td class="num">'+acc1+'%</td><td class="num">'+acc2+'%</td><td class="num '+(accDelta>=0?'change-pos':'change-neg')+'">'+(accDelta>=0?'+':'')+accDelta+' pp</td></tr>'+
+        rows.map(function(r){
+          var d = r.loss1-r.loss2;
+          return '<tr><td>'+r.label+' losses (approx.)</td><td class="num">'+r.loss1+'</td><td class="num">'+r.loss2+'</td><td class="num '+(d>=0?'change-pos':'change-neg')+'">'+(d>=0?d+' recovered':(Math.abs(d)+' worse')) +'</td></tr>';
+        }).join('')+
+      '</tbody></table></div>'+
+    '<div class="diag-hero" style="margin-top:20px;"><p>'+takeaway+'</p></div>'+
+    '<p class="helper">Marks figures are approximate, based on marks-per-question entered on each mock and are not a guarantee of rank or score.</p>'+
+  '</div>';
+}
+
+/* ---------------- main render ---------------- */
+function render(){
+  var app = document.getElementById('app');
+  var html='';
+  switch(state.route){
+    case 'create': html = viewCreate(); break;
+    case 'analyze': html = viewAnalyze(); break;
+    case 'diagnosis': html = viewDiagnosis(); break;
+    case 'calendar': html = viewCalendar(); break;
+    case 'compare': html = viewCompare(); break;
+    default: html = viewLanding();
+  }
+  if(state.routeParams.profileOpen) html += profileOverlay();
+  app.innerHTML = html;
+}
+
+document.getElementById('app').addEventListener('click', function(e){
+  var t = e.target.closest('[data-action]');
+  if(!t) return;
+  var action = t.dataset.action;
+  if(action==='__noop'){ App.closeTask(); return; }
+  if(App[action]) App[action](t);
+});
+document.getElementById('app').addEventListener('change', function(e){
+  var t = e.target.closest('[data-field]');
+  if(t) App.fieldChange(t);
+});
+document.getElementById('app').addEventListener('input', function(e){
+  var t = e.target.closest('[data-field]');
+  if(t && (t.tagName==='INPUT' && (t.type==='text'||t.type==='number')) ) App.fieldChange(t);
+});
+
+/* ---------------- PWA install + offline support ---------------- */
+var deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  var btn = document.getElementById('pwaInstallBtn');
+  if(btn) btn.hidden = false;
+});
+var pwaBtn = document.getElementById('pwaInstallBtn');
+if(pwaBtn){
+  pwaBtn.addEventListener('click', function(){
+    if(!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.finally(function(){
+      deferredInstallPrompt = null;
+      pwaBtn.hidden = true;
+    });
+  });
+}
+window.addEventListener('appinstalled', function(){
+  var btn = document.getElementById('pwaInstallBtn');
+  if(btn) btn.hidden = true;
+});
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){ /* offline caching unavailable - app still works online */ });
+  });
+}
+
+/* hot-reload friendliness for republishes */
+function boot(){ render(); }
+if(window.claude && window.claude.hot){
+  window.claude.hot.ready ? window.claude.hot.ready(boot) : boot();
+} else {
+  boot();
+}
+})();
+</script>
