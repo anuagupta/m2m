@@ -727,7 +727,7 @@ function gateUnlocked(){
 var GATE_EYE_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
 var GATE_EYE_OFF_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.86 21.86 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a21.8 21.8 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
 function gateOverlayHtml(){
-  return '<div class="gate-bg" data-action="closeGate"><div class="gate-card" onclick="event.stopPropagation()">'+
+  return '<div class="gate-bg" data-action="closeGate"><div class="gate-card">'+
     '<h3>Enter your passcode</h3>'+
     '<p class="gate-sub">This app is available to enrolled students only.</p>'+
     '<div class="gate-input-wrap">'+
@@ -1415,7 +1415,7 @@ function taskOverlay(block, mock){
   var checks = (block.checks||[]).map(function(c,i){
     return '<li><input type="checkbox" id="chk'+i+'"><label for="chk'+i+'">'+esc(c)+'</label></li>';
   }).join('');
-  return '<div class="overlay-bg" data-action="__noop"><div class="overlay-panel" onclick="event.stopPropagation()">'+
+  return '<div class="overlay-bg" data-action="__noop"><div class="overlay-panel">'+
     '<button class="overlay-close" data-action="closeTask">✕ Close</button>'+
     '<div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--primary);font-weight:700;">'+(cat?esc(cat.label):'Mixed practice')+' &middot; Day '+block.day+'</div>'+
     '<h3 style="font-size:20px;margin-top:8px;">'+esc(block.title)+'</h3>'+
@@ -1691,6 +1691,9 @@ document.getElementById('app').addEventListener('click', function(e){
   var t = e.target.closest('[data-action]');
   if(!t) return;
   var action = t.dataset.action;
+  // Backdrop dismiss only fires when the backdrop itself was clicked, not
+  // when a click inside the card bubbled up and matched it via closest().
+  if((action==='closeGate' || action==='__noop') && t!==e.target) return;
   if(action==='__noop'){ App.closeTask(); return; }
   if(App[action]) App[action](t);
 });
