@@ -78,14 +78,15 @@ a{color:var(--primary);}
 .topbar-progress{height:3px;background:var(--border-soft);}
 .topbar-progress-fill{height:100%;background:var(--primary);transition:width .2s;}
 .wordmark{display:flex;align-items:center;gap:12px;cursor:pointer;background:none;border:none;padding:0;}
-.wordmark-logo{width:38px;height:38px;border-radius:9px;display:block;flex:none;}
+.wordmark:hover .wordmark-logo{transform:scale(1.08) rotate(-4deg);}
+.wordmark-logo{width:38px;height:38px;border-radius:9px;display:block;flex:none;transition:transform .2s;}
 .wordmark-text-wrap{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;}
 .wordmark-text{font-family:var(--serif);font-weight:800;font-size:22px;color:var(--ink);letter-spacing:-0.01em;}
 .wordmark-byline{font-family:var(--mono);font-weight:600;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--primary);}
 .topnav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .topnav-mockname{font-size:13px;color:var(--ink-soft);padding:0 10px;border-right:1px solid var(--border);margin-right:2px;}
 .avatar-btn{width:34px;height:34px;border-radius:99px;background:var(--primary);color:var(--on-primary);border:none;font-family:var(--sans);font-weight:800;font-size:13.5px;display:inline-flex;align-items:center;justify-content:center;flex:none;margin-left:2px;transition:background .15s, transform .1s;}
-.avatar-btn:hover{background:var(--primary-strong);}
+.avatar-btn:hover{background:var(--primary-strong);transform:scale(1.1);}
 .avatar-btn:active{transform:translateY(1px);}
 
 /* ---------- Buttons ---------- */
@@ -101,6 +102,7 @@ a{color:var(--primary);}
 .btn-ghost{background:transparent;color:var(--ink);border-color:var(--border);}
 .btn-ghost:hover{background:var(--surface-2);border-color:var(--ink-faint);}
 .btn-text{background:none;border:none;color:var(--primary);font-weight:600;font-size:14px;padding:6px 4px;}
+.btn-text:hover{color:var(--primary-strong);transform:translateX(3px);}
 .btn-sm{padding:7px 12px;font-size:13px;border-radius:7px;}
 .btn-danger{background:transparent;color:var(--danger);border-color:var(--danger);}
 .btn:disabled{opacity:.45;cursor:not-allowed;}
@@ -226,7 +228,9 @@ a{color:var(--primary);}
 .block{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-top:1px solid var(--border-soft);cursor:pointer;}
 .block:first-of-type{border-top:none;}
 .block:hover .block-title{color:var(--primary);}
-.block-check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border);flex:none;margin-top:1px;display:flex;align-items:center;justify-content:center;}
+.block-check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border);flex:none;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:transform .1s;}
+.block-check.checked{animation:checkPop .25s ease;}
+@keyframes checkPop{0%{transform:scale(.5);opacity:0;}60%{transform:scale(1.15);opacity:1;}100%{transform:scale(1);}}
 .block-check.checked{background:var(--good);border-color:var(--good);color:#fff;}
 .block-dot{width:7px;height:7px;border-radius:99px;flex:none;margin-top:6px;}
 .block-body{flex:1;min-width:0;}
@@ -239,7 +243,8 @@ a{color:var(--primary);}
 /* ---------- Task overlay ---------- */
 .overlay-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:80;display:flex;justify-content:flex-end;}
 .overlay-panel{width:min(440px,100%);background:var(--surface);height:100%;overflow-y:auto;padding:26px 24px 40px;box-shadow:-8px 0 30px hsl(var(--shadow-color) / .25);}
-.overlay-close{background:none;border:none;color:var(--ink-faint);font-size:14px;margin-bottom:18px;padding:4px 0;}
+.overlay-close{background:none;border:none;color:var(--ink-faint);font-size:14px;margin-bottom:18px;padding:4px 0;transition:color .15s, transform .15s;display:inline-block;}
+.overlay-close:hover{color:var(--ink);transform:scale(1.06);}
 .timer-box{border:1px solid var(--border);border-radius:14px;background:var(--surface-2);padding:18px;text-align:center;margin:18px 0;}
 .timer-num{font-family:var(--mono);font-size:38px;font-weight:600;letter-spacing:.02em;}
 .timer-controls{display:flex;gap:8px;justify-content:center;margin-top:12px;}
@@ -273,7 +278,10 @@ tr:last-child td{border-bottom:none;}
 /* ---------- misc ---------- */
 .banner{border:1px solid var(--warn);background:var(--warn-soft);color:var(--warn);border-radius:9px;padding:12px 16px;font-size:13px;margin-bottom:20px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;}
 .page{padding:36px 0 64px;}
-.page-back{font-size:13px;color:var(--ink-soft);background:none;border:none;padding:0 0 18px;display:inline-flex;align-items:center;gap:5px;}
+.page-title{font-size:23px;}
+.page-sub{font-size:13.5px;color:var(--ink-soft);margin-top:5px;}
+.page-back{font-size:13px;color:var(--ink-soft);background:none;border:none;padding:0 0 18px;display:inline-flex;align-items:center;gap:5px;transition:transform .15s, color .15s;}
+.page-back:hover{color:var(--ink);transform:translateX(-3px);}
 .helper{font-size:12.5px;color:var(--ink-faint);margin-top:20px;}
 .divider{height:1px;background:var(--border-soft);margin:26px 0;}
 .empty{text-align:center;padding:60px 20px;color:var(--ink-soft);}
@@ -285,8 +293,9 @@ tr:last-child td{border-bottom:none;}
   font-family:var(--sans);font-weight:700;font-size:13.5px;
   box-shadow:0 8px 24px hsl(var(--shadow-color) / .4);
   cursor:pointer;
+  transition:background .15s, transform .15s, box-shadow .15s;
 }
-.pwa-install-btn:hover{background:var(--primary-strong);}
+.pwa-install-btn:hover{background:var(--primary-strong);transform:translateY(-2px);box-shadow:0 12px 28px hsl(var(--shadow-color) / .5);}
 @media (max-width:640px){
   .pwa-install-btn{right:14px;bottom:14px;padding:10px 16px;font-size:13px;}
 }
@@ -607,7 +616,7 @@ function fmtDate(d){
   return d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
 }
 function esc(s){ return (s===undefined||s===null) ? '' : String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
-function pct(n){ return Math.round(n*10)/10; }
+function g(id){ return document.getElementById(id); }
 
 function demoMock(){
   var subs=['Physics','Chemistry','Mathematics'], chapters={
@@ -661,7 +670,6 @@ var App = {
   },
 
   submitCreate: function(){
-    var g = function(id){ return document.getElementById(id); };
     var name = g('f_name').value.trim() || 'Untitled mock';
     var role = state.routeParams.role || 'initial';
     var mock = {
@@ -802,7 +810,6 @@ var App = {
 
   openProfile: function(){ nav('profile'); },
   saveProfile: function(){
-    var g = function(id){ return document.getElementById(id); };
     state.profile = state.profile || {};
     state.profile.name = (g('p_name').value||'').trim();
     state.profile.examTarget = (g('p_target').value||'').trim();
@@ -1068,8 +1075,8 @@ function viewAnalyze(){
   var done = mock.questions.filter(function(q){return q.result;}).length;
   return topbar() + '<div class="shell-wide page">'+
     '<button class="page-back" data-action="toLanding">← Back</button>'+
-    '<h2 style="font-size:22px;">'+esc(mock.name)+'</h2>'+
-    '<p style="color:var(--ink-soft);font-size:13.5px;margin-top:4px;" id="progressBadge">'+done+' of '+NUM_Q+' completed</p>'+
+    '<h2 class="page-title">'+esc(mock.name)+'</h2>'+
+    '<p class="page-sub" id="progressBadge">'+done+' of '+NUM_Q+' completed</p>'+
     '<div class="progressbar"><div class="progressbar-fill" id="progressFill" style="width:'+(done/NUM_Q*100)+'%;"></div></div>'+
     '<div class="qgrid">'+ mock.questions.map(function(q,i){ return questionCard(q,i); }).join('') +'</div>'+
     '<div style="margin-top:26px;display:flex;justify-content:center;">'+
@@ -1099,8 +1106,8 @@ function viewDiagnosis(){
   );
   return topbar() + demoBanner() + '<div class="shell page">'+
     (state.demo ? '' : '<button class="page-back" data-action="toLanding">← Back</button>') +
-    '<h2 style="font-size:23px;">Diagnosis — '+esc(mock.name)+'</h2>'+
-    '<p style="color:var(--ink-soft);font-size:13.5px;margin-top:5px;">'+esc(mock.marksScored)+' marks scored of '+esc(mock.targetMarks)+' target &middot; '+fmtDate(mock.date)+'</p>'+
+    '<h2 class="page-title">Diagnosis — '+esc(mock.name)+'</h2>'+
+    '<p class="page-sub">'+esc(mock.marksScored)+' marks scored of '+esc(mock.targetMarks)+' target &middot; '+fmtDate(mock.date)+'</p>'+
     '<div class="card radar-section" style="margin-top:22px;">'+
       '<div class="radar-chart-wrap">'+radarSvg+'</div>'+
       '<div class="radar-side">'+
@@ -1235,7 +1242,7 @@ function calendarBody(mock, plan){
   return '<div class="shell page">'+
     (state.demo?'':'<button class="page-back" data-action="toDiagnosis" data-id="'+mock.id+'">← Diagnosis</button>')+
     '<div class="plan-summary">'+
-      '<div><h2 style="font-size:22px;">14-day plan — '+esc(mock.name)+'</h2><p style="font-size:13px;color:var(--ink-soft);margin-top:4px;">Two focused blocks a day. Tap a block for full instructions and a timer.</p></div>'+
+      '<div><h2 class="page-title">14-day plan — '+esc(mock.name)+'</h2><p class="page-sub">Two focused blocks a day. Tap a block for full instructions and a timer.</p></div>'+
       '<div class="plan-progress-ring">'+buildProgressRing(progressPct)+'<span class="plan-progress-num mono">'+doneBlocks+'/'+totalBlocks+'</span><span style="font-size:12px;color:var(--ink-faint);">blocks<br>done</span></div>'+
     '</div>'+
     '<div class="daylist">'+cards.join('')+'</div>'+
@@ -1354,7 +1361,7 @@ function viewProfile(){
 
   return topbar() + '<div class="shell page">'+
     '<button class="page-back" data-action="toLanding">← Back</button>'+
-    '<h2 style="font-size:23px;">Your profile</h2>'+
+    '<h2 class="page-title">Your profile</h2>'+
     '<p class="section-lead" style="margin-top:4px;">Stored only on this device, in your browser. No account, no server — export a backup if you want a copy elsewhere.</p>'+
 
     '<div class="card" style="margin-top:22px;">'+
@@ -1471,7 +1478,7 @@ function viewCompare(){
 
   return topbar() + '<div class="shell page">'+
     '<button class="page-back" data-action="toCalendar" data-id="'+mock.id+'">← Plan</button>'+
-    '<h2 style="font-size:22px;">Day 1 vs Day 14 — '+esc(mock.name)+'</h2>'+
+    '<h2 class="page-title">Day 1 vs Day 14 — '+esc(mock.name)+'</h2>'+
     '<div class="card radar-section" style="margin-top:20px;">'+
       '<div class="radar-chart-wrap">'+radarSvg2+'</div>'+
       '<div class="radar-side">'+
