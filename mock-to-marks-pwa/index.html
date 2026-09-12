@@ -38,12 +38,21 @@
   --serif:'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --sans:'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --mono:'JetBrains Mono', SFMono-Regular, Menlo, monospace;
+  --glass-bg:color-mix(in srgb, var(--surface) 62%, transparent);
+  --glass-bg-2:color-mix(in srgb, var(--surface-2) 62%, transparent);
+  --glass-border:color-mix(in srgb, var(--border) 65%, transparent);
+  --glass-blur:blur(18px) saturate(150%);
 }
 *{box-sizing:border-box;}
 html{color-scheme:dark;}
 html,body{margin:0;padding:0;}
 body{
-  background:var(--bg);
+  background:
+    radial-gradient(900px 500px at 12% -8%, color-mix(in srgb, var(--primary) 13%, transparent), transparent 60%),
+    radial-gradient(800px 480px at 96% 18%, color-mix(in srgb, var(--good) 8%, transparent), transparent 60%),
+    radial-gradient(1000px 700px at 50% 110%, color-mix(in srgb, var(--primary) 7%, transparent), transparent 65%),
+    var(--bg);
+  background-attachment:fixed;
   color:var(--ink);
   font-family:var(--sans);
   font-size:15px;
@@ -246,11 +255,11 @@ a{color:var(--primary);}
 .day-cta{margin-top:12px;}
 
 /* ---------- Task overlay ---------- */
-.overlay-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:80;display:flex;justify-content:flex-end;animation:overlayFade .2s ease;}
-.overlay-panel{width:min(440px,100%);background:var(--surface);height:100%;overflow-y:auto;padding:26px 24px 40px;box-shadow:-8px 0 30px hsl(var(--shadow-color) / .25);animation:panelSlideIn .28s cubic-bezier(.16,1,.3,1);}
+.overlay-bg{position:fixed;inset:0;background:rgba(5,6,10,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:80;display:flex;justify-content:flex-end;animation:overlayFade .2s ease;}
+.overlay-panel{width:min(440px,100%);background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);height:100%;overflow-y:auto;padding:26px 24px 40px;box-shadow:-8px 0 30px hsl(var(--shadow-color) / .25), inset 1px 0 0 rgba(255,255,255,.04);animation:panelSlideIn .28s cubic-bezier(.16,1,.3,1);}
 @keyframes overlayFade{from{opacity:0;}to{opacity:1;}}
 @keyframes panelSlideIn{from{transform:translateX(100%);}to{transform:translateX(0);}}
-@media (prefers-reduced-motion:reduce){.overlay-bg,.overlay-panel,.block-check.checked,.radar-data,.gate-bg,.gate-card{animation:none;}}
+@media (prefers-reduced-motion:reduce){.overlay-bg,.overlay-panel,.block-check.checked,.radar-data,.gate-bg,.gate-card,.causes-grid>*,.qgrid>*,.catlist>*,.mock-history>*,.daylist>*,.sd-wrap>*{animation:none;}}
 ::view-transition-old(root),::view-transition-new(root){animation-duration:.22s;}
 
 /* ---------- Access gate ---------- */
@@ -293,6 +302,28 @@ tr:last-child td{border-bottom:none;}
 .mock-row-meta{font-size:12px;color:var(--ink-faint);margin-top:3px;}
 .mock-row-actions{display:flex;gap:8px;flex-wrap:wrap;}
 .role-pill{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-faint);border:1px solid var(--border);border-radius:99px;padding:2px 7px;margin-left:6px;}
+
+/* ---------- Glass surfaces ---------- */
+.card,.cause-card,.sd-card,.qcard,.catrow,.daycard,.mock-row,.stat-tile{
+  background:var(--glass-bg);
+  backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  border-color:var(--glass-border);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+}
+.sd-card{background:var(--glass-bg-2);}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.causes-grid>*,.qgrid>*,.catlist>*,.mock-history>*,.daylist>*,.sd-wrap>*{animation:fadeInUp .45s cubic-bezier(.22,1,.36,1) both;}
+.causes-grid>*:nth-child(2),.qgrid>*:nth-child(2),.catlist>*:nth-child(2),.mock-history>*:nth-child(2),.daylist>*:nth-child(2){animation-delay:.04s;}
+.causes-grid>*:nth-child(3),.qgrid>*:nth-child(3),.catlist>*:nth-child(3),.mock-history>*:nth-child(3),.daylist>*:nth-child(3){animation-delay:.08s;}
+.causes-grid>*:nth-child(4),.qgrid>*:nth-child(4),.catlist>*:nth-child(4),.mock-history>*:nth-child(4),.daylist>*:nth-child(4){animation-delay:.12s;}
+.causes-grid>*:nth-child(5),.qgrid>*:nth-child(5),.catlist>*:nth-child(5),.mock-history>*:nth-child(5),.daylist>*:nth-child(5){animation-delay:.16s;}
+.causes-grid>*:nth-child(n+6),.qgrid>*:nth-child(n+6),.catlist>*:nth-child(n+6),.mock-history>*:nth-child(n+6),.daylist>*:nth-child(n+6){animation-delay:.2s;}
+select,.field input[type=text],.field input[type=number],.field input[type=date],.field textarea{
+  background:var(--glass-bg-2);
+  backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+}
 
 /* ---------- misc ---------- */
 .banner{border:1px solid var(--warn);background:var(--warn-soft);color:var(--warn);border-radius:9px;padding:12px 16px;font-size:13px;margin-bottom:20px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;}
