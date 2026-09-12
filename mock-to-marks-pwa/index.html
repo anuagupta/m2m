@@ -208,6 +208,9 @@ a{color:var(--primary);}
 .radar-side{flex:1 1 220px;min-width:200px;}
 .radar-stat-label{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint);}
 .radar-stat-value{font-family:var(--sans);font-weight:700;font-size:50px;color:var(--ink);line-height:1;margin-top:6px;}
+.radar-stat-value.danger{color:var(--danger);}
+.radar-stat-value.warn{color:var(--warn);}
+.radar-stat-value.good{color:var(--good);}
 .radar-stat-value sup{font-size:19px;font-weight:600;color:var(--ink-faint);margin-left:2px;top:-.6em;}
 .radar-stat-note{font-size:12.5px;color:var(--ink-soft);margin-top:10px;max-width:34ch;line-height:1.55;}
 .radar-legend{display:flex;gap:16px;margin-top:14px;flex-wrap:wrap;}
@@ -486,7 +489,17 @@ function computePreparedness(mock){
     var prep = Math.round(Math.max(0, Math.min(100, raw)));
     return {id:c.id, label:c.label, prep:prep};
   });
-  var overall = Math.round(items.reduce(function(a,b){ return a+b.prep; },0) / items.length);
+  // Averaging the six per-axis scores overstates readiness: a student's losses
+  // spread across categories so each axis only sees its own slice of the damage,
+  // and averaging several diluted numbers compounds that. The headline number
+  // instead reflects TOTAL weighted loss against total questions, matched
+  // against actual accuracy so a low-scoring mock can't read as "prepared".
+  var totalLoss = scores.reduce(function(s,c){ return s+c.score; }, 0);
+  var lossBased = 100 - (totalLoss / n * 100);
+  var attempted = mock.questions.filter(function(q){ return q.result && q.result!=='left'; }).length;
+  var correct = mock.questions.filter(function(q){ return q.result==='correct'||q.result==='slow'||q.result==='guessed'; }).length;
+  var accuracyBased = attempted ? (correct/attempted*100) : 100;
+  var overall = Math.round(Math.max(0, Math.min(100, Math.min(lossBased, accuracyBased))));
   return {items:items, overall:overall};
 }
 
@@ -624,6 +637,7 @@ function fmtDate(d){
   return d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
 }
 function esc(s){ return (s===undefined||s===null) ? '' : String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function readinessClass(score){ return score<50 ? 'danger' : (score<75 ? 'warn' : 'good'); }
 function g(id){ return document.getElementById(id); }
 
 function demoMock(){
@@ -1132,7 +1146,7 @@ function viewDiagnosis(){
       '<div class="radar-chart-wrap">'+radarSvg+'</div>'+
       '<div class="radar-side">'+
         '<div class="radar-stat-label">Readiness index (this mock)</div>'+
-        '<div class="radar-stat-value">'+prepData.overall+'<sup>/100</sup></div>'+
+        '<div class="radar-stat-value '+readinessClass(prepData.overall)+'">'+prepData.overall+'<sup>/100</sup></div>'+
         '<div class="radar-stat-note">A composite of the six fronts on the left, weighted by how often and how severely each one cost you marks. It\'s a single-mock estimate, not a predicted score or rank — track it across mocks for a real trend.</div>'+
       '</div>'+
     '</div>'+
@@ -1503,7 +1517,7 @@ function viewCompare(){
       '<div class="radar-chart-wrap">'+radarSvg2+'</div>'+
       '<div class="radar-side">'+
         '<div class="radar-stat-label">Readiness index</div>'+
-        '<div class="radar-stat-value">'+prep2.overall+'<sup>/100</sup></div>'+
+        '<div class="radar-stat-value '+readinessClass(prep2.overall)+'">'+prep2.overall+'<sup>/100</sup></div>'+
         '<div class="radar-stat-note">'+(prepDelta>=0 ? 'Up '+prepDelta+' point'+(prepDelta===1?'':'s')+' from '+prep1.overall+'/100 on Day 1.' : 'Down '+Math.abs(prepDelta)+' point'+(Math.abs(prepDelta)===1?'':'s')+' from '+prep1.overall+'/100 on Day 1 — worth another cycle.')+'</div>'+
         radarLegendHtml([{label:'Day 1 (baseline)',cls:'hollow'},{label:'Day 14 (now)',cls:'filled'}])+
       '</div>'+
