@@ -22,8 +22,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&display=swap" rel="stylesheet">
 <style>
-/* ProDJEE brand system v2: deep-space navy glass, soft multi-pastel diagnostic
-   palette, Fraunces display + Manrope body + JetBrains Mono for data.
+/* ProDJEE brand system v3: deep-space navy glass. Every accent in this file is
+   a pastel tint of the 3 hues actually sampled from the ProDJEE logo — coral-red
+   (#ff4040), gold (#ffb500), spring-green (#00ff80). No other hue is used.
+   Fraunces display + Manrope body + JetBrains Mono for data.
    Committed single dark identity — not a light/dark pair. */
 :root{
   --bg:#0a0b14;
@@ -35,22 +37,17 @@
   --ink:#f2eff9;
   --ink-soft:#b6b1cf;
   --ink-faint:#8a86a6;
-  --primary:#c3b6ff;
-  --primary-strong:#dcd2ff;
+  --neutral-soft:color-mix(in srgb, var(--ink-faint) 20%, transparent);
+  --primary:#ffd699;
+  --primary-strong:#ffe6ba;
   --primary-soft:color-mix(in srgb, var(--primary) 18%, transparent);
-  --on-primary:#1a1530;
+  --on-primary:#2b1c05;
   --good:#a9ecc9;
   --good-soft:color-mix(in srgb, var(--good) 18%, transparent);
-  --warn:#ffe3ab;
+  --warn:#ffd699;
   --warn-soft:color-mix(in srgb, var(--warn) 18%, transparent);
-  --danger:#ffb3bb;
+  --danger:#ffb2a3;
   --danger-soft:color-mix(in srgb, var(--danger) 18%, transparent);
-  --cat-language:#a6d8ff;
-  --cat-situation:#a9ecc9;
-  --cat-approach:#ffc9a6;
-  --cat-formula:#d3bbff;
-  --cat-silly:#ffb3d1;
-  --cat-time:#ffe3ab;
   --shadow-color:250 60% 3%;
   --serif:'Fraunces', Georgia, 'Times New Roman', serif;
   --sans:'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -59,9 +56,9 @@
   --glass-bg-2:color-mix(in srgb, #24273f 40%, transparent);
   --glass-border:color-mix(in srgb, #fff 15%, transparent);
   --glass-blur:blur(28px) saturate(180%);
-  --accent-2:#ffb3d1;
   --glow-primary:0 10px 36px -10px color-mix(in srgb, var(--primary) 55%, transparent);
   --glow-good:0 10px 30px -10px color-mix(in srgb, var(--good) 55%, transparent);
+  --glow-danger:0 10px 30px -10px color-mix(in srgb, var(--danger) 55%, transparent);
   --scrim-blur-light:blur(6px);
   --scrim-blur-strong:blur(14px) saturate(140%);
 }
@@ -89,7 +86,7 @@ body::before{
   background:
     radial-gradient(640px 640px at 10% -6%, color-mix(in srgb, var(--primary) 20%, transparent), transparent 68%),
     radial-gradient(560px 560px at 100% 14%, color-mix(in srgb, var(--good) 16%, transparent), transparent 68%),
-    radial-gradient(680px 680px at 42% 108%, color-mix(in srgb, var(--accent-2) 15%, transparent), transparent 70%);
+    radial-gradient(680px 680px at 42% 108%, color-mix(in srgb, var(--danger) 15%, transparent), transparent 70%);
   filter:blur(46px);
   animation:bgDrift 34s ease-in-out infinite alternate;
 }
@@ -248,7 +245,10 @@ a{color:var(--primary);}
 .qcard-label:first-of-type{margin-top:0;}
 .reasons{display:block;}
 .qcard:has(input[value="correct"]:checked) .reasons{display:none;}
-.qcard.done{border-color:color-mix(in srgb, var(--good) 60%, var(--border));background:color-mix(in srgb, var(--good-soft) 45%, var(--surface));box-shadow:var(--glow-good);}
+.qcard{transition:border-color .2s, background .2s, box-shadow .2s;}
+.qcard.result-correct{border-color:color-mix(in srgb, var(--good) 60%, var(--border));background:color-mix(in srgb, var(--good-soft) 45%, var(--surface));box-shadow:var(--glow-good);}
+.qcard.result-wrong{border-color:color-mix(in srgb, var(--danger) 60%, var(--border));background:color-mix(in srgb, var(--danger-soft) 45%, var(--surface));box-shadow:var(--glow-danger);}
+.qcard.result-left{border-color:color-mix(in srgb, var(--ink-faint) 55%, var(--border));background:color-mix(in srgb, var(--neutral-soft) 45%, var(--surface));}
 
 /* ---------- Diagnosis ---------- */
 .diag-hero{border:1px solid var(--primary-soft);background:var(--primary-soft);border-radius:12px;padding:20px 22px;margin-bottom:22px;}
@@ -308,6 +308,17 @@ a{color:var(--primary);}
 .block-check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border);flex:none;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:transform .1s;}
 .block-check.checked{animation:checkPop .25s ease;background:var(--good);border-color:var(--good);color:#fff;}
 @keyframes checkPop{0%{transform:scale(.5);opacity:0;}60%{transform:scale(1.15);opacity:1;}100%{transform:scale(1);}}
+.confetti-burst{position:fixed;inset:0;z-index:200;pointer-events:none;}
+.confetti-piece{
+  position:fixed;width:7px;height:10px;margin:-5px 0 0 -3.5px;
+  animation:confettiBurst .85s cubic-bezier(.16,.84,.44,1) forwards;
+}
+@keyframes confettiBurst{
+  0%{transform:translate(0,0) rotate(0deg);opacity:1;}
+  70%{opacity:1;}
+  100%{transform:translate(var(--dx), calc(var(--dy) + 90px)) rotate(var(--rot));opacity:0;}
+}
+@media (prefers-reduced-motion:reduce){.confetti-piece{animation:none;display:none;}}
 .block-dot{width:7px;height:7px;border-radius:99px;flex:none;margin-top:6px;}
 .block-body{flex:1;min-width:0;}
 .block-title{font-size:13.5px;font-weight:600;color:var(--ink);}
@@ -444,22 +455,23 @@ var LOGO_DATA_URI = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAACgCAYAA
 
 function icon(inner){ return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+inner+'</svg>'; }
 var CATEGORIES = [
-  {id:'language', label:'Language', product:'Textbook clarity session', desc:'Struggled with the wording, terms, or exact phrasing of the question.', colorVar:'--cat-language',
+  {id:'language', label:'Language', product:'Textbook clarity session', desc:'Struggled with the wording, terms, or exact phrasing of the question.',
     icon: icon('<path d="M21 12a8 8 0 0 1-8 8H7l-4 3 1-4.5A8 8 0 1 1 21 12Z"/>')},
-  {id:'situation', label:'Situation', product:'Situation decoding drill', desc:"Understood the words, but couldn't visualise or interpret the physical situation.", colorVar:'--cat-situation',
+  {id:'situation', label:'Situation', product:'Situation decoding drill', desc:"Understood the words, but couldn't visualise or interpret the physical situation.",
     icon: icon('<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/>')},
-  {id:'approach', label:'Approach', product:'Approach-building drill', desc:"Understood the question but couldn't find where to start.", colorVar:'--cat-approach',
+  {id:'approach', label:'Approach', product:'Approach-building drill', desc:"Understood the question but couldn't find where to start.",
     icon: icon('<circle cx="12" cy="12" r="9"/><polygon points="12,7.5 13.6,12 12,16.5 10.4,12" fill="currentColor" stroke="none"/>')},
-  {id:'formula', label:'Formula / Law', product:'Formula recall & derivation', desc:"Knew the approach but couldn't recall the formula, law, or condition.", colorVar:'--cat-formula',
+  {id:'formula', label:'Formula / Law', product:'Formula recall & derivation', desc:"Knew the approach but couldn't recall the formula, law, or condition.",
     icon: icon('<line x1="17" y1="7" x2="7" y2="17"/><circle cx="7.5" cy="7.5" r="2"/><circle cx="16.5" cy="16.5" r="2"/>')},
-  {id:'silly', label:'Silly / Calculation', product:'20-minute accuracy test mode', desc:'Knew the method but lost marks during execution.', colorVar:'--cat-silly',
+  {id:'silly', label:'Silly / Calculation', product:'Burst Mode', desc:'Knew the method but lost marks during execution.',
     icon: icon('<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8" fill="currentColor" stroke="none"/>')},
-  {id:'time', label:'Time management', product:'Search-and-Destroy time drill', desc:'Could solve it, but spent time badly, started late, or ran out.', colorVar:'--cat-time',
+  {id:'time', label:'Time management', product:'Search-and-Destroy time drill', desc:'Could solve it, but spent time badly, started late, or ran out.',
     icon: icon('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>')}
 ];
 var CAT_BY_ID = {}; CATEGORIES.forEach(function(c){ CAT_BY_ID[c.id]=c; });
-function catTileVar(catId){ var c=CAT_BY_ID[catId]; return c ? '--tile-color:var('+c.colorVar+');' : ''; }
-function catTileStyle(catId){ return ' style="'+catTileVar(catId)+'"'; }
+/* Categories are intentionally uncolored (per brief: only the 3 logo hues, reserved
+   for buttons/status/result marks) — icon tiles all render in a neutral tone. */
+function catTileStyle(catId){ return ' style="--tile-color:var(--ink-faint);"'; }
 var LOOP_STEPS = [
   {label:'Mock', desc:'Log results question by question — you choose how many, ten minutes flat.',
     icon: icon('<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>')},
@@ -604,9 +616,9 @@ function blockContent(catId, chapter){
     case 'formula': return {title:'Formula recall & derivation', time:30,
       instr:'Revise the formula or law you missed'+(chapter?(' in '+chapter):'')+'. Derive it from first principles where possible, then close your notes and test recall from memory alone.',
       checks:['Built a formula card: formula, meaning, conditions, derivation cue','Recalled it once with notes fully closed','Reapplied it to the original mock question']};
-    case 'silly': return {title:'20-minute accuracy test mode', time:20,
-      instr:'Solve 10 questions'+(chapter?(' covering '+chapter+' and similar topics'):'')+' in 20 minutes — no notes, no hints, no pausing. After the set, label every error: sign, unit, arithmetic, reading, option-marking, or setup.',
-      checks:['Completed all 10 within 20 minutes with no outside help','Labelled every error by its exact type','Noted the single most frequent error type below']};
+    case 'silly': return {title:'Burst Mode', time:30,
+      instr:'Pick a chapter whose concepts you’re already confident in — not a weak one. Solve 12 questions from it in one uninterrupted sitting, 30 minutes flat: no notes, no hints, no looking at the solution. Write every answer on paper as you go, then check all 12 against the answer key only after you’ve finished the set.',
+      checks:['Picked a chapter you’re genuinely confident in','Solved all 12 in one sitting, answers written on paper first','Checked every answer only after finishing all 12 — not mid-way','Noted how many you got right without losing focus']};
     case 'time': return {title:'Search-and-Destroy time drill', time:40,
       instr:'Run one timed set under exam conditions. First pass: classify every question A (fast), B (solvable, slower) or C (unclear). Solve all A questions first, then B in order of expected marks per minute. Leave C for last, and reserve the final 5–10 minutes only for checking.',
       checks:['Classified every question before solving any of them','Solved A questions first, then B by marks-per-minute','Reserved at least 5 minutes purely for checking']};
@@ -721,7 +733,11 @@ function buildPlan(mock){
   var blocks = schedule.map(function(catId, i){
     var day = 2 + Math.floor(i/2); // 2..13
     perCatIndex[catId] = (perCatIndex[catId]||0);
-    var chapters = catId==='mixed' ? [] : chaptersForCategory(mock.questions, catId);
+    // Burst Mode (silly/calculation) deliberately wants a chapter the student is
+    // already CONFIDENT in, the opposite of chaptersForCategory's weak-chapter
+    // list — so it's never auto-assigned one; the task instructions ask the
+    // student to pick it themselves.
+    var chapters = (catId==='mixed' || catId==='silly') ? [] : chaptersForCategory(mock.questions, catId);
     var chapter = chapters.length ? chapters[perCatIndex[catId] % chapters.length] : null;
     perCatIndex[catId]++;
     var content = blockContent(catId, chapter);
@@ -750,7 +766,7 @@ function reallocateFromCheckpoint(plan, checkpointQuestions){
   var newBlocks = schedule.map(function(catId, i){
     var day = 8 + Math.floor(i/2);
     perCatIndex[catId] = (perCatIndex[catId]||0);
-    var chapters = catId==='mixed' ? [] : chaptersForCategory(mock.questions, catId);
+    var chapters = (catId==='mixed' || catId==='silly') ? [] : chaptersForCategory(mock.questions, catId);
     var chapter = chapters.length ? chapters[perCatIndex[catId] % chapters.length] : null;
     perCatIndex[catId]++;
     var content = blockContent(catId, chapter);
@@ -775,7 +791,43 @@ function fmtDate(d){
 }
 function esc(s){ return (s===undefined||s===null) ? '' : String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function readinessClass(score){ return score<50 ? 'danger' : (score<75 ? 'warn' : 'good'); }
+function resultCardClass(result){
+  if(!result) return '';
+  if(result==='wrong') return ' result-wrong';
+  if(result==='left') return ' result-left';
+  return ' result-correct'; // correct, slow (correct-too-slow), guessed all read as a win
+}
 function g(id){ return document.getElementById(id); }
+
+function spawnConfetti(originRect){
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var colors = ['var(--primary)','var(--good)','var(--danger)'];
+  var ox = originRect ? originRect.left + originRect.width/2 : window.innerWidth/2;
+  var oy = originRect ? originRect.top + originRect.height/2 : window.innerHeight/3;
+  var wrap = document.createElement('div');
+  wrap.className = 'confetti-burst';
+  wrap.setAttribute('aria-hidden', 'true');
+  var n = 26;
+  for(var i=0;i<n;i++){
+    var p = document.createElement('span');
+    p.className = 'confetti-piece';
+    var angle = Math.random()*360;
+    var dist = 70 + Math.random()*110;
+    var dx = Math.cos(angle*Math.PI/180)*dist;
+    var dy = Math.sin(angle*Math.PI/180)*dist - 30;
+    p.style.left = ox+'px';
+    p.style.top = oy+'px';
+    p.style.background = colors[i%colors.length];
+    p.style.setProperty('--dx', dx.toFixed(1)+'px');
+    p.style.setProperty('--dy', dy.toFixed(1)+'px');
+    p.style.setProperty('--rot', (Math.random()*720-360).toFixed(0)+'deg');
+    p.style.animationDelay = (Math.random()*0.08).toFixed(2)+'s';
+    if(i%3===0) p.style.borderRadius = '50%';
+    wrap.appendChild(p);
+  }
+  document.body.appendChild(wrap);
+  setTimeout(function(){ wrap.remove(); }, 1000);
+}
 
 function demoMock(){
   var subs=['Physics','Chemistry','Mathematics'], chapters={
@@ -988,7 +1040,11 @@ var App = {
   refreshCardDone: function(qi){
     var mock = findMock(state.routeParams.mockId); if(!mock) return;
     var card = document.getElementById('qcard-'+qi);
-    if(card){ card.classList.toggle('done', !!mock.questions[qi].result); }
+    if(card){
+      card.classList.remove('result-correct', 'result-wrong', 'result-left');
+      var cls = resultCardClass(mock.questions[qi].result).trim();
+      if(cls) card.classList.add(cls);
+    }
   },
 
   toggleMarkAllCorrect: function(el){
@@ -1039,6 +1095,7 @@ var App = {
     if(block.completed){
       var ta = document.getElementById('reflectInput');
       if(ta) block.reflection = ta.value;
+      spawnConfetti(el.getBoundingClientRect());
     }
     persist();
     delete state.routeParams.taskId;
@@ -1114,7 +1171,7 @@ var App = {
         key: RAZORPAY_KEY_ID, amount: order.amount, currency: 'INR', order_id: order.orderId,
         name: 'Mock-to-Marks', description: '14-day recovery plan — lifetime unlock',
         prefill: { email: authUser.email || '', name: authUser.displayName || '' },
-        theme: { color: '#c3b6ff' },
+        theme: { color: '#ffd699' },
         handler: function(response){ App.verifyPayment(response); },
         modal: { ondismiss: function(){ if(btn){ btn.disabled=false; btn.textContent='Pay ₹499 — Unlock plan'; } } }
       });
@@ -1431,7 +1488,7 @@ function questionCard(q, qi){
     return '<label class="chip"><input type="radio" name="res'+qi+'" value="'+r.id+'" data-field="q.'+qi+'.result" '+checked+'><span>'+r.label+'</span></label>';
   }).join('');
   var subjOpts = SUBJECTS.map(function(s){ return '<option value="'+s+'"'+(q.subject===s?' selected':'')+'>'+s+'</option>'; }).join('');
-  return '<div class="qcard'+(q.result?' done':'')+'" id="qcard-'+qi+'">'+
+  return '<div class="qcard'+resultCardClass(q.result)+'" id="qcard-'+qi+'">'+
     '<div class="qcard-head"><span class="qnum">Q'+(qi+1)+'</span>'+
       '<select data-field="q.'+qi+'.subject">'+subjOpts+'</select></div>'+
     '<div class="subrow">'+
@@ -1544,8 +1601,7 @@ function dayLabel(day){
   return 'Day '+day;
 }
 function catColorVar(catId){
-  var c = CAT_BY_ID[catId];
-  return c ? c.colorVar : '--ink-faint';
+  return '--ink-faint'; // categories are intentionally uncolored — see catTileStyle
 }
 
 function checkpointForm(){
@@ -1733,7 +1789,7 @@ function viewProfile(){
   var weakFronts = dash.aggList.length ? dash.aggList.map(function(c,i){
     var barPct = dash.maxScore>0 ? Math.round(c.score/dash.maxScore*100) : 0;
     return '<div class="catrow" style="padding:14px 16px;">'+
-      '<div class="icon-tile" style="'+catTileVar(c.id)+'width:28px;height:28px;">'+c.icon+'</div>'+
+      '<div class="icon-tile" style="--tile-color:var(--ink-faint);width:28px;height:28px;">'+c.icon+'</div>'+
       '<div class="catrow-body">'+
         '<div class="catrow-top"><span class="cattitle" style="font-size:14.5px;">'+c.label+'</span><span style="font-size:12px;color:var(--ink-faint);">'+c.affected+' question'+(c.affected===1?'':'s')+' across your mocks</span></div>'+
         '<div class="catbar-track" style="margin-top:10px;"><div class="catbar-fill" style="width:'+barPct+'%;"></div></div>'+
