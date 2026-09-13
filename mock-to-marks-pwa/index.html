@@ -808,6 +808,11 @@ function payGateHtml(){
     '</ul>'+
     '<button class="btn btn-primary" data-action="startPayment" style="width:100%;">Pay ₹499 — Unlock plan</button>'+
     '<div class="gate-error" id="gateError" hidden></div>'+
+    '<button type="button" class="btn-text" data-action="togglePromoField" id="promoToggle" style="display:block;margin:14px auto 0;font-size:12.5px;">Have a code?</button>'+
+    '<div id="promoField" hidden style="margin-top:10px;gap:8px;">'+
+      '<input type="text" id="promoInput" placeholder="Enter code" autocapitalize="off" autocorrect="off" spellcheck="false" style="flex:1;padding:9px 11px;border:1px solid var(--border);border-radius:7px;background:var(--surface-2);color:var(--ink);font-size:13px;">'+
+      '<button class="btn btn-ghost btn-sm" data-action="redeemPromoCode">Apply</button>'+
+    '</div>'+
     '<p class="helper" style="text-align:center;margin-top:14px;">Payments secured by Razorpay. <a href="refund.html" target="_blank">Refund policy</a></p>'+
   '</div></div>';
 }
@@ -1081,6 +1086,41 @@ var App = {
     }).catch(function(err){
       if(errEl){ errEl.hidden = false; errEl.textContent = err.message; }
       if(btn){ btn.disabled = false; btn.textContent = 'Pay ₹499 — Unlock plan'; }
+    });
+  },
+  togglePromoField: function(){
+    var field = document.getElementById('promoField');
+    var toggle = document.getElementById('promoToggle');
+    if(!field) return;
+    field.style.display = 'flex';
+    if(toggle) toggle.style.display = 'none';
+    var inp = document.getElementById('promoInput');
+    if(inp){ inp.focus(); inp.addEventListener('keydown', function(e){ if(e.key==='Enter') App.redeemPromoCode(); }); }
+  },
+  redeemPromoCode: function(){
+    if(!authUser) return;
+    var input = document.getElementById('promoInput');
+    var btn = document.querySelector('#promoField [data-action="redeemPromoCode"]');
+    var errEl = document.getElementById('gateError');
+    var code = (input && input.value || '').trim();
+    if(errEl) errEl.hidden = true;
+    if(!code) return;
+    if(btn){ btn.disabled = true; btn.textContent = 'Checking…'; }
+    authUser.getIdToken().then(function(idToken){
+      return fetch(API_BASE+'/redeem-code', {
+        method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+idToken},
+        body: JSON.stringify({code: code})
+      }).then(function(r){ return r.json(); });
+    }).then(function(res){
+      if(!res || !res.ok) throw new Error((res && res.error) || 'That code isn’t valid.');
+      entitlement = {entitled:true};
+      var resume = gatePending; gatePending = null;
+      App.closeGate();
+      if(resume) resume();
+    }).catch(function(err){
+      if(errEl){ errEl.hidden = false; errEl.textContent = err.message; }
+      if(btn){ btn.disabled = false; btn.textContent = 'Apply'; }
+      if(input) input.select();
     });
   },
 
