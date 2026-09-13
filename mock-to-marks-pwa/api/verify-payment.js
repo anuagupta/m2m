@@ -36,11 +36,33 @@ module.exports = async (req, res) => {
   const valid = a.length === b.length && crypto.timingSafeEqual(a, b);
   if (!valid) { res.status(400).json({ ok: false, error: 'signature mismatch' }); return; }
 
-  await admin.firestore().collection('users').doc(uid).set({
-    entitled: true,
-    entitledAt: Date.now(),
-    lastPaymentId: paymentId
-  }, { merge: true });
+  // The signature alone only proves Razorpay issued this payment for this
+  // order - it says nothing about who the order was for. Without this check,
+  // anyone handed a completed payment's orderId/paymentId/signature (shared
+  // by a friend, or intercepted) could redeem it again under their own
+  // account. The order record from create-order.js ties it to a uid, and
+  // marking it consumed here stops the same order being redeemed twice.
+  const orderRef = admin.firestore().collection('orders').doc(orderId);
+  const result = await admin.firestore().runTransaction(async (tx) => {
+    const orderDoc = await tx.get(orderRef);
+    if (!orderDoc.exists) {
+      return { ok: false, status: 400, error: 'This payment could not be matched to an order. Email prodjeelabs@gmail.com with payment ID: ' + paymentId };
+    }
+    const order = orderDoc.data();
+    if (order.uid !== uid) {
+      return { ok: false, status: 403, error: 'This payment was made from a different account.' };
+    }
+    if (order.consumed) {
+      return { ok: false, status: 400, error: 'This payment has already been used to unlock an account.' };
+    }
+    tx.update(orderRef, { consumed: true, consumedAt: Date.now() });
+    tx.set(admin.firestore().collection('users').doc(uid), {
+      entitled: true,
+      entitledAt: Date.now(),
+      lastPaymentId: paymentId
+    }, { merge: true });
+    return { ok: true };
+  });
 
-  res.status(200).json({ ok: true });
+  res.status(result.ok ? 200 : result.status).json({ ok: result.ok, error: result.error });
 };
