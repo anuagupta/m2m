@@ -392,6 +392,10 @@ select,.field input[type=text],.field input[type=number],.field input[type=date]
 <div id="app"></div>
 <button id="pwaInstallBtn" class="pwa-install-btn" hidden>⬇ Install app</button>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 (function(){
 "use strict";
@@ -757,46 +761,80 @@ function demoMock(){
 
 /* ---------------- routing ---------------- */
 /* ---------------- access gate ----------------
-   ponytail: this proves possession of a passcode, not identity, and it
-   cannot stop a determined user from calling App/scoring functions
-   directly from devtools - the compute logic still ships to the client.
-   Real access control needs the scoring/plan logic to move server-side
-   behind real auth. This is a casual-sharing deterrent, matched to what's
-   actually buildable without new OAuth/payment accounts. */
-var GATE_API_URL = 'https://m2m-two.vercel.app/api/check-passcode';
-var GATE_TOKEN_KEY = 'mtm_gate_token';
-var gatePending = null;
-function gateUnlocked(){
-  try{
-    var raw = localStorage.getItem(GATE_TOKEN_KEY);
-    if(!raw) return false;
-    return Number(raw.split('.')[0]) > Date.now();
-  }catch(e){ return false; }
-}
-var GATE_EYE_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
-var GATE_EYE_OFF_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.86 21.86 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a21.8 21.8 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
-function gateOverlayHtml(){
+   Two independent gates: sign-in (Google, via Firebase Auth) gates every
+   route except landing; payment gates plan generation specifically. Free
+   tier = sign in, analyse unlimited mocks, see your diagnosis. Paid tier
+   (one-time ₹499, lifetime) = the 14-day plan itself.
+   Firestore rules deny client writes to /users/{uid} entirely - "entitled"
+   can only be set by verify-payment.js after checking Razorpay's signature
+   server-side, so this can't be spoofed from devtools the way a shared
+   passcode could. */
+var firebaseConfig = {
+  apiKey: "AIzaSyB_Qs-S_PjdzW33Jk-7JG0-lgr7_gVcltQ",
+  authDomain: "prodjee-m2m.firebaseapp.com",
+  projectId: "prodjee-m2m",
+  storageBucket: "prodjee-m2m.firebasestorage.app",
+  messagingSenderId: "602452550958",
+  appId: "1:602452550958:web:802886f8a07658b9df06bf"
+};
+firebase.initializeApp(firebaseConfig);
+var auth = firebase.auth();
+var db = firebase.firestore();
+var API_BASE = 'https://m2m-two.vercel.app/api';
+var RAZORPAY_KEY_ID = 'rzp_test_TbU1PIoiKuTFqb';
+
+var authUser = null;
+var entitlement = null;
+var gatePending = null; // function to call once the open gate is cleared
+
+var GOOGLE_ICON = '<svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3.01-2.33Z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.59-2.59A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58Z"/></svg>';
+
+function signInGateHtml(){
   return '<div class="gate-bg" data-action="closeGate"><div class="gate-card">'+
-    '<h3>Enter your passcode</h3>'+
-    '<p class="gate-sub">This app is available to enrolled students only.</p>'+
-    '<div class="gate-input-wrap">'+
-      '<input type="password" id="gatePasscodeInput" placeholder="Passcode" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">'+
-      '<button type="button" class="gate-eye" id="gateEyeBtn" data-action="gateToggleVisibility" aria-label="Show passcode">'+GATE_EYE_ICON+'</button>'+
-    '</div>'+
-    '<div class="gate-error" id="gateError" hidden>That passcode isn’t right. Try again.</div>'+
-    '<button class="btn btn-primary" data-action="gateSubmit" style="width:100%;margin-top:16px;">Unlock</button>'+
+    '<h3>Sign in to continue</h3>'+
+    '<p class="gate-sub">Sign in with Google to save your mocks and pick up where you left off on any device. Your diagnosis is free — you only pay to unlock the 14-day plan.</p>'+
+    '<button class="btn btn-primary" data-action="signIn" style="width:100%;margin-top:20px;display:flex;align-items:center;justify-content:center;gap:10px;">'+GOOGLE_ICON+' Continue with Google</button>'+
+    '<div class="gate-error" id="gateError" hidden></div>'+
   '</div></div>';
 }
-function showGate(route, params){
-  gatePending = {route:route, params:params};
-  document.getElementById('app').insertAdjacentHTML('beforeend', gateOverlayHtml());
-  var input = document.getElementById('gatePasscodeInput');
-  input.focus();
-  input.addEventListener('keydown', function(e){ if(e.key==='Enter') App.gateSubmit(); });
+function payGateHtml(){
+  return '<div class="gate-bg" data-action="closeGate"><div class="gate-card">'+
+    '<h3>Unlock your 14-day plan</h3>'+
+    '<p class="gate-sub">Your diagnosis is free. Unlock the full recovery plan — plus every future mock and plan — once, for ₹499.</p>'+
+    '<ul class="checklist" style="margin:16px 0;">'+
+      '<li>✓ Full 14-day plan built from your actual mistakes</li>'+
+      '<li>✓ Unlimited mocks and plans, forever</li>'+
+      '<li>✓ 7-day no-questions-asked refund</li>'+
+    '</ul>'+
+    '<button class="btn btn-primary" data-action="startPayment" style="width:100%;">Pay ₹499 — Unlock plan</button>'+
+    '<div class="gate-error" id="gateError" hidden></div>'+
+    '<p class="helper" style="text-align:center;margin-top:14px;">Payments secured by Razorpay. <a href="refund.html" target="_blank">Refund policy</a></p>'+
+  '</div></div>';
 }
+function showGateOverlay(html, resumeFn){
+  gatePending = resumeFn;
+  document.getElementById('app').insertAdjacentHTML('beforeend', html);
+}
+function showSignInGate(resumeFn){ showGateOverlay(signInGateHtml(), resumeFn); }
+function showPayGate(resumeFn){ showGateOverlay(payGateHtml(), resumeFn); }
+
+function fetchEntitlement(){
+  if(!authUser) return Promise.resolve(null);
+  return db.collection('users').doc(authUser.uid).get().then(function(doc){
+    entitlement = doc.exists ? doc.data() : {entitled:false};
+    return entitlement;
+  }).catch(function(){ entitlement = {entitled:false}; return entitlement; });
+}
+auth.onAuthStateChanged(function(user){
+  authUser = user;
+  if(!user){ entitlement = null; return; }
+  fetchEntitlement().then(function(){
+    if(gatePending){ var resume = gatePending; gatePending = null; App.closeGate(); resume(); }
+  });
+});
 
 function nav(route, params){
-  if(route!=='landing' && !state.demo && !gateUnlocked()){ showGate(route, params); return; }
+  if(route!=='landing' && !state.demo && !authUser){ showSignInGate(function(){ nav(route, params); }); return; }
   state.route=route; state.routeParams=params||{}; persist();
   var apply = function(){ render(); window.scrollTo(0,0); };
   var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -908,6 +946,7 @@ var App = {
     var mock = findMock(state.routeParams.mockId); if(!mock) return;
     var incomplete = mock.questions.some(function(q){return !q.result;});
     if(incomplete) return;
+    if(!entitlement || !entitlement.entitled){ showPayGate(function(){ App.generatePlan(); }); return; }
     if(mock.role==='followup'){
       persist();
       nav('compare', {mockId: mock.linkedMockId, followupId: mock.id});
@@ -976,48 +1015,73 @@ var App = {
   },
 
   closeGate: function(){
-    var el = document.getElementById('gatePasscodeInput');
-    var overlay = el && el.closest('.gate-bg');
+    var overlay = document.querySelector('.gate-bg');
     if(overlay) overlay.remove();
     gatePending = null;
   },
-  gateToggleVisibility: function(){
-    var input = document.getElementById('gatePasscodeInput');
-    var btn = document.getElementById('gateEyeBtn');
-    var showing = input.type === 'text';
-    input.type = showing ? 'password' : 'text';
-    btn.innerHTML = showing ? GATE_EYE_ICON : GATE_EYE_OFF_ICON;
-    btn.setAttribute('aria-label', showing ? 'Show passcode' : 'Hide passcode');
-    input.focus();
-  },
-  gateSubmit: function(){
-    var input = document.getElementById('gatePasscodeInput');
-    var btn = document.querySelector('.gate-card [data-action="gateSubmit"]');
+  signIn: function(){
+    var btn = document.querySelector('.gate-card [data-action="signIn"]');
     var errEl = document.getElementById('gateError');
-    var passcode = (input.value||'').trim();
-    errEl.hidden = true;
-    if(!passcode) return;
-    btn.disabled = true; btn.textContent = 'Checking…';
-    fetch(GATE_API_URL, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({passcode: passcode})
-    }).then(function(r){ return r.json().then(function(data){ return {ok:r.ok, data:data}; }); })
-      .then(function(res){
-        if(res.ok && res.data && res.data.ok){
-          localStorage.setItem(GATE_TOKEN_KEY, res.data.token);
-          var pending = gatePending; gatePending = null;
-          App.closeGate();
-          if(pending) nav(pending.route, pending.params);
-        } else {
-          errEl.hidden = false;
-          btn.disabled = false; btn.textContent = 'Unlock';
-          input.select();
-        }
-      }).catch(function(){
-        errEl.textContent = 'Could not reach the access server. Check your connection and try again.';
-        errEl.hidden = false;
-        btn.disabled = false; btn.textContent = 'Unlock';
+    if(errEl) errEl.hidden = true;
+    if(btn) btn.disabled = true;
+    var provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider).catch(function(err){
+      if(errEl){ errEl.hidden = false; errEl.textContent = (err && err.message) || 'Sign-in failed. Try again.'; }
+      if(btn) btn.disabled = false;
+    });
+  },
+  signOut: function(){
+    auth.signOut().then(function(){ state.demo = false; nav('landing'); });
+  },
+  startPayment: function(){
+    if(!authUser) return;
+    var btn = document.querySelector('.gate-card [data-action="startPayment"]');
+    var errEl = document.getElementById('gateError');
+    if(errEl) errEl.hidden = true;
+    if(btn){ btn.disabled = true; btn.textContent = 'Preparing payment…'; }
+    authUser.getIdToken().then(function(idToken){
+      return fetch(API_BASE+'/create-order', {
+        method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+idToken}
+      }).then(function(r){ return r.json(); });
+    }).then(function(order){
+      if(!order || !order.ok) throw new Error((order && order.error) || 'Could not start payment');
+      var rp = new Razorpay({
+        key: RAZORPAY_KEY_ID, amount: order.amount, currency: 'INR', order_id: order.orderId,
+        name: 'Mock-to-Marks', description: '14-day recovery plan — lifetime unlock',
+        prefill: { email: authUser.email || '', name: authUser.displayName || '' },
+        theme: { color: '#f5b93d' },
+        handler: function(response){ App.verifyPayment(response); },
+        modal: { ondismiss: function(){ if(btn){ btn.disabled=false; btn.textContent='Pay ₹499 — Unlock plan'; } } }
       });
+      rp.open();
+    }).catch(function(err){
+      if(errEl){ errEl.hidden = false; errEl.textContent = err.message || 'Could not start payment. Try again.'; }
+      if(btn){ btn.disabled = false; btn.textContent = 'Pay ₹499 — Unlock plan'; }
+    });
+  },
+  verifyPayment: function(response){
+    var btn = document.querySelector('.gate-card [data-action="startPayment"]');
+    var errEl = document.getElementById('gateError');
+    if(btn){ btn.disabled = true; btn.textContent = 'Confirming…'; }
+    authUser.getIdToken().then(function(idToken){
+      return fetch(API_BASE+'/verify-payment', {
+        method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+idToken},
+        body: JSON.stringify({
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_signature: response.razorpay_signature
+        })
+      }).then(function(r){ return r.json(); });
+    }).then(function(res){
+      if(!res || !res.ok) throw new Error('Payment could not be verified. Email prodjeelabs@gmail.com with payment ID: '+response.razorpay_payment_id);
+      entitlement = {entitled:true};
+      var resume = gatePending; gatePending = null;
+      App.closeGate();
+      if(resume) resume();
+    }).catch(function(err){
+      if(errEl){ errEl.hidden = false; errEl.textContent = err.message; }
+      if(btn){ btn.disabled = false; btn.textContent = 'Pay ₹499 — Unlock plan'; }
+    });
   },
 
   openProfile: function(){ nav('profile'); },
@@ -1298,6 +1362,7 @@ function viewAnalyze(){
       '<button class="btn btn-primary" id="genPlanBtn" data-action="generatePlan" '+(done<total?'disabled':'')+' style="padding:13px 26px;">'+
         (mock.role==='followup' ? 'Compare with Day 1' : 'Generate my 14-day plan')+'</button>'+
     '</div>'+
+    (mock.role!=='followup' && !(entitlement && entitlement.entitled) ? '<p class="helper" style="text-align:center;">One-time ₹499 unlock for the plan — the diagnosis above is always free.</p>' : '')+
     '<p class="helper" style="text-align:center;">Mark every problematic question with exactly one primary reason. "Correct" hides the reason chips automatically.</p>'+
   '</div>';
 }
@@ -1579,7 +1644,12 @@ function viewProfile(){
   return topbar() + '<div class="shell page">'+
     '<button class="page-back" data-action="toLanding">← Back</button>'+
     '<h2 class="page-title">Your profile</h2>'+
-    '<p class="section-lead" style="margin-top:4px;">Stored only on this device, in your browser. No account, no server — export a backup if you want a copy elsewhere.</p>'+
+    '<p class="section-lead" style="margin-top:4px;">Your mocks and plans live on this device — export a backup if you want a copy elsewhere. Your account and unlock status are saved to your Google sign-in, so they follow you to a new device.</p>'+
+    (authUser ? '<div class="card" style="margin-top:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">'+
+      '<div><div style="font-size:13.5px;color:var(--ink);">Signed in as <b>'+esc(authUser.email||'')+'</b></div>'+
+      '<div style="font-size:12px;color:'+(entitlement&&entitlement.entitled?'var(--good)':'var(--ink-faint)')+';margin-top:3px;">'+(entitlement&&entitlement.entitled?'✓ Plan unlocked':'Free tier — diagnosis only, plan not yet unlocked')+'</div></div>'+
+      '<button class="btn btn-ghost btn-sm" data-action="signOut">Sign out</button>'+
+    '</div>' : '')+
 
     '<div class="card" style="margin-top:22px;">'+
       '<div class="field-row">'+
@@ -1833,22 +1903,26 @@ function handleEntryRoute(){
   try{
     var params = new URLSearchParams(location.search);
     var r = params.get('route');
-    if(!r) return;
+    if(!r) return false;
+    history.replaceState(null, '', location.pathname);
     if(r==='new'){
-      state.route = 'create'; state.routeParams = {role:'initial'};
+      nav('create', {role:'initial'});
+      return true;
     } else if(r==='today'){
       var withPlan = realMocks().filter(function(m){ return findPlan(m.id); })
         .sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
-      if(withPlan.length) { state.route = 'calendar'; state.routeParams = {mockId: withPlan[0].id}; }
+      if(withPlan.length){ nav('calendar', {mockId: withPlan[0].id}); return true; }
     }
-    history.replaceState(null, '', location.pathname);
   }catch(e){ /* URLSearchParams unsupported or blocked - fall through to normal landing */ }
+  return false;
 }
 
 /* hot-reload friendliness for republishes */
 function boot(){
-  handleEntryRoute();
-  render();
+  // routed through nav() (not a direct render()) so a PWA shortcut launch
+  // still passes through the sign-in gate like any other non-landing route.
+  var handled = handleEntryRoute();
+  if(!handled) render();
   App.maybeNotifyToday();
 }
 if(window.claude && window.claude.hot){
