@@ -127,7 +127,7 @@ a{color:var(--primary);}
 .wordmark-text{font-family:var(--serif);font-weight:800;font-size:22px;color:var(--ink);letter-spacing:-0.01em;}
 .topnav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .topnav-mockname{font-size:13px;color:var(--ink-soft);padding:0 10px;border-right:1px solid var(--border);margin-right:2px;}
-.avatar-btn{width:34px;height:34px;border-radius:99px;background:var(--primary);color:var(--on-primary);border:none;font-family:var(--sans);font-weight:800;font-size:13.5px;display:inline-flex;align-items:center;justify-content:center;flex:none;margin-left:2px;transition:background .15s, transform .1s;}
+.avatar-btn{width:34px;height:34px;border-radius:99px;background:var(--primary);color:var(--on-primary);border:none;font-family:var(--sans);font-weight:800;font-size:13.5px;display:inline-flex;align-items:center;justify-content:center;flex:none;margin-left:2px;overflow:hidden;transition:background .15s, transform .1s;}
 .avatar-btn:hover{background:var(--primary-strong);transform:scale(1.1);}
 .avatar-btn:active{transform:translateY(1px);}
 
@@ -143,6 +143,8 @@ a{color:var(--primary);}
 .btn-primary:hover{background:var(--primary-strong);transform:translateY(-1px);box-shadow:0 14px 40px -8px color-mix(in srgb, var(--primary) 62%, transparent);}
 .btn-ghost{background:color-mix(in srgb, var(--surface-2) 55%, transparent);color:var(--ink);border-color:var(--border);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);}
 .btn-ghost:hover{background:color-mix(in srgb, var(--surface-2) 85%, transparent);border-color:var(--primary);}
+.btn-apple{background:#000;color:#fff;border-color:#000;}
+.btn-apple:hover{background:#1a1a1a;transform:translateY(-1px);}
 .btn-text{background:none;border:none;color:var(--primary);font-weight:600;font-size:14px;padding:6px 4px;}
 .btn-text:hover{color:var(--primary-strong);transform:translateX(3px);}
 .btn-sm{padding:7px 12px;font-size:13px;border-radius:8px;}
@@ -878,12 +880,19 @@ var markAllBackup = {}; // mockId -> pre-toggle question snapshot, for the rever
 var profileEditing = false; // whether the profile name/exam fields are shown as inputs vs. read-only text
 
 var GOOGLE_ICON = '<svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3.01-2.33Z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.59-2.59A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58Z"/></svg>';
+var APPLE_ICON = '<svg width="16" height="16" viewBox="0 0 17 20" fill="#fff"><path d="M14.03 10.6c-.02-2.02 1.65-2.99 1.73-3.04-.94-1.38-2.4-1.57-2.92-1.59-1.24-.13-2.43.73-3.06.73-.63 0-1.6-.71-2.63-.69-1.35.02-2.6.79-3.3 1.99-1.4 2.44-.36 6.06 1.02 8.04.67.97 1.47 2.06 2.52 2.02 1.01-.04 1.4-.65 2.62-.65 1.22 0 1.57.65 2.63.63 1.09-.02 1.78-.98 2.44-1.95.77-1.12 1.09-2.2 1.1-2.26-.02-.01-2.11-.81-2.15-3.23ZM12 3.66c.55-.67.92-1.6.82-2.53-.79.03-1.75.53-2.32 1.19-.51.59-.96 1.54-.84 2.44.88.07 1.78-.45 2.34-1.1Z"/></svg>';
+// Flip to true once Apple Developer Program + Firebase Console Apple provider
+// setup is complete (see App.signInApple for what that involves) — until then
+// the button stays out of the DOM so nobody can click a sign-in method that
+// will only error out.
+var APPLE_SIGNIN_ENABLED = false;
 
 function signInGateHtml(){
   return '<div class="gate-bg" data-action="closeGate"><div class="gate-card">'+
     '<h3>Sign in to continue</h3>'+
-    '<p class="gate-sub">Sign in with Google to save your mocks and pick up where you left off on any device. Your diagnosis is free — you only pay to unlock the 14-day plan.</p>'+
+    '<p class="gate-sub">Sign in to save your mocks and pick up where you left off on any device. Your diagnosis is free — you only pay to unlock the 14-day plan.</p>'+
     '<button class="btn btn-primary" data-action="signIn" style="width:100%;margin-top:20px;display:flex;align-items:center;justify-content:center;gap:10px;">'+GOOGLE_ICON+' Continue with Google</button>'+
+    (APPLE_SIGNIN_ENABLED ? '<button class="btn btn-apple" data-action="signInApple" style="width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:10px;">'+APPLE_ICON+' Continue with Apple</button>' : '')+
     '<div class="gate-error" id="gateError" hidden></div>'+
   '</div></div>';
 }
@@ -1148,6 +1157,24 @@ var App = {
       if(btn) btn.disabled = false;
     });
   },
+  signInApple: function(){
+    var btn = document.querySelector('.gate-card [data-action="signInApple"]');
+    var errEl = document.getElementById('gateError');
+    if(errEl) errEl.hidden = true;
+    if(btn) btn.disabled = true;
+    // Requires: an active Apple Developer Program membership, a Services ID with
+    // "Sign in with Apple" enabled for this domain, and that Services ID + your
+    // Team ID / Key ID / private key entered under Firebase Console > Authentication
+    // > Sign-in method > Apple. Until that's done, this will fail with an
+    // auth/operation-not-allowed or auth/invalid-oauth-provider error.
+    var provider = new firebase.auth.OAuthProvider('apple.com');
+    provider.addScope('email');
+    provider.addScope('name');
+    auth.signInWithPopup(provider).catch(function(err){
+      if(errEl){ errEl.hidden = false; errEl.textContent = (err && err.message) || 'Sign-in failed. Try again.'; }
+      if(btn) btn.disabled = false;
+    });
+  },
   signOut: function(){
     auth.signOut().then(function(){ state.demo = false; nav('landing'); });
   },
@@ -1369,8 +1396,12 @@ function topbar(){
     (findPlan(mock.id) ? '<button class="btn btn-ghost btn-sm" data-action="toCalendar" data-id="'+mock.id+'">14-day plan</button>' : '')
   ) : '';
   var profileName = (state.profile && state.profile.name) ? state.profile.name.trim() : '';
-  var initial = profileName ? profileName.charAt(0).toUpperCase() : '?';
-  var profileBtn = '<button class="avatar-btn" data-action="openProfile" title="'+(profileName?esc(profileName)+' — profile':'Set up your profile')+'">'+initial+'</button>';
+  var photoUrl = authUser && authUser.photoURL;
+  var silhouette = icon('<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/>');
+  var avatarInner = photoUrl
+    ? '<img class="avatar-photo" src="'+esc(photoUrl)+'" alt="" referrerpolicy="no-referrer" style="width:100%;height:100%;border-radius:99px;object-fit:cover;display:block;">'
+    : (profileName ? esc(profileName.charAt(0).toUpperCase()) : silhouette);
+  var profileBtn = '<button class="avatar-btn" data-action="openProfile" title="'+(profileName?esc(profileName)+' — profile':'Set up your profile')+'">'+avatarInner+'</button>';
   var stickyProgress = '';
   if(state.route==='analyze' && mock){
     var totalQ = mock.numQuestions || NUM_Q;
@@ -2010,6 +2041,14 @@ document.getElementById('app').addEventListener('input', function(e){
   var t = e.target.closest('[data-field]');
   if(t && (t.tagName==='INPUT' && (t.type==='text'||t.type==='number')) ) App.fieldChange(t);
 });
+// 'error' on <img> doesn't bubble, so this only works in the capture phase —
+// falls back to a silhouette if a Google profile photo URL fails to load.
+document.getElementById('app').addEventListener('error', function(e){
+  var img = e.target;
+  if(img.classList && img.classList.contains('avatar-photo')){
+    img.outerHTML = icon('<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/>');
+  }
+}, true);
 
 /* ---------------- PWA install + offline support ---------------- */
 var deferredInstallPrompt = null;
