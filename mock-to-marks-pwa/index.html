@@ -690,12 +690,6 @@ function buildRadarSVG(series, opts){
     });
   });
   svg += '</g>';
-  var last = series[series.length-1];
-  if(last){
-    var minIdx=0; last.values.forEach(function(v,i){ if(v<last.values[minIdx]) minIdx=i; });
-    var out = hexPt(cx,cy,R+13,minIdx,100);
-    svg += '<text x="'+out[0].toFixed(1)+'" y="'+out[1].toFixed(1)+'" text-anchor="middle" style="font-family:var(--mono);font-size:11px;font-weight:600;fill:var(--ink);">'+last.values[minIdx]+'</text>';
-  }
   svg += '</svg>';
   return svg;
 }
@@ -1103,7 +1097,9 @@ var App = {
   },
 
   startCheckpoint: function(){
-    state.routeParams._cpDraft = Array.from({length:8}, function(){ return {result:'', primary:null}; });
+    var input = g('cpNumQ');
+    var n = Math.max(4, Math.min(20, Number(input && input.value) || 8));
+    state.routeParams._cpDraft = Array.from({length:n}, function(){ return {result:'', primary:null}; });
     state.routeParams.checkpointMode = true;
     render();
   },
@@ -1437,7 +1433,7 @@ function viewLanding(){
       '<div class="sd-card"><h3>Step 2 — Destroy</h3><ol><li>Return to B questions, highest marks-per-minute first.</li><li>Attempt only B questions with a clear first step.</li><li>Leave C for last; keep 5–10 minutes to check signs, units and options.</li></ol></div>'+
     '</div>'+
   '</div></div>'+
-  '<div class="shell footnote">MVP scope: manual entry per mock, no OCR or answer-sheet scanning yet. Built for JEE Main aspirants scoring roughly 100–150.'+
+  '<div class="shell footnote">Built for JEE Main aspirants in the 100–150 range. You log results by hand for now — answer-sheet scanning is on the way.'+
     '<div style="margin-top:10px;"><a href="privacy.html" style="color:var(--ink-faint);margin-right:14px;">Privacy</a><a href="terms.html" style="color:var(--ink-faint);margin-right:14px;">Terms</a><a href="refund.html" style="color:var(--ink-faint);">Refunds</a></div>'+
   '</div>';
 }
@@ -1564,7 +1560,8 @@ function viewDiagnosis(){
       '<div class="radar-side">'+
         '<div class="radar-stat-label">Readiness index (this mock)</div>'+
         '<div class="radar-stat-value '+readinessClass(prepData.overall)+'">'+prepData.overall+'<sup>/100</sup></div>'+
-        '<div class="radar-stat-note">A composite of the six fronts on the left, weighted by how often and how severely each one cost you marks. It\'s a single-mock estimate, not a predicted score or rank — track it across mocks for a real trend.</div>'+
+        '<div class="radar-stat-note" style="color:var(--good);font-weight:700;">'+(100-prepData.overall)+' points of headroom — exactly what your 14-day plan is built to close.</div>'+
+        '<div class="radar-stat-note">A composite of the six fronts on the left, weighted by how often and severely each cost you marks. A single-mock estimate, not a predicted score or rank — track it across mocks for a real trend.</div>'+
       '</div>'+
     '</div>'+
     '<div class="diag-hero" style="margin-top:16px;"><p>'+heroText+'</p></div>'+
@@ -1619,8 +1616,9 @@ function checkpointForm(){
       (reasonChipsHtml ? '<div class="qcard-label">Primary reason</div><div class="chiprow">'+reasonChipsHtml+'</div>' : '')+
     '</div>';
   }).join('');
+  var suggestedMin = Math.max(30, cp.length*3);
   return '<div class="card"><div class="form-title">Day 7 checkpoint</div>'+
-    '<div class="form-sub">A short timed set — 10 questions in 20 minutes is plenty. Log the outcome of each so we can re-weight your remaining 6 days.</div>'+
+    '<div class="form-sub">'+cp.length+' questions — give this at least '+suggestedMin+' minutes, even if you finish early. Log the outcome of each so we can re-weight your remaining 6 days.</div>'+
     rows +
     '<div style="display:flex;gap:10px;margin-top:6px;">'+
       '<button class="btn btn-primary" data-action="submitCheckpoint" style="flex:1;">Adjust my plan</button>'+
@@ -1679,6 +1677,8 @@ function calendarBody(mock, plan){
       cards.push(state.routeParams.checkpointMode ? checkpointForm() :
         '<div class="daycard special"><div class="daycard-head"><span class="daycard-title">Checkpoint test</span><span class="daycard-date">'+day7date+'</span></div>'+
         '<p style="font-size:13px;color:var(--ink-soft);">Run a short timed set, then adjust the remaining 6 days based on what’s still showing up.</p>'+
+        '<div class="field" style="max-width:200px;"><label for="cpNumQ">Number of questions</label><input type="number" id="cpNumQ" min="4" max="20" value="8"></div>'+
+        '<p class="field-hint">About 3 minutes per question — but spend at least 30 minutes on the checkpoint either way, even if you finish early. Rushing it defeats the point.</p>'+
         '<button class="btn btn-primary btn-sm day-cta" data-action="startCheckpoint">Start checkpoint test</button></div>');
     }
   });
@@ -1855,7 +1855,7 @@ function viewProfile(){
       '<h2>Reminders</h2>'+
       '<p class="section-lead">Best-effort: this notifies you when you open the app on a day you have an unfinished block. It cannot notify you while the app is fully closed.</p>'+
       '<label style="display:flex;align-items:center;gap:10px;margin-top:14px;font-size:13.5px;color:var(--ink);cursor:pointer;">'+
-        '<input type="checkbox" id="notifyToggle" onchange="App.toggleReminders(this)" '+(p.notifyEnabled?'checked':'')+' style="width:17px;height:17px;">'+
+        '<input type="checkbox" id="notifyToggle" data-action="toggleReminders" '+(p.notifyEnabled?'checked':'')+' style="width:17px;height:17px;">'+
         'Remind me about today’s plan block when I open the app'+
       '</label>'+
     '</div>'+
@@ -1928,7 +1928,7 @@ function viewCompare(){
     var recovered = loss1-loss2;
     return {label:c.label, loss1:loss1, loss2:loss2, recovered:recovered};
   });
-  var biggestGain = rows.slice().sort(function(a,b){b.recovered-a.recovered; return b.recovered-a.recovered;})[0];
+  var biggestGain = rows.slice().sort(function(a,b){return b.recovered-a.recovered;})[0];
   var stillOpen = s2.filter(function(c){return c.score>0;}).sort(function(a,b){return b.score-a.score;})[0];
 
   var takeaway = 'You '+(marksDelta>=0?'gained ':'lost ')+Math.abs(marksDelta)+' marks.'+
