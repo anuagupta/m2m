@@ -722,7 +722,14 @@
   }
   async function shareText(text) {
     if (navigator.share) { try { await navigator.share({ text }); return; } catch (e) { if (e && e.name === "AbortError") return; } }
-    window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
+    // Fallback: show the text with Copy + a real WhatsApp link (no pop-ups needed)
+    modal(`<h2 style="margin-bottom:10px">Share</h2>
+      <textarea id="share-text" readonly style="width:100%;min-height:210px;padding:12px;border-radius:12px;background:rgba(0,0,0,.35);color:var(--text);border:1px solid var(--line);font:13px/1.5 var(--body)">${esc(text)}</textarea>
+      <div class="grid cols-2" style="margin-top:12px">
+        <button class="btn ghost" data-act="copy-share">Copy text</button>
+        <a class="btn gold" href="https://wa.me/?text=${encodeURIComponent(text)}" target="_blank" rel="noopener" style="text-decoration:none">Open WhatsApp</a>
+      </div>
+      <button class="btn ghost block" data-act="close-modal" style="margin-top:10px">Close</button>`);
   }
 
   /* ================================ EVENTS ================================ */
@@ -772,6 +779,8 @@
       case "zoom": modal(`<img src="${esc(v)}" alt="${esc(el.dataset.alt || "Figure")}" class="zoom-img" /><button class="btn ghost block" data-act="close-modal" style="margin-top:12px">Close</button>`); break;
       case "reset": modal(`<h2>Reset everything?</h2><p class="muted">This permanently deletes your GP, badges, vault and history on this device.</p><div class="grid cols-2"><button class="btn ghost" data-act="close-modal">Cancel</button><button class="btn primary" data-act="reset-yes">Yes, reset</button></div>`); break;
       case "reset-yes": { const keep = { name: S.name, sound: S.sound, exam: S.exam }; S = Object.assign(fresh(), keep); save(); closeModal(); renderHome(); break; }
+      case "copy-share": { const t = $("#share-text"); const done = () => { el.textContent = "Copied ✓"; };
+        try { navigator.clipboard.writeText(t.value).then(done, () => { t.select(); el.textContent = "Press Ctrl/⌘+C"; }); } catch (e) { t.select(); el.textContent = "Press Ctrl/⌘+C"; } break; }
       case "close-modal": case "modal-bg": closeModal(); break;
     }
   });
