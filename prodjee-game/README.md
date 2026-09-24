@@ -16,6 +16,14 @@ A gamified JEE Main / NEET practice web app. Everything lives in static files wi
 
 After a question is answered, the solution can be viewed free of charge.
 
+## Interface
+
+- Native-app layout: bottom tab bar on phones (Home · Play · Vault · Stats · Profile), sidebar on desktop; the game and results run full-screen.
+- Home: GP count-up, rank progress, daily-goal ring, 7-day streak dots, one-tap **Play** button, subject accuracy rings, badge strip.
+- Game: segmented progress bar, GP orb, combo counter, sticky Hint / Solution / Lock dock within thumb reach, result bottom sheet, confetti + haptics on correct answers (sound toggle also mutes vibration). The combo is visual only; GP rules are unchanged.
+- Maths typeset with KaTeX (bundled in `vendor/katex`, works offline). Write maths as `$…$` (inline) or `$$…$$` (display).
+- "Real PYQs only" filter in setup and Profile.
+
 ## Features
 
 - **Figures:** a question image, image options (shown in a 2×2 grid) and a solution image, with tap-to-zoom on each. Figures are shown on a white card so black-on-white scans stay legible in the dark UI.
@@ -41,7 +49,7 @@ Items with a `review` field had one detail reconstructed (e.g. a structure drawn
 
 ## Question bank schema
 
-`questions.js` currently holds **84 original sample questions**. They are **not** previous-year questions. They exist to exercise the engine. Replace them with the verified JEE Main / NEET PYQ bank from an official or licensed source. Schema:
+Schema for each entry in `questions.js` (maths inside `$…$` is typeset):
 
 ```js
 {
