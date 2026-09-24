@@ -28,7 +28,18 @@ After a question is answered, the solution can be viewed free of charge.
 - **Parent report:** one tap shares a session or lifetime summary via WhatsApp or the native share sheet.
 - Progress is stored in `localStorage` on the device (v1).
 
-## Question bank — IMPORTANT
+## Question bank: sources and verification
+
+| Set | Qs | Question text from | Answer verified by |
+|---|---|---|---|
+| JEE Main 2024 · 27 Jan · Shift 1 | 90 (complete) | Official NTA response sheet (page images) | NTA final key (12 Feb 2024) by option ID **and** an independent solution |
+| JEE Main 2025 · 22 Jan · Shift 1 | 28 | Official response-sheet copy (text layer) | NTA final key (10 Feb 2025) by option ID **and** an independent solution |
+| NEET 2021 · Physics | 23 | Anu's annotated paper (Drive) | Paper's key **and** an independent solution |
+| Samples | 86 | Written for testing | Labelled "Sample" in the app |
+
+Items with a `review` field had one detail reconstructed (e.g. a structure drawn as a name). Coaching "memory-based" JEE papers are **not** used: they differ from the real paper.
+
+## Question bank schema
 
 `questions.js` currently holds **84 original sample questions**. They are **not** previous-year questions. They exist to exercise the engine. Replace them with the verified JEE Main / NEET PYQ bank from an official or licensed source. Schema:
 
