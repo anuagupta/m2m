@@ -143,7 +143,8 @@
       </div>
     </header>`;
   const backBtn = (to = "home") => `<button class="back" data-act="${to}">${I.back} Back</button>`;
-  const sampleNote = () => `<p class="sample-note">Question bank: ${window.QBANK.length} original sample questions, not previous-year questions. Load the verified JEE Main / NEET PYQ bank into <code>questions.js</code>.</p>`;
+  const isPYQ = (q) => q.source && !/^Sample/.test(q.source);
+  const sampleNote = () => { const n = window.QBANK.filter(isPYQ).length; return `<p class="sample-note">Question bank: ${n} previous-year questions + ${window.QBANK.length - n} original practice samples (marked "Sample").</p>`; };
 
   const toast = (html, ms = 2600) => {
     const t = document.createElement("div");
@@ -460,6 +461,7 @@
             <span class="pill">${esc(q.subject)}</span>
             <span class="pill">${esc(q.chapter)}</span>
             <span class="pill ${q.type === "num" ? "gold" : ""}">${q.type === "num" ? "Numerical" : "Single correct"}</span>
+            ${isPYQ(q) ? '<span class="pill mint">PYQ</span>' : '<span class="pill">Sample</span>'}
             <span class="pill" title="Difficulty">${"●".repeat(q.difficulty)}${"○".repeat(5 - q.difficulty)}</span>
           </div>
           <p class="q-text">${esc(q.q)}</p>
