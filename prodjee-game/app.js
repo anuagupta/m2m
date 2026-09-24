@@ -143,13 +143,22 @@
       </div>
     </header>`;
   const backBtn = (to = "home") => `<button class="back" data-act="${to}">${I.back} Back</button>`;
+  // Figures: `img` on the question, options as "text" or { text?, img? }, `solutionImg` on the solution.
+  const fig = (src, alt) => src ? `<figure class="q-fig" data-act="zoom" data-v="${esc(src)}" data-alt="${esc(alt || "Figure")}" title="Tap to zoom"><img src="${esc(src)}" alt="${esc(alt || "Figure")}" loading="lazy" /></figure>` : "";
+  const optHTML = (o, pos) => {
+    if (typeof o === "string") return `<span>${esc(o)}</span>`;
+    return `<span class="opt-body">${o.img ? `<img class="opt-img" src="${esc(o.img)}" alt="${esc(o.alt || o.text || `Option ${"ABCD"[pos]}`)}" loading="lazy" />` : ""}${o.text ? `<span>${esc(o.text)}</span>` : ""}</span>`;
+  };
+  const allImgOpts = (q) => q.options && q.options.every((o) => typeof o === "object" && o.img);
   const isPYQ = (q) => q.source && !/^Sample/.test(q.source);
   const sampleNote = () => { const n = window.QBANK.filter(isPYQ).length; return `<p class="sample-note">Question bank: ${n} previous-year questions + ${window.QBANK.length - n} original practice samples (marked "Sample").</p>`; };
 
   const toast = (html, ms = 2600) => {
+    let box = $("#toasts");
+    if (!box) { box = document.createElement("div"); box.id = "toasts"; box.className = "toasts"; document.body.appendChild(box); }
     const t = document.createElement("div");
     t.className = "toast pill gold"; t.innerHTML = html;
-    document.body.appendChild(t); setTimeout(() => t.remove(), ms);
+    box.appendChild(t); setTimeout(() => t.remove(), ms);
   };
   const modal = (html) => { overlay.innerHTML = `<div class="modal-back" data-act="modal-bg"><div class="modal glass" role="dialog" aria-modal="true">${html}</div></div>`; };
   const closeModal = () => { overlay.innerHTML = ""; };
@@ -420,11 +429,11 @@
     const L = "ABCD";
     let answerUI;
     if (q.type === "mcq") {
-      answerUI = `<div class="options" role="radiogroup">${c.order.map((oi, pos) => {
+      answerUI = `<div class="options ${allImgOpts(q) ? "img-grid" : ""}" role="radiogroup">${c.order.map((oi, pos) => {
         let cls = "";
         if (done) { if (oi === q.answer) cls = "right"; else if (oi === c.selected) cls = "wrong"; }
         else if (oi === c.selected) cls = "sel";
-        return `<button class="opt ${cls}" role="radio" aria-checked="${oi === c.selected}" data-act="opt" data-v="${oi}" ${done ? "disabled" : ""}><span class="k">${L[pos]}</span><span>${esc(q.options[oi])}</span></button>`;
+        return `<button class="opt ${cls}" role="radio" aria-checked="${oi === c.selected}" data-act="opt" data-v="${oi}" ${done ? "disabled" : ""}><span class="k">${L[pos]}</span>${optHTML(q.options[oi], pos)}</button>`;
       }).join("")}</div>`;
     } else {
       const cls = done ? (c.result === "correct" ? "right" : "wrong") : "";
@@ -465,10 +474,11 @@
             <span class="pill" title="Difficulty">${"●".repeat(q.difficulty)}${"○".repeat(5 - q.difficulty)}</span>
           </div>
           <p class="q-text">${esc(q.q)}</p>
+          ${fig(q.img, q.imgAlt)}
           ${answerUI}
           <div id="grace" class="grace" aria-live="polite">${c.grace !== null && !done ? `Auto-skip in ${c.grace}s` : ""}</div>
           ${c.hintLeft > 0 && !done ? `<div class="reveal hint" id="hint-box"><h4>Hint</h4><p>${esc(q.hint)}</p><div class="hint-bar"><i style="animation-duration:${c.hintLeft}s"></i></div></div>` : ""}
-          ${done && c.solShown ? `<div class="reveal sol"><h4>Solution</h4><p>${esc(q.solution)}</p></div>` : ""}
+          ${done && c.solShown ? `<div class="reveal sol"><h4>Solution</h4><p>${esc(q.solution)}</p>${fig(q.solutionImg, "Solution figure")}</div>` : ""}
           ${done ? `
             <div class="row" style="justify-content:space-between;margin-top:16px;flex-wrap:wrap">
               ${resultPill}
@@ -848,6 +858,7 @@
       case "lock": if (G) resolve("lock"); break;
       case "hint": if (G) useHint(); break;
       case "solution": if (G) resolve("solution"); break;
+      case "zoom": modal(`<img src="${esc(v)}" alt="${esc(el.dataset.alt || "Figure")}" class="zoom-img" /><button class="btn ghost block" data-act="close-modal" style="margin-top:12px">Close</button>`); break;
       case "see-sol": if (G) { G.cur.solShown = true; renderGame(); } break;
       case "next": if (G) { G.idx++; nextQuestion(); } break;
       case "quit":

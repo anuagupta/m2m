@@ -14,7 +14,9 @@
  *   type        "mcq" (single correct, 4 options) | "num" (numerical value)
  *   difficulty  1 (easy) .. 5 (hard)
  *   q           question text (plain text / unicode)
- *   options     [4 strings]           (mcq only)
+ *   options     [4 items] (mcq only): "text" or { text?, img?, alt? } for image options
+ *   img, imgAlt optional figure for the question (path under figures/)
+ *   solutionImg optional figure shown with the solution
  *   answer      index 0-3 (mcq) | number (num)
  *   hint        short nudge, shown for 10 s
  *   solution    precise worked solution
@@ -452,6 +454,23 @@ window.QBANK = [
     options: ["Pancreas", "Thyroid", "Liver", "Salivary gland"], answer: 2,
     hint: "It secretes bile.",
     solution: "The liver (about 1.2–1.5 kg in an adult) is the largest gland." },
+  /* ================= Figure-based SAMPLES (demonstrate img / image options) ================= */
+  { id: "jp15", exam: "JEE", subject: "Physics", chapter: "Current Electricity", type: "num", difficulty: 2,
+    q: "Find the equivalent resistance (in Ω) between points A and B in the circuit shown.",
+    img: "figures/sample-circuit-01.svg", imgAlt: "A 2 Ω resistor in series with a parallel combination of 3 Ω and 6 Ω, between A and B",
+    answer: 4,
+    hint: "Reduce the parallel pair first: R = R₁R₂/(R₁ + R₂).",
+    solution: "3 Ω ∥ 6 Ω = 18/9 = 2 Ω. In series with 2 Ω: R_AB = 2 + 2 = 4 Ω." },
+  { id: "np13", exam: "NEET", subject: "Physics", chapter: "Magnetic Effects of Current", type: "mcq", difficulty: 3,
+    q: "A long straight cable of radius R carries a current I distributed uniformly over its cross-section. Which graph correctly shows the magnetic field B versus distance r from the axis?",
+    options: [
+      { img: "figures/sample-cable-a.svg", alt: "B rises linearly from zero up to r = R, then falls as 1/r" },
+      { img: "figures/sample-cable-b.svg", alt: "B constant inside, then falls as 1/r" },
+      { img: "figures/sample-cable-c.svg", alt: "B zero inside, jumps at R, then falls as 1/r" },
+      { img: "figures/sample-cable-d.svg", alt: "B rises linearly up to R, then stays constant" }
+    ], answer: 0,
+    hint: "Ampère's law: inside, the enclosed current is I·r²/R².",
+    solution: "Inside (r < R): B·2πr = μ₀I r²/R² ⇒ B = μ₀Ir/(2πR²), linear in r. Outside (r ≥ R): B = μ₀I/(2πr), falling as 1/r. Maximum at r = R." },
   /* ============ NEET 2021 · PHYSICS · actual PYQs (from Anu's annotated paper on Drive) ============
    * Only questions whose stem + options were legible AND whose answer matched the paper's key after
    * independent solving. Items with `review` had a detail reconstructed from a noisy scan — verify them. */

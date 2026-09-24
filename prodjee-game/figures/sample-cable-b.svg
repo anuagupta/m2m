@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" width="240" height="160">
+<rect width="240" height="160" fill="#fff"/>
+<g stroke="#111" stroke-width="2" fill="none"><path d="M30 135 H225"/><path d="M30 135 V15"/>
+<path d="M221 131 L227 135 L221 139"/><path d="M26 19 L30 13 L34 19"/></g>
+<path d="M90 135 V20" stroke="#999" stroke-width="1.5" stroke-dasharray="4 4"/>
+<path d="M30 35 L90 35 L90 35.0 L95 42.7 L100 49.3 L105 55.0 L110 60.0 L115 64.4 L120 68.3 L125 71.8 L130 75.0 L135 77.9 L140 80.5 L145 82.8 L150 85.0 L155 87.0 L160 88.8 L165 90.6 L170 92.1 L175 93.6 L180 95.0 L185 96.3 L190 97.5 L195 98.6 L200 99.7 L205 100.7 L210 101.7 L215 102.6 L220 103.4" stroke="#d0103a" stroke-width="3" fill="none"/>
+<text x="10" y="24" font-size="15" font-family="Arial" font-style="italic">B</text>
+<text x="222" y="155" font-size="15" font-family="Arial" font-style="italic">r</text>
+<text x="85" y="153" font-size="14" font-family="Arial" font-style="italic">R</text>
+<text x="20" y="152" font-size="13" font-family="Arial">O</text>
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" width="240" height="160">
+<rect width="240" height="160" fill="#fff"/>
+<g stroke="#111" stroke-width="2" fill="none"><path d="M30 135 H225"/><path d="M30 135 V15"/>
+<path d="M221 131 L227 135 L221 139"/><path d="M26 19 L30 13 L34 19"/></g>
+<path d="M90 135 V20" stroke="#999" stroke-width="1.5" stroke-dasharray="4 4"/>
+<path d="M30 135 L90 35 L220 35" stroke="#d0103a" stroke-width="3" fill="none"/>
+<text x="10" y="24" font-size="15" font-family="Arial" font-style="italic">B</text>
+<text x="222" y="155" font-size="15" font-family="Arial" font-style="italic">r</text>
+<text x="85" y="153" font-size="14" font-family="Arial" font-style="italic">R</text>
+<text x="20" y="152" font-size="13" font-family="Arial">O</text>
+</svg>

@@ -18,6 +18,7 @@ After a question is answered, the solution can be viewed free of charge.
 
 ## Features
 
+- **Figures:** a question image, image options (shown in a 2×2 grid) and a solution image, with tap-to-zoom on each. Figures are shown on a white card so black-on-white scans stay legible in the dark UI.
 - **JEE / NEET** sections. JEE has single-correct MCQs and numerical-value questions (±0.01 tolerance).
 - **Modes:** Mixed Arena (adaptive, full syllabus), Chapter Practice (pick subject and chapters), Mistake Vault.
 - **Adaptive difficulty:** Elo-style rating for each student per chapter. Question rating = 800 + 200 × difficulty. Questions are picked slightly above the student's current level.
@@ -40,7 +41,10 @@ After a question is answered, the solution can be viewed free of charge.
   type: "mcq",                    // "mcq" (4 options) | "num" (numerical value)
   difficulty: 3,                  // 1..5
   q: "Question text",
-  options: ["A", "B", "C", "D"],  // mcq only
+  img: "figures/jee23-jan29-s1-p05.png", // optional question figure (PNG/SVG/JPG in figures/)
+  imgAlt: "Describe the figure",  // accessibility + zoom caption
+  options: ["A", "B", "C", "D"],  // mcq only; an option can also be { img: "figures/…", alt: "…" } for graph options
+  solutionImg: "figures/…",       // optional
   answer: 2,                      // mcq: index 0-3 · num: number
   hint: "Short nudge",
   solution: "Precise worked solution",
@@ -50,4 +54,4 @@ After a question is answered, the solution can be viewed free of charge.
 
 ## Phase 2 (not built yet)
 
-Google/Facebook sign-in, a cloud-synced global leaderboard, a parent companion app with push notifications, LaTeX/diagram support in questions, and an admin importer (PDF/Excel → `questions.js`).
+Google/Facebook sign-in, a cloud-synced global leaderboard, a parent companion app with push notifications, LaTeX rendering, and an admin importer (PDF/Excel → `questions.js`).
