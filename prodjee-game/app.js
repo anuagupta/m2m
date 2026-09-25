@@ -54,7 +54,8 @@
   const chKey = (q) => `${q.exam}|${q.subject}|${q.chapter}`;
   const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const pct = (c, a) => (a ? Math.round((100 * c) / a) : 0);
-  const isPYQ = (q) => !!q.source && !/^Sample/.test(q.source);
+  const kindOf = (q) => q.kind || (q.source && !/^Sample/.test(q.source) ? "pyq" : "sample");
+  const isPYQ = (q) => kindOf(q) === "pyq";
   const byId = Object.fromEntries(window.QBANK.map((q) => [q.id, q]));
   const bank = (exam, pyq = false) => window.QBANK.filter((q) => q.exam === exam && (!pyq || isPYQ(q)));
   const chaptersOf = (exam, subject, pyq) => [...new Set(bank(exam, pyq).filter((q) => q.subject === subject).map((q) => q.chapter))].sort();
@@ -182,7 +183,7 @@
   };
   const modal = (html) => { overlay.innerHTML = `<div class="modal-back" data-act="modal-bg"><div class="modal glass" role="dialog" aria-modal="true">${html}</div></div>`; typeset(overlay); };
   const closeModal = () => { overlay.innerHTML = ""; };
-  const note = () => { const n = window.QBANK.filter(isPYQ).length; return `<p class="note">Question bank: ${n} verified previous-year questions + ${window.QBANK.length - n} practice samples.</p>`; };
+  const note = () => { const n = window.QBANK.filter(isPYQ).length, pr = window.QBANK.filter((q) => kindOf(q) === "practice").length; return `<p class="note">Question bank: ${n} previous-year questions · ${pr} practice questions · ${window.QBANK.length - n - pr} samples.</p>`; };
 
   /* ================================= HOME ================================= */
   function renderHome() {
@@ -408,7 +409,7 @@
         <div class="game-mid">
           <div class="l">${G.exam} · Q ${G.idx + 1}/${G.length}<br>${combo}</div>
           ${orb()}
-          <div class="r"><span class="pill ${isPYQ(q) ? "mint" : ""}">${isPYQ(q) ? "PYQ" : "Sample"}</span></div>
+          <div class="r"><span class="pill ${isPYQ(q) ? "mint" : kindOf(q) === "practice" ? "gold" : ""}">${isPYQ(q) ? "PYQ" : kindOf(q) === "practice" ? "Practice" : "Sample"}</span></div>
         </div>
         ${c.isBonus ? `<div class="bonus-banner"><div><div class="num gold-text italic" style="font-size:18px">⚡ BONUS QUESTION</div><div class="faint" style="color:var(--text-2)">+${RULES.bonusRight} right · ${RULES.bonusWrong} wrong or timeout · no hints</div></div><span class="num italic" style="font-size:26px">${RULES.bonusSec}s</span></div>` : ""}
         <article class="glass q-card" id="qcard">
