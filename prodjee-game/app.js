@@ -72,10 +72,29 @@
 
   // Maths typesetting ($…$ inline, $$…$$ display) once KaTeX has loaded; plain text still works without it.
   const typeset = (el = app) => {
+    pyqHydrate(el);
     if (!window.renderMathInElement || !el) return;
     try { window.renderMathInElement(el, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false }); } catch (e) {}
   };
   window.addEventListener("load", () => typeset());
+
+  // Published build only: PYQ figures live in per-shift bundles (pyqfig/<shift>.js) and are loaded on first use.
+  const BLANK = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+  const pyqData = (k) => (window.PYQFIG || {})[k];
+  const imgSrc = (src) => src && src.startsWith("pyqfig:") ? pyqData(src.slice(7)) || BLANK : src;
+  const imgAttr = (src) => src.startsWith("pyqfig:") ? `data-pyq="${esc(src.slice(7))}" src="${esc(imgSrc(src))}"` : `src="${esc(src)}"`;
+  const pyqLoaded = {};
+  const pyqHydrate = (el) => {
+    if (!el || !el.querySelectorAll) return;
+    el.querySelectorAll("img[data-pyq]").forEach((img) => {
+      const k = img.dataset.pyq, d = pyqData(k);
+      if (d) { img.src = d; img.removeAttribute("data-pyq"); return; }
+      const b = k.split("-").slice(0, 2).join("-");
+      if (pyqLoaded[b]) return;
+      pyqLoaded[b] = true;
+      const sc = document.createElement("script"); sc.src = `pyqfig/${b}.js`; sc.onload = () => pyqHydrate(document.body); document.head.appendChild(sc);
+    });
+  };
 
   // Animated number count-up for elements with data-count
   const countUp = (root = app) => root.querySelectorAll("[data-count]").forEach((el) => {
@@ -376,9 +395,9 @@
     const o = $("#orb"); if (o) o.outerHTML = orb();
     const g = $("#grace"); if (g) g.textContent = G.cur.grace !== null && G.cur.phase === "play" ? `Auto-skip in ${G.cur.grace}s` : "";
   }
-  const fig = (src, alt) => src ? `<figure class="q-fig" data-act="zoom" data-v="${esc(src)}" data-alt="${esc(alt || "Figure")}" title="Tap to zoom"><img src="${esc(src)}" alt="${esc(alt || "Figure")}" loading="lazy" /></figure>` : "";
+  const fig = (src, alt) => src ? `<figure class="q-fig" data-act="zoom" data-v="${esc(src)}" data-alt="${esc(alt || "Figure")}" title="Tap to zoom"><img ${imgAttr(src)} alt="${esc(alt || "Figure")}" loading="lazy" /></figure>` : "";
   const optHTML = (o, pos) => typeof o === "string" ? `<span>${esc(o)}</span>`
-    : `<span class="opt-body">${o.img ? `<img class="opt-img" src="${esc(o.img)}" alt="${esc(o.alt || o.text || `Option ${"ABCD"[pos]}`)}" loading="lazy" />` : ""}${o.text ? `<span>${esc(o.text)}</span>` : ""}</span>`;
+    : `<span class="opt-body">${o.img ? `<img class="opt-img" ${imgAttr(o.img)} alt="${esc(o.alt || o.text || `Option ${"ABCD"[pos]}`)}" loading="lazy" />` : ""}${o.text ? `<span>${esc(o.text)}</span>` : ""}</span>`;
   const allImgOpts = (q) => q.options && q.options.every((o) => typeof o === "object" && o.img);
 
   function renderGame(fresh) {
@@ -779,7 +798,7 @@
       case "toggle-sound": S.sound = !S.sound; save(); if (view === "game") renderGame(); else renderTab(); break;
       case "toggle-sound-set": S.sound = !S.sound; save(); el.classList.toggle("on", S.sound); el.setAttribute("aria-pressed", S.sound); break;
       case "goal": S.dailyGoal = +v; save(); renderProfile(); break;
-      case "zoom": modal(`<img src="${esc(v)}" alt="${esc(el.dataset.alt || "Figure")}" class="zoom-img" /><button class="btn ghost block" data-act="close-modal" style="margin-top:12px">Close</button>`); break;
+      case "zoom": modal(`<img src="${esc(imgSrc(v))}" alt="${esc(el.dataset.alt || "Figure")}" class="zoom-img" /><button class="btn ghost block" data-act="close-modal" style="margin-top:12px">Close</button>`); break;
       case "reset": modal(`<h2>Reset everything?</h2><p class="muted">This permanently deletes your GP, badges, vault and history on this device.</p><div class="grid cols-2"><button class="btn ghost" data-act="close-modal">Cancel</button><button class="btn primary" data-act="reset-yes">Yes, reset</button></div>`); break;
       case "reset-yes": { const keep = { name: S.name, sound: S.sound, exam: S.exam }; S = Object.assign(fresh(), keep); save(); closeModal(); renderHome(); break; }
       case "copy-share": { const t = $("#share-text"); const done = () => { el.textContent = "Copied ✓"; };
