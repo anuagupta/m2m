@@ -138,7 +138,7 @@
     leaf: svg('<path d="M11 20A7 7 0 0 1 4 13c0-6 7-10 16-10 0 9-4 16-10 16z"/><path d="M4 21c4-4 8-7 12-9"/>')
   };
   const SUBJ_ICON = { Physics: I.atom, Chemistry: I.flask, Mathematics: I.sigma, Biology: I.leaf };
-  const gradDefs = '<defs><linearGradient id="gpg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe07a"/><stop offset=".5" stop-color="#ffc21a"/><stop offset="1" stop-color="#e11d3f"/></linearGradient></defs>';
+  const gradDefs = '<defs><linearGradient id="gpg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe07a"/><stop offset=".5" stop-color="#ffc21a"/><stop offset="1" stop-color="#f59e0b"/></linearGradient></defs>';
   const ring = (size, stroke, frac, label) => {
     const r = (size - stroke) / 2, C = 2 * Math.PI * r;
     return `<div class="ring" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${gradDefs}
@@ -205,7 +205,7 @@
           <div class="eyebrow">Total Gyan Points</div>
           <div class="big-gp num gold-text" data-count="${S.totalGP}">0</div>
           <div class="chips-row" style="margin-top:12px;justify-content:space-between">
-            <span class="pill crimson">${I.trophy.replace("<svg", '<svg width="14" height="14"')} ${r.cur.name}</span>
+            <span class="pill accent">${I.trophy.replace("<svg", '<svg width="14" height="14"')} ${r.cur.name}</span>
             <span class="faint">${r.next ? `${fmt(r.next.gp - S.totalGP)} GP to ${r.next.name}` : "Top rank reached"}</span>
           </div>
           <div class="rank-bar"><i style="width:${(r.prog * 100).toFixed(1)}%"></i></div>
@@ -247,7 +247,7 @@
       ${appbar("Play")}
       <div class="tile-row">
         <button class="glass press mode" data-act="setup" data-v="mixed"><span class="ico" style="color:var(--gold)">${I.bolt}</span><span><h3>Mixed Arena</h3><p>Adaptive questions across the full ${S.exam} syllabus. Difficulty follows your level in each chapter.</p></span></button>
-        <button class="glass press mode" data-act="setup" data-v="chapter"><span class="ico" style="color:#ff4d6d">${I.target}</span><span><h3>Chapter Practice</h3><p>Pick a subject and chapters. Drill weak spots until they turn green.</p></span></button>
+        <button class="glass press mode" data-act="setup" data-v="chapter"><span class="ico" style="color:var(--gold)">${I.target}</span><span><h3>Chapter Practice</h3><p>Pick a subject and chapters. Drill weak spots until they turn green.</p></span></button>
         <button class="glass press mode" data-act="setup" data-v="vault"><span class="ico" style="color:var(--gold)">${I.vault}</span><span><h3>Mistake Vault</h3><p>${all ? `${all} saved · ${due} due now` : "Wrong, skipped and solution-viewed questions return here."}</p></span>${due ? `<span class="pill crimson count">${due}</span>` : ""}</button>
       </div>
       <div class="section-title"><h3>Rules of the Arena</h3></div>
@@ -430,7 +430,7 @@
       <div class="dock"><div class="dock-inner">
         <button class="btn ghost" data-act="hint" ${c.isBonus || c.hintUsed ? "disabled" : ""}>💡 Hint <small>${RULES.hint}</small></button>
         <button class="btn ghost" data-act="solution" ${c.isBonus ? "disabled" : ""}>📖 Sol <small>${RULES.solution}</small></button>
-        <button class="btn ${c.isBonus ? "gold" : "primary"}" data-act="lock" ${canAnswer ? "" : "disabled"}>Lock answer</button>
+        <button class="btn primary" data-act="lock" ${canAnswer ? "" : "disabled"}>Lock answer</button>
       </div></div>`;
     show(html, { immersive: true, keepScroll: !fresh, layer: dock });
     const inp = $("#num");
@@ -569,7 +569,7 @@
           <div class="big num ${sess.gp < 0 ? "crimson-text" : "gold-text"}" data-count="${sess.gp}" data-sign="1">0</div>
           <div class="muted">Gyan Points · ${head}</div>
           <div class="chips-row" style="justify-content:center;margin-top:12px;flex-wrap:wrap">
-            <span class="pill crimson">${r.i > prevRank.i ? "⬆ Ranked up: " : ""}${r.cur.name}</span>
+            <span class="pill accent">${r.i > prevRank.i ? "⬆ Ranked up: " : ""}${r.cur.name}</span>
             <span class="pill gold">Total <span data-count="${S.totalGP}" data-from="${prevTotal}">${fmt(prevTotal)}</span> GP</span>
             <span class="pill">🔥 ${liveStreak()}-day streak</span>
           </div>
@@ -672,7 +672,7 @@
       ${appbar("Profile")}
       <div class="glass" style="display:flex;align-items:center;gap:16px">
         <div class="avatar">${esc((S.name || "P").trim().charAt(0).toUpperCase())}</div>
-        <div style="flex:1;min-width:0"><h2>${S.name ? esc(S.name) : '<span class="muted">Add your name below</span>'}</h2><div class="chips-row" style="margin-top:6px;flex-wrap:wrap"><span class="pill crimson">${r.cur.name}</span><span class="pill gold">${fmt(S.totalGP)} GP</span></div></div>
+        <div style="flex:1;min-width:0"><h2>${S.name ? esc(S.name) : '<span class="muted">Add your name below</span>'}</h2><div class="chips-row" style="margin-top:6px;flex-wrap:wrap"><span class="pill accent">${r.cur.name}</span><span class="pill gold">${fmt(S.totalGP)} GP</span></div></div>
       </div>
       <div class="section-title"><h3>Settings</h3></div>
       <div class="glass">
