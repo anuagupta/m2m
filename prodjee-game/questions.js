@@ -260,7 +260,7 @@ window.QBANK = [
     options: ["5 m/s", "10 m/s", "50 m/s", "100 m/s"], answer: 1,
     hint: "mgh = ½mv².",
     solution: "v = √(2gh) = √(2 × 10 × 5) = 10 m/s." },
-  { id: "np05", exam: "NEET", subject: "Physics", chapter: "Properties of Fluids", type: "mcq", difficulty: 3,
+  { id: "np05", exam: "NEET", subject: "Physics", chapter: "Mechanical Properties of Fluids", type: "mcq", difficulty: 3,
     q: "The terminal velocity of a small sphere falling through a viscous liquid is proportional to the square of its radius. If the radius is doubled, the terminal velocity becomes:",
     options: ["Half", "Double", "Four times", "Eight times"], answer: 2,
     hint: "v ∝ r².",
