@@ -333,6 +333,8 @@
   }
 
   /* ================================= GAME ================================= */
+  // Numerical check: absolute ±0.01 by default; `tolPct` allows a relative tolerance for rounded decimal answers.
+  const numOk = (x, q) => { const a = Number(q.answer); if (!isFinite(x)) return false; const tol = q.tolPct ? Math.abs(a) * q.tolPct / 100 : RULES.numTolerance; return Math.abs(x - a) <= Math.max(tol, RULES.numTolerance); };
   let G = null, timer = null;
   function startGame() {
     const pool = poolFor(setup); if (!pool.length) return;
@@ -470,7 +472,7 @@
     const c = G.cur, q = c.q; if (c.phase !== "play") return;
     let result, add = 0;
     if (outcome === "lock") {
-      const ok = q.type === "mcq" ? c.selected === q.answer : Math.abs(parseFloat(c.numVal.replace("−", "-")) - Number(q.answer)) <= RULES.numTolerance;
+      const ok = q.type === "mcq" ? c.selected === q.answer : numOk(parseFloat(c.numVal.replace("−", "-")), q);
       result = ok ? "correct" : "wrong"; add = ok ? (c.isBonus ? RULES.bonusRight : c.gp) : (c.isBonus ? RULES.bonusWrong : RULES.wrong);
     } else if (outcome === "timeout") { result = "timeout"; add = RULES.bonusWrong; }
     else if (outcome === "skip") { result = "skip"; }
