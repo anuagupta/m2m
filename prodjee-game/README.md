@@ -44,6 +44,7 @@ After a question is answered, the solution can be viewed free of charge.
 | JEE Main 2025 · 22 Jan · Shift 1 | 71 of 75 | 28 from the official response-sheet copy; 43 from the published paper with solutions (wording matches the official sheet) | 28: NTA key by option ID **and** own solution · 43: paper's key **and** own solution. 4 skipped (disputed or unanswerable as printed) |
 | JEE Main 2025 · 22 Jan · Shift 2 | 67 of 75 | Published paper with solutions | Paper's key **and** own solution. 8 skipped (bonus/disputed, structure-drawing options, unreadable circuit) |
 | NEET 2021 · Physics | 23 | Anu's annotated paper (Drive) | Paper's key **and** an independent solution |
+| **Practice** (not PYQ) | 266 | Anu's coaching PDFs: Sri Chaitanya *Total Physics Important Questions* (232), ALLEN Assignment 26 (17), Physics Sir JEE Ray Optics I (16) | Source key **and** own solution; disagreements skipped. Copyrighted by the institutes: confirm rights before a paid launch. Stored in `practice.js`, gold "Practice" tag |
 | Samples | 86 | Written for testing | Labelled "Sample" in the app |
 
 Items with a `review` field had one detail reconstructed (e.g. a structure drawn as a name). Coaching "memory-based" JEE papers are **not** used: they differ from the real paper.
