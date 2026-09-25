@@ -41,7 +41,7 @@ After a question is answered, the solution can be viewed free of charge.
 | Set | Qs | Question text from | Answer verified by |
 |---|---|---|---|
 | JEE Main 2024 · 27 Jan · Shift 1 | 90 (complete) | Official NTA response sheet (page images) | NTA final key (12 Feb 2024) by option ID **and** an independent solution |
-| JEE Main 2025 · 22 Jan · Shift 1 | 28 | Official response-sheet copy (text layer) | NTA final key (10 Feb 2025) by option ID **and** an independent solution |
+| JEE Main 2025 · 22 Jan · Shift 1 | 71 of 75 | 28 from the official response-sheet copy; 43 from the published paper with solutions (wording matches the official sheet) | 28: NTA key by option ID **and** own solution · 43: paper's key **and** own solution. 4 skipped (disputed or unanswerable as printed) |
 | NEET 2021 · Physics | 23 | Anu's annotated paper (Drive) | Paper's key **and** an independent solution |
 | Samples | 86 | Written for testing | Labelled "Sample" in the app |
 
@@ -73,4 +73,4 @@ Schema for each entry in `questions.js` (maths inside `$…$` is typeset):
 
 ## Phase 2 (not built yet)
 
-Google/Facebook sign-in, a cloud-synced global leaderboard, a parent companion app with push notifications, LaTeX rendering, and an admin importer (PDF/Excel → `questions.js`).
+Google/Facebook sign-in, a cloud-synced global leaderboard, a parent companion app with push notifications, and an admin importer (PDF/Excel → `questions.js`).
