@@ -296,7 +296,7 @@ h3 { font-size: 16px; font-weight: 700; }
 .q-card { padding: 20px; }
 .q-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .q-meta .pill { font-size: 11.5px; padding: 5px 10px; }
-.q-text { font-size: 16.5px; line-height: 1.65; font-weight: 500; margin: 0 0 16px; overflow-wrap: anywhere; }
+.q-text { font-size: 16.5px; line-height: 1.65; font-weight: 500; margin: 0 0 16px; overflow-wrap: anywhere; white-space: pre-line; }
 .q-src { margin: 14px 0 0; text-align: right; font-size: 11px; color: var(--text-3); }
 .options { display: grid; gap: 10px; }
 .opt {
