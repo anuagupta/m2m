@@ -408,7 +408,7 @@
     }).join("");
     let answerUI;
     if (q.type === "mcq") {
-      answerUI = `<div class="options ${allImgOpts(q) ? "img-grid" : ""}" role="radiogroup">${c.order.map((oi, pos) => {
+      answerUI = `<div class="options ${allImgOpts(q) && !q.wideOpts ? "img-grid" : ""}" role="radiogroup">${c.order.map((oi, pos) => {
         let cls = "";
         if (done) cls = oi === q.answer ? "right" : oi === c.selected ? "wrong" : "dim";
         else if (oi === c.selected) cls = "sel";
