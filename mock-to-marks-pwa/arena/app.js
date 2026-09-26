@@ -176,7 +176,10 @@
   /* ============================== SHELL / NAV ============================= */
   let tab = "home", view = "home";
   const TABS = [["home", "Home", I.home], ["play", "Play", I.play], ["vault", "Vault", I.vault], ["stats", "Stats", I.stats], ["profile", "Profile", I.user]];
-  const brand = () => `<div class="brand"><img src="logo.png" alt="ProDJEE logo" /><div><div class="name">ProDJEE <span>Arena</span></div><div class="sub">Gamified PYQ practice</div></div></div>`;
+  // Logo only, no text: the shared pj-bar right above already carries the
+  // "ProDJEE" wordmark on every page, so repeating it here (as this used to,
+  // "ProDJEE Arena") was just a second brand line stacked under the first.
+  const brand = () => `<div class="brand"><img src="logo.png" alt="ProDJEE logo" /></div>`;
   function renderNav() {
     const due = vaultDue(S.exam).length;
     $("#tabbar").innerHTML = TABS.map(([id, label, ic]) => id === "play"
