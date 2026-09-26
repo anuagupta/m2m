@@ -384,11 +384,39 @@
   // Numerical check: absolute ±0.01 by default; `tolPct` allows a relative tolerance for rounded decimal answers.
   const numOk = (x, q) => { const a = Number(q.answer); if (!isFinite(x)) return false; const tol = q.tolPct ? Math.abs(a) * q.tolPct / 100 : RULES.numTolerance; return Math.abs(x - a) <= Math.max(tol, RULES.numTolerance); };
   let G = null, timer = null;
+  // A quiz in progress guards the browser/hardware back button: without a
+  // history entry of its own, pressing back has nothing Arena-related to
+  // consume, so it falls straight through to whatever page opened Arena
+  // (e.g. the profile page) with no chance to confirm. armGuard() pushes a
+  // sentinel entry when a quiz starts; the popstate listener below
+  // intercepts back on that entry and asks before actually leaving.
+  // disarmGuard() removes the sentinel once the quiz ends on its own, so a
+  // later back press isn't left needing an extra, pointless press.
+  let guardActive = false;
+  function armGuard() { if (guardActive) return; guardActive = true; history.pushState({ pjArenaGuard: true }, "", location.href); }
+  function disarmGuard() { if (!guardActive) return; guardActive = false; history.back(); }
+  window.addEventListener("popstate", () => {
+    if (!guardActive) return;
+    // The browser has already completed the back-navigation past our
+    // sentinel by the time this fires (that's what popstate reports).
+    // Confirmed: accept it and just fall back to Arena's own home tab -
+    // nothing left to undo. Cancelled: push the sentinel straight back on
+    // so the next back press is guarded again too.
+    if (window.confirm("Leave this test? Your progress on this attempt will be lost.")) {
+      guardActive = false;
+      clearInterval(timer); document.body.classList.remove("bonus");
+      G = null; view = "home"; tab = "home";
+      renderTab();
+    } else {
+      history.pushState({ pjArenaGuard: true }, "", location.href);
+    }
+  });
   function startGame() {
     const pool = poolFor(setup); if (!pool.length) return;
     S.lastLength = setup.length; save();
     const length = Math.min(setup.length, pool.length);
     G = { exam: setup.exam, mode: setup.mode, pool, length, idx: 0, used: new Set(), records: [], sessionGP: 0, streakRun: 0, bestRun: 0, cur: null, newBadges: [] };
+    armGuard();
     // Multi-chapter tests get a fixed per-chapter quota; single-chapter and
     // other modes (mixed/vault) pick purely by difficulty match as before.
     G.chapterQueue = (setup.mode === "chapter" && setup.chapters.size > 1) ? buildChapterQueue(pool, length, [...setup.chapters]) : null;
@@ -596,6 +624,7 @@
   }
   function finishGame() {
     clearInterval(timer); document.body.classList.remove("bonus");
+    disarmGuard();
     const sess = commitSession();
     if (!sess) { G = null; return renderHome(); }
     const nb = G.newBadges.slice(), rec = G.records.slice(), prevTotal = Math.max(0, S.totalGP - sess.gp);
@@ -792,7 +821,7 @@
   const renderTab = (t = tab) => (TAB_RENDER[t] || renderHome)();
   function quitGame() {
     closeModal(); clearInterval(timer);
-    if (G && G.records.length) finishGame(); else { G = null; renderTab(); }
+    if (G && G.records.length) finishGame(); else { disarmGuard(); G = null; renderTab(); }
   }
   document.addEventListener("click", (e) => {
     const el = e.target.closest("[data-act]"); if (!el) return;

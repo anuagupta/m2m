@@ -1,7 +1,12 @@
 // ProDJEE — offline app shell for the hub, Arena and Mock-to-Marks.
-// Pages are network-first (so updates reach students immediately and old
-// Mock-to-Marks installs pick up the new hub); static files are cache-first.
-var CACHE_NAME = 'prodjee-cache-v11';
+// Everything same-origin is network-first, cache only as an offline
+// fallback. Static JS/CSS used to be cache-first (serve the cached copy
+// immediately, refresh in the background for *next* load) - that meant a
+// code fix, including a security fix, wouldn't actually reach an
+// already-installed user's screen until their *second* load after a
+// deploy, even on a hard refresh, since the browser's hard-refresh cache
+// bypass doesn't touch the service worker's own Cache Storage.
+var CACHE_NAME = 'prodjee-cache-v12';
 var ASSETS = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png',
   '/assets/pj-core.css', '/assets/pj-core.js', '/assets/logo-192.png', '/m2m/', '/arena/'];
 
@@ -29,8 +34,6 @@ self.addEventListener('fetch', function (event) {
       .catch(function () { return caches.match(req).then(function (c) { return c || caches.match('/'); }); }));
     return;
   }
-  event.respondWith(caches.match(req).then(function (cached) {
-    var net = fetch(req).then(function (res) { return saveCopy(req, res); });
-    return cached || net;
-  }));
+  event.respondWith(fetch(req).then(function (res) { return saveCopy(req, res); })
+    .catch(function () { return caches.match(req); }));
 });

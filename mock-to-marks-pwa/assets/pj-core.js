@@ -23,7 +23,7 @@
   var OAUTH_CLIENT_ID = '602452550958-j47q5bm6ghhii4564dtdg8jv0jj62jfk.apps.googleusercontent.com';
   var DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
   var DRIVE_FILE = 'prodjee-data.json';
-  var CONSENT_VERSION = '2026-09-26';
+  var CONSENT_VERSION = '2026-09-26b'; // bumped: consent mechanism changed from two checkboxes to a single Continue + Terms link
   var TRACKED = ['mtm_state_v1', 'prodjee.arena.v1', 'pj.consent'];
 
   var LS = window.localStorage;
@@ -311,19 +311,19 @@
   }
   function askConsent() {
     return new Promise(function (resolve) {
+      // No checkbox: continuing itself is the agreement, stated plainly
+      // below the button. The 18-or-parental-permission requirement lives
+      // in the Terms of Use itself (section 2) rather than as a separate
+      // tick here.
       var s = scrim(
         '<img class="pj-logo" src="/assets/logo-192.png" alt="">' +
         '<h2>Quick check before you start</h2>' +
-        '<p>Hi ' + esc(firstName()) + '! Please confirm the following once.</p>' +
-        '<label class="pj-check"><input type="checkbox" id="pj-c1"> <span>I am 18 or older, <b>or</b> my parent/guardian has read these terms and given me permission to use ProDJEE.</span></label>' +
-        '<label class="pj-check"><input type="checkbox" id="pj-c2"> <span>I agree to the <a href="/terms.html" target="_blank">Terms of Use</a>, <a href="/privacy.html" target="_blank">Privacy Policy</a> and <a href="/disclaimer.html" target="_blank">Disclaimer</a>.</span></label>' +
-        '<button class="pj-btn pj-btn-primary" style="width:100%;margin-top:6px" id="pj-cok" disabled>Continue</button>' +
+        '<p>Hi ' + esc(firstName()) + '! One thing before you dive in.</p>' +
+        '<button class="pj-btn pj-btn-primary" style="width:100%;margin-top:6px" id="pj-cok">Continue</button>' +
+        '<p class="pj-fine">By tapping Continue, you confirm you’ve read and agree to our <a href="/terms.html" target="_blank">Terms of Use</a> (which cover who may use ProDJEE), <a href="/privacy.html" target="_blank">Privacy Policy</a> and <a href="/disclaimer.html" target="_blank">Disclaimer</a>.</p>' +
         '<button class="pj-btn pj-btn-ghost" style="width:100%;margin-top:8px" id="pj-cno">Sign out</button>',
         'pj-consent');
-      var c1 = s.querySelector('#pj-c1'), c2 = s.querySelector('#pj-c2'), ok = s.querySelector('#pj-cok');
-      function upd() { ok.disabled = !(c1.checked && c2.checked); }
-      c1.onchange = c2.onchange = upd;
-      ok.onclick = function () {
+      s.querySelector('#pj-cok').onclick = function () {
         localStorage.setItem('pj.consent', JSON.stringify({ uid: user.uid, ver: CONSENT_VERSION, at: new Date().toISOString(), adultOrParent: true }));
         s.remove(); resolve(true);
       };
