@@ -225,7 +225,9 @@
     $("#tabbar").innerHTML = TABS.map(([id, label, ic]) => id === "play"
       ? `<button class="tab play-tab ${tab === id ? "on" : ""}" data-act="tab" data-v="${id}" aria-label="Play"><span class="play-dot">${ic}</span></button>`
       : `<button class="tab ${tab === id ? "on" : ""}" data-act="tab" data-v="${id}" ${tab === id ? 'aria-current="page"' : ""}>${ic}<span>${label}</span>${id === "vault" && due ? `<span class="dot-badge">${due}</span>` : ""}</button>`).join("");
-    $("#sidenav").innerHTML = brand() + TABS.map(([id, label, ic]) => `<button class="side-link ${tab === id ? "on" : ""}" data-act="tab" data-v="${id}">${ic}${label}${id === "vault" && due ? `<span class="dot-badge">${due}</span>` : ""}</button>`).join("") +
+    // A small label + divider under the logo, so this rail reads as
+    // Arena's own navigation, not a continuation of the site nav above it.
+    $("#sidenav").innerHTML = brand() + `<div class="side-section-label">Arena</div>` + TABS.map(([id, label, ic]) => `<button class="side-link ${tab === id ? "on" : ""}" data-act="tab" data-v="${id}">${ic}${label}${id === "vault" && due ? `<span class="dot-badge">${due}</span>` : ""}</button>`).join("") +
       `<div class="side-foot">${window.QBANK.filter(isPYQ).length} verified PYQs · saved on this device + your Google Drive</div>`;
     syncNavA11y();
   }

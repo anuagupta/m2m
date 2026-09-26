@@ -142,8 +142,11 @@ a{color:var(--primary);}
   .sidenav{display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh;padding:22px 14px;
     background:var(--glass-bg-2);border-right:1px solid var(--border);
     backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);}
-  .side-brand{padding:4px 8px 20px;}
+  .side-brand{padding:4px 8px 4px;}
   .side-brand img{width:36px;height:36px;border-radius:10px;display:block;}
+  /* Marks this rail as Mock-to-Marks' own navigation, distinct from the
+     shared site nav (Home/Arena/Mock-to-Marks) in the bar above it. */
+  .side-section-label{padding:0 14px 14px;margin-bottom:6px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);}
   .side-link{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;
     background:none;border:none;cursor:pointer;text-align:left;
     font-family:var(--sans);font-weight:700;font-size:14px;color:var(--ink-soft);}
@@ -577,6 +580,7 @@ body.pwa-install-visible .shell.page, body.pwa-install-visible .shell-wide.page{
 <div class="page-shell">
   <nav class="sidenav" id="m2mSidenav" aria-label="Mock-to-Marks">
     <div class="side-brand"><img src="/assets/logo-192.png" alt="ProDJEE logo"></div>
+    <div class="side-section-label">Mock-to-Marks</div>
     <button class="side-link" data-action="toCreate">New mock</button>
     <button class="side-link" data-action="loadDemo">Sample mock</button>
     <button class="side-link" data-action="openProfile">My Mocks</button>
