@@ -800,6 +800,27 @@ function planFromBlocks(mock, blocks, days){
     followupMockId:null
   };
 }
+// Arena tracks its own chapter-wise accuracy (S.stats, keyed "exam|subject|
+// chapter") in the same origin's localStorage. Folded into a flat
+// {chapter: {att, cor}} snapshot here (summed across subjects/exams on a
+// same-named chapter, e.g. "Thermodynamics" in both Physics and Chemistry -
+// the plan already keys weak/strong chapters by bare name, not by subject)
+// so the server can factor it into which chapters count as weak or strong.
+function readArenaChapterStats(){
+  try{
+    var s = JSON.parse(localStorage.getItem('prodjee.arena.v1')||'null');
+    if(!s || !s.stats) return {};
+    var out = {};
+    Object.keys(s.stats).forEach(function(k){
+      var parts = k.split('|'), chapter = parts.slice(2).join('|');
+      var v = s.stats[k];
+      if(!chapter || !v || !v.att) return;
+      var cur = out[chapter] || {att:0, cor:0};
+      out[chapter] = {att: cur.att + v.att, cor: cur.cor + (v.cor||0)};
+    });
+    return out;
+  }catch(e){ return {}; }
+}
 // Calls the plan API. Resolves with blocks; rejects with {notEntitled:true}
 // when the account hasn't unlocked the plan, or an Error otherwise.
 function requestPlanBlocks(payload){
@@ -1182,7 +1203,7 @@ var App = {
     var days = state.routeParams.planDays;
     var btn = g('genPlanBtn');
     if(btn){ if(btn.disabled) return; btn.disabled = true; btn.textContent = 'Building your plan…'; }
-    requestPlanBlocks({questions: planQuestions(mock.questions), days: days}).then(function(blocks){
+    requestPlanBlocks({questions: planQuestions(mock.questions), days: days, arenaStats: readArenaChapterStats()}).then(function(blocks){
       if(!findPlan(mock.id)) state.plans.push(planFromBlocks(mock, blocks, days));
       persist();
       nav('diagnosis', {mockId:mock.id});
@@ -1246,7 +1267,7 @@ var App = {
     var btn = document.querySelector('[data-action="submitCheckpoint"]');
     if(btn){ if(btn.disabled) return; btn.disabled = true; btn.textContent = 'Re-weighting…'; }
     var cpClean = cp.map(function(q){ return {result:q.result, primary:q.primary||null}; });
-    requestPlanBlocks({mode:'checkpoint', questions: planQuestions(mock.questions), checkpoint: cpClean}).then(function(blocks){
+    requestPlanBlocks({mode:'checkpoint', questions: planQuestions(mock.questions), checkpoint: cpClean, arenaStats: readArenaChapterStats()}).then(function(blocks){
       plan.blocks = plan.blocks.filter(function(b){ return b.day<8; }).concat(materializeBlocks(blocks, plan.startDate));
       plan.checkpointDone = true;
       plan.checkpointQuestions = cp;
