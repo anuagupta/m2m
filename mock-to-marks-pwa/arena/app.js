@@ -526,7 +526,10 @@
           ${answerUI}
           <div id="grace" class="grace" aria-live="polite">${c.grace !== null && !done ? `Auto-skip in ${c.grace}s` : ""}</div>
           ${c.hintLeft > 0 && !done ? `<div class="reveal hint" id="hint-box"><h4>💡 Hint</h4><p>${esc(q.hint)}</p><div class="hint-bar"><i style="animation-duration:${c.hintLeft}s"></i></div></div>` : ""}
-          ${qSourceLabel(q) ? `<p class="q-src">${esc(qSourceLabel(q))}</p>` : ""}
+          <div class="q-foot">
+            ${qSourceLabel(q) ? `<span class="q-src">${esc(qSourceLabel(q))}</span>` : "<span></span>"}
+            <button class="q-report-btn" data-act="report-question" aria-label="Report an issue with this question">🚩 Report an issue</button>
+          </div>
         </article>
       </div>`;
     const dock = done ? sheetHTML() : `
@@ -874,6 +877,26 @@
       case "next": if (G) { G.idx++; nextQuestion(); } break;
       case "quit": modal(`<h2>End this session?</h2><p class="muted">Questions answered so far will be saved and analysed.</p><div class="grid cols-2"><button class="btn ghost" data-act="close-modal">Keep playing</button><button class="btn primary" data-act="quit-yes">End session</button></div>`); break;
       case "quit-yes": quitGame(); break;
+      case "report-question":
+        if (!G || !G.cur) break;
+        modal(`<h2 style="margin:4px 0 14px">Report an issue</h2>
+          <p class="muted" style="margin-bottom:14px">What's wrong with this question? We'll take a look.</p>
+          <div class="grid" style="gap:8px">
+            <button class="btn ghost block" data-act="report-reason" data-v="Incomplete Diagram">Incomplete Diagram</button>
+            <button class="btn ghost block" data-act="report-reason" data-v="Incomplete Question">Incomplete Question</button>
+            <button class="btn ghost block" data-act="report-reason" data-v="Wrong Answer">Wrong Answer</button>
+            <button class="btn ghost block" data-act="close-modal">Cancel</button>
+          </div>`);
+        break;
+      case "report-reason": {
+        const q = G && G.cur && G.cur.q; closeModal();
+        if (!q) break;
+        const subject = encodeURIComponent(`ProDJEE Arena report: ${v} — ${q.id}`);
+        const body = encodeURIComponent(`Question ID: ${q.id}\nExam: ${q.exam} · Subject: ${q.subject} · Chapter: ${q.chapter}\nIssue: ${v}\n\nQuestion text:\n${q.q}\n\n(Add any extra details below.)`);
+        location.href = `mailto:prodjeelabs@gmail.com?subject=${subject}&body=${body}`;
+        toast("Thanks for the report — opening your mail app.");
+        break;
+      }
       case "again": renderSetup(setup ? setup.mode : "mixed"); break;
       case "parent-session": shareText(reportText(lastSession)); break;
       case "parent-lifetime": shareText(reportText(null)); break;
