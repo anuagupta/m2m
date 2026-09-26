@@ -238,6 +238,7 @@ a{color:var(--primary);}
 .cause-card{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:16px;}
 .cause-title{font-family:var(--serif);font-weight:600;font-size:15.5px;}
 .cause-desc{font-size:13px;color:var(--ink-soft);margin-top:5px;}
+.cause-fix{font-size:12.5px;color:var(--primary);margin-top:9px;padding-top:9px;border-top:1px solid var(--border-soft);font-weight:600;line-height:1.5;}
 .sd-wrap{margin-top:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;}
 .sd-card{border:1px solid var(--border);border-radius:14px;padding:18px;}
 .sd-card h3{font-size:16px;}
@@ -1516,8 +1517,16 @@ function viewLanding(){
     "Knew it cold, lost it in execution.",
     "Could solve it, spent the minutes badly."
   ];
+  var fixes = [
+    "Fix: reading a textbook is the best solution.",
+    "Fix: solve unfamiliar questions and understand the situation before reaching for a formula.",
+    "Fix: practice a lot of unseen questions.",
+    "Fix: derive the formula again from first principles, every time you forget it.",
+    "Fix: Burst Mode.",
+    'Fix: it isn’t "solve faster" — it’s choosing the most recoverable marks first.'
+  ];
   return topbar() + '<div class="shell hero">'+
-    '<h1>You’re about to make yesterday’s mistake <span class="accent-text">again</span>.</h1>'+
+    '<h1>You’re about to make yesterday’s mistakes <span class="accent-text">again</span>.</h1>'+
     '<p class="hero-sub">Right now, someone with your exact rank is already fixing it. Every day you skip analysing a mock, the gap widens — not because you’re less capable, but because you’re repeating the same lost marks while others aren’t. Log your mock in a minute, get the real reason you lost each mark, and start closing that gap tonight.</p>'+
     '<div class="hero-cta">'+
       '<button class="btn btn-primary" data-action="toCreate">Analyse my mock</button>'+
@@ -1529,27 +1538,15 @@ function viewLanding(){
     '</div>'+
   '</div>'+
   '<div class="section"><div class="shell">'+
-    '<h2>Six reasons students lose marks</h2>'+
+    '<h2>Six reasons students lose marks — and the fix for each</h2>'+
     '<p class="section-lead">Almost every lost mark traces back to one of these. We ask you to pick exactly one primary reason per question — no vague "I made a mistake."</p>'+
     '<div class="causes-grid">'+ CATEGORIES.map(function(c,i){
-      return '<div class="cause-card"><div class="icon-tile"'+catTileStyle(c.id)+'>'+c.icon+'</div><div class="cause-title">'+c.label+'</div><div class="cause-desc">'+causes[i]+'</div></div>';
+      return '<div class="cause-card"><div class="icon-tile"'+catTileStyle(c.id)+'>'+c.icon+'</div><div class="cause-title">'+c.label+'</div><div class="cause-desc">'+causes[i]+'</div><div class="cause-fix">'+fixes[i]+'</div></div>';
     }).join('') +'</div>'+
   '</div></div>'+
-  '<div class="section"><div class="shell">'+
-    '<h2>The one-line fix for each</h2>'+
-    '<p class="section-lead">Once you know why a question went wrong, the fix is almost always this simple.</p>'+
-    '<ul class="fixlist">'+
-      '<li><b>Language</b> — Reading a textbook is the best solution.</li>'+
-      '<li><b>Situation</b> — Try to solve unfamiliar questions and understand the situation before reaching for a formula.</li>'+
-      '<li><b>Approach</b> — Practice a lot of unseen questions.</li>'+
-      '<li><b>Formula / Law</b> — Derive the formula again from first principles, every time you forget it.</li>'+
-      '<li><b>Silly / Calculation</b> — Burst Mode.</li>'+
-      '<li><b>Time management</b> — Time management isn’t "solve faster." It’s choosing the most recoverable marks first.</li>'+
-    '</ul>'+
-  '</div></div>'+
-  '<div class="section"><div class="shell">'+
+  '<div class="section" style="padding-top:22px;"><div class="shell">'+
     '<div class="card" style="text-align:center;padding:36px 24px;">'+
-      '<h2 style="font-size:24px;">Stuck at the same mock-test score?</h2>'+
+      '<h2 style="font-size:24px;color:var(--primary);">Stuck at the same mock-test score?</h2>'+
       '<p class="section-lead" style="margin:10px auto 0;">Turn your latest mock into a personalised 7/14 day improvement plan — created by AI using a system designed by veteran JEE &amp; NEET mentors. Get two focused study sessions each day, so you always know what to do next.</p>'+
       '<ul class="fixlist" style="text-align:left;max-width:560px;margin:20px auto 0;">'+
         '<li><b>Burst Mode</b> — improve accuracy, reduce silly mistakes and avoid negative marking</li>'+
