@@ -1,7 +1,7 @@
 const admin = require('./_firebaseAdmin');
 const verifyAuth = require('./_verifyAuth');
 const cors = require('./_cors');
-const { cleanQuestions, buildPlanBlocks, checkpointBlocks } = require('./_plan');
+const { cleanQuestions, cleanArenaStats, buildPlanBlocks, checkpointBlocks } = require('./_plan');
 const { isActive } = require('./_subscription');
 
 // Builds the paid 14-day plan (or its day-7 rebuild) for entitled accounts only.
@@ -20,13 +20,17 @@ module.exports = async (req, res) => {
   const body = req.body || {};
   const questions = cleanQuestions(body.questions, 200);
   if (!questions) { res.status(400).json({ ok: false, error: 'Mock data looks incomplete. Fill every question and try again.' }); return; }
+  // Arena's own chapter-accuracy, from the student's device - purely a
+  // hint for which chapters count as weak/strong; the mock's own answers
+  // always take priority (see classifyChapters in _plan.js).
+  const arenaStats = cleanArenaStats(body.arenaStats);
 
   if (body.mode === 'checkpoint') {
     const cp = cleanQuestions(body.checkpoint, 40);
     if (!cp) { res.status(400).json({ ok: false, error: 'Checkpoint looks incomplete.' }); return; }
-    res.status(200).json({ ok: true, blocks: checkpointBlocks(questions, cp) });
+    res.status(200).json({ ok: true, blocks: checkpointBlocks(questions, cp, arenaStats) });
     return;
   }
   const days = body.days === 7 ? 7 : 14; // only two valid lengths; anything else falls back to 14
-  res.status(200).json({ ok: true, blocks: buildPlanBlocks(questions, days) });
+  res.status(200).json({ ok: true, blocks: buildPlanBlocks(questions, days, arenaStats) });
 };
