@@ -133,6 +133,29 @@ a{color:var(--primary);}
 .shell{max-width:900px;margin:0 auto;padding:0 20px;}
 .shell-wide{max-width:1120px;margin:0 auto;padding:0 20px;}
 
+/* Desktop-only left nav, same pattern as Arena's own sidenav: hidden below
+   900px (mobile keeps the topbar's own buttons), a fixed column beside the
+   scrollable content above that. */
+.sidenav{display:none;}
+@media (min-width:900px){
+  .page-shell{display:grid;grid-template-columns:220px 1fr;align-items:start;}
+  .sidenav{display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh;padding:22px 14px;
+    background:var(--glass-bg-2);border-right:1px solid var(--border);
+    backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);}
+  .side-brand{padding:4px 8px 20px;}
+  .side-brand img{width:36px;height:36px;border-radius:10px;display:block;}
+  .side-link{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;
+    background:none;border:none;cursor:pointer;text-align:left;
+    font-family:var(--sans);font-weight:700;font-size:14px;color:var(--ink-soft);}
+  .side-link:hover{background:var(--surface-2);color:var(--ink);}
+  /* These same three actions live in the sidenav now, so the topbar drops
+     them at this width instead of showing both. Doubled selector beats the
+     plain .topnav-primary-actions{display:contents} rule further down the
+     sheet regardless of source order (equal specificity would otherwise
+     let whichever rule comes later win, even inside this media query). */
+  .topnav .topnav-primary-actions{display:none;}
+}
+
 /* ---------- Top bar ---------- */
 .topbar{
   position:sticky;top:0;z-index:40;
@@ -149,6 +172,7 @@ a{color:var(--primary);}
 @keyframes logoRing{0%{box-shadow:0 0 0 0 color-mix(in srgb, var(--primary) 45%, transparent);}70%,100%{box-shadow:0 0 0 9px transparent;}}
 .wordmark-text{font-family:var(--serif);font-weight:800;font-size:22px;color:var(--ink);letter-spacing:-0.01em;}
 .topnav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.topnav-primary-actions{display:contents;}
 .topnav-mockname{font-size:13px;color:var(--ink-soft);padding:0 10px;border-right:1px solid var(--border);margin-right:2px;}
 .avatar-btn{width:34px;height:34px;border-radius:99px;background:var(--primary);color:var(--on-primary);border:none;font-family:var(--sans);font-weight:800;font-size:13.5px;display:inline-flex;align-items:center;justify-content:center;flex:none;margin-left:2px;overflow:hidden;transition:background .15s, transform .1s;}
 .avatar-btn:hover{background:var(--primary-strong);transform:scale(1.1);}
@@ -517,7 +541,15 @@ select,.field input[type=text],.field input[type=number],.field input[type=date]
 </div></header>
 <div class="pj-greet" data-pj-greet></div>
 <div class="pj-banner" data-pj-banner></div>
-<div id="app"></div>
+<div class="page-shell">
+  <nav class="sidenav" aria-label="Mock-to-Marks">
+    <div class="side-brand"><img src="/assets/logo-192.png" alt="ProDJEE logo"></div>
+    <button class="side-link" data-action="toCreate">New mock</button>
+    <button class="side-link" data-action="loadDemo">Sample mock</button>
+    <button class="side-link" data-action="openProfile">Settings</button>
+  </nav>
+  <div id="app"></div>
+</div>
 <button id="pwaInstallBtn" class="pwa-install-btn" hidden>⬇ Install app</button>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1457,9 +1489,11 @@ function topbar(){
   return '<div class="topbar"><div class="topbar-inner">'+
     '<button class="wordmark" data-action="toLanding"><img class="wordmark-logo" src="'+LOGO_DATA_URI+'" alt="ProDJEE logo"></button>'+
     '<div class="topnav">'+mockLabel+nav2+
-    '<button class="btn btn-primary btn-sm" data-action="toCreate">New mock</button>'+
+    '<span class="topnav-primary-actions">'+ // duplicated in the desktop sidenav (New mock / Settings); hidden there
+      '<button class="btn btn-primary btn-sm" data-action="toCreate">New mock</button>'+
+      profileBtn+
+    '</span>'+
     (state.mocks.length ? '<button class="btn btn-ghost btn-sm" data-action="startFresh" title="Clear all data on this device">Start fresh</button>' : '')+
-    profileBtn+
     '</div></div>'+stickyProgress+'</div>';
 }
 
@@ -2075,7 +2109,10 @@ function render(){
   app.innerHTML = html;
 }
 
-document.getElementById('app').addEventListener('click', function(e){
+// Delegated at the document, not #app: the desktop sidenav (New mock /
+// Sample mock / Settings) lives outside #app as persistent page chrome,
+// and its buttons use these same data-action handlers.
+document.addEventListener('click', function(e){
   var t = e.target.closest('[data-action]');
   if(!t) return;
   var action = t.dataset.action;
