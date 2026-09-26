@@ -219,9 +219,9 @@
     $("#sidenav").innerHTML = brand() + TABS.map(([id, label, ic]) => `<button class="side-link ${tab === id ? "on" : ""}" data-act="tab" data-v="${id}">${ic}${label}${id === "vault" && due ? `<span class="dot-badge">${due}</span>` : ""}</button>`).join("") +
       `<div class="side-foot">${window.QBANK.filter(isPYQ).length} verified PYQs · saved on this device + your Google Drive</div>`;
   }
-  const appbar = (title) => `
+  const appbar = (title, opts = {}) => `
     <header class="appbar">
-      ${title ? `<h1 style="font-size:24px">${title}</h1>` : brand()}
+      ${title ? `<h1 style="font-size:24px">${title}</h1>` : (opts.noBrand ? "" : brand())}
       <div class="chips-row">
         <div class="seg" role="tablist" aria-label="Exam">${["JEE", "NEET"].map((e) => `<button role="tab" aria-selected="${S.exam === e}" class="${S.exam === e ? "on" : ""}" data-act="exam" data-v="${e}">${e}</button>`).join("")}</div>
         <button class="icon-btn" data-act="toggle-sound" aria-label="${S.sound ? "Mute" : "Unmute"}">${S.sound ? I.soundOn : I.soundOff}</button>
@@ -256,7 +256,7 @@
     });
     const got = BADGES.filter((b) => S.badges[b.id]);
     show(`
-      ${appbar()}
+      ${appbar(null, { noBrand: true })}
       <div class="greet"><div class="eyebrow">${new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short" })}</div>
         <h1>Ready for today\u2019s run?</h1></div>
       <section class="hero">
