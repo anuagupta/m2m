@@ -342,18 +342,38 @@
     const s = sRating(q), e = 1 / (1 + Math.pow(10, (qRating(q) - s) / 400));
     S.ratings[chKey(q)] = Math.max(600, Math.min(2400, Math.round(s + 40 * (score - e))));
   }
-  function pickNext() {
+  // Splits `length` slots as evenly as possible across every chapter that
+  // has at least one question in `pool` (round-robin, so nobody's quota
+  // depends on draw order), then shuffles the resulting sequence. A soft
+  // scoring penalty isn't enough here: some chapters' questions skew hard
+  // or easy as a group, so on pure difficulty-match they'd rarely win
+  // regardless of penalty. A hard quota guarantees every selected chapter
+  // actually shows up close to its fair share.
+  function buildChapterQueue(pool, length, chapterList) {
+    const remaining = {};
+    chapterList.forEach((c) => { remaining[c] = pool.filter((q) => q.chapter === c).length; });
+    const active = chapterList.filter((c) => remaining[c] > 0);
+    if (!active.length) return null;
+    const queue = [];
+    while (queue.length < length) {
+      let progressed = false;
+      for (const c of active) {
+        if (queue.length >= length) break;
+        if (remaining[c] > 0) { queue.push(c); remaining[c]--; progressed = true; }
+      }
+      if (!progressed) break; // every chapter's supply exhausted
+    }
+    return shuffle(queue);
+  }
+  function pickNext(targetChapter) {
     const isBonus = (G.idx + 1) % RULES.bonusEvery === 0;
     let cands = G.pool.filter((q) => !G.used.has(q.id));
     if (!cands.length) return null;
+    if (targetChapter) { const inCh = cands.filter((q) => q.chapter === targetChapter); if (inCh.length) cands = inCh; }
     if (isBonus) { const mcq = cands.filter((q) => q.type === "mcq"); if (mcq.length) cands = mcq; }
     const now = Date.now(); let best = null, bestScore = Infinity;
     cands.forEach((q) => {
-      // Penalise chapters already drawn this session so a "random test" over
-      // many chapters actually spreads across them, instead of the pure
-      // difficulty-match below repeatedly favouring whichever one or two
-      // chapters happen to sit closest to the current skill rating.
-      let sc = Math.abs(qRating(q) - (sRating(q) + (isBonus ? -100 : 60))) + Math.random() * 160 + (S.seen[q.id] || 0) * 120 + (G.chUsed[chKey(q)] || 0) * 260;
+      let sc = Math.abs(qRating(q) - (sRating(q) + (isBonus ? -100 : 60))) + Math.random() * 160 + (S.seen[q.id] || 0) * 120;
       const v = S.vault[q.id]; if (v && v.due <= now) sc -= G.mode === "vault" ? 1000 : 120;
       if (sc < bestScore) { bestScore = sc; best = q; }
     });
@@ -367,14 +387,17 @@
   function startGame() {
     const pool = poolFor(setup); if (!pool.length) return;
     S.lastLength = setup.length; save();
-    G = { exam: setup.exam, mode: setup.mode, pool, length: Math.min(setup.length, pool.length), idx: 0, used: new Set(), chUsed: {}, records: [], sessionGP: 0, streakRun: 0, bestRun: 0, cur: null, newBadges: [] };
+    const length = Math.min(setup.length, pool.length);
+    G = { exam: setup.exam, mode: setup.mode, pool, length, idx: 0, used: new Set(), records: [], sessionGP: 0, streakRun: 0, bestRun: 0, cur: null, newBadges: [] };
+    // Multi-chapter tests get a fixed per-chapter quota; single-chapter and
+    // other modes (mixed/vault) pick purely by difficulty match as before.
+    G.chapterQueue = (setup.mode === "chapter" && setup.chapters.size > 1) ? buildChapterQueue(pool, length, [...setup.chapters]) : null;
     nextQuestion();
   }
   function nextQuestion() {
     if (G.idx >= G.length) return finishGame();
-    const pick = pickNext(); if (!pick) return finishGame();
+    const pick = pickNext(G.chapterQueue ? G.chapterQueue[G.idx] : null); if (!pick) return finishGame();
     G.used.add(pick.q.id);
-    G.chUsed[chKey(pick.q)] = (G.chUsed[chKey(pick.q)] || 0) + 1;
     G.cur = { q: pick.q, isBonus: pick.isBonus, order: shuffle([0, 1, 2, 3]), gp: RULES.startGP, bonusLeft: RULES.bonusSec, grace: null, time: 0,
       hintUsed: false, hintLeft: 0, solShown: false, selected: null, numVal: "", phase: "play", result: null, delta: 0 };
     document.body.classList.toggle("bonus", pick.isBonus);
