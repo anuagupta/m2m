@@ -105,8 +105,11 @@
     var els = document.querySelectorAll('[data-pj-avatar]');
     for (var i = 0; i < els.length; i++) {
       els[i].innerHTML = avatarHTML();
-      els[i].setAttribute('title', user ? (getName() || 'Profile') + ' — profile' : 'Sign in');
-      els[i].setAttribute('aria-label', user ? 'Open profile' : 'Sign in');
+      // Same wording as the prominent "Continue with Google" buttons
+      // elsewhere - this icon triggers the identical action, just with
+      // less visual weight, so it shouldn't be called something different.
+      els[i].setAttribute('title', user ? (getName() || 'Profile') + ' — profile' : 'Continue with Google');
+      els[i].setAttribute('aria-label', user ? 'Open profile' : 'Continue with Google');
     }
     var g = document.querySelectorAll('[data-pj-greet]');
     for (var j = 0; j < g.length; j++) {
@@ -380,6 +383,35 @@
       return auth.signOut().then(function () { return driveOk; });
     });
   }
+
+  /* ---------- compact mobile nav ----------
+     Below 560px, Home/Arena/Mock-to-Marks plus the account button crowded
+     the logo into one tight row. Injects a menu button in front of each
+     .pj-links nav that reveals it as a dropdown instead; CSS keeps the
+     button hidden (and .pj-links inline as before) above that width. */
+  function setupCompactNav() {
+    var navs = document.querySelectorAll('.pj-links');
+    for (var i = 0; i < navs.length; i++) {
+      (function (nav) {
+        if (nav.dataset.pjMenuReady) return;
+        nav.dataset.pjMenuReady = '1';
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'pj-menu-toggle';
+        btn.setAttribute('aria-expanded', 'false');
+        btn.setAttribute('aria-label', 'Menu');
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+        nav.parentNode.insertBefore(btn, nav);
+        function closeMenu() { nav.classList.remove('pj-open'); btn.setAttribute('aria-expanded', 'false'); }
+        function toggleMenu() { var open = nav.classList.toggle('pj-open'); btn.setAttribute('aria-expanded', String(open)); }
+        btn.addEventListener('click', function (e) { e.stopPropagation(); toggleMenu(); });
+        nav.addEventListener('click', function (e) { if (e.target.closest('a')) closeMenu(); });
+        document.addEventListener('click', function (e) { if (nav.classList.contains('pj-open') && !nav.contains(e.target) && e.target !== btn) closeMenu(); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
+      })(navs[i]);
+    }
+  }
+  setupCompactNav();
 
   /* ---------- events ---------- */
   function emit() { paint(); listeners.forEach(function (f) { try { f(user); } catch (e) {} }); }

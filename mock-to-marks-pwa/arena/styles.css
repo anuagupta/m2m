@@ -225,12 +225,17 @@ h3 { font-size: 16px; font-weight: 700; }
 .cta small { opacity: 0.8; font-size: 13px; }
 .cta .arrow { margin-left: auto; font-size: 22px; opacity: 0.8; }
 
-.subj-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.subj-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 @media (max-width: 520px) { .subj-grid { grid-template-columns: 1fr; } }
-.subj { display: flex; align-items: center; gap: 14px; text-align: left; width: 100%; }
+/* minmax(0, 1fr) above stops the grid track from growing to fit a card's
+   content; min-width:0 here does the same for the card's own flex/text
+   children, so a long label (or a 3-digit-plus attempt count) wraps or
+   truncates instead of pushing Mathematics past the visible width. */
+.subj { display: flex; align-items: center; gap: 14px; text-align: left; width: 100%; min-width: 0; }
 @media (min-width: 521px) { .subj { flex-direction: column; align-items: flex-start; } }
+.subj .meta { min-width: 0; max-width: 100%; }
 .subj .meta b { font-family: var(--display); display: block; }
-.subj .meta span { font-size: 12px; color: var(--text-3); }
+.subj .meta span { font-size: 12px; color: var(--text-3); overflow-wrap: break-word; }
 
 .tile-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
 .mode { display: flex; gap: 14px; align-items: flex-start; text-align: left; width: 100%; }

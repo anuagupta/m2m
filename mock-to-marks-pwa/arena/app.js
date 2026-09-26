@@ -212,7 +212,10 @@
 
   /* ============================== SHELL / NAV ============================= */
   let tab = "home", view = "home";
-  const TABS = [["home", "Home", I.home], ["play", "Play", I.play], ["vault", "Vault", I.vault], ["stats", "Stats", I.stats], ["profile", "Rewards", I.user]];
+  // Labelled "Dashboard", not "Home" - the shared site nav right above
+  // already has its own "Home" (the prodjee.in hub), and having both
+  // visible at once made it unclear which "Home" either one meant.
+  const TABS = [["home", "Dashboard", I.home], ["play", "Play", I.play], ["vault", "Vault", I.vault], ["stats", "Stats", I.stats], ["profile", "Rewards", I.user]];
   // Logo only, no text: the shared pj-bar right above already carries the
   // "ProDJEE" wordmark on every page, so repeating it here (as this used to,
   // "ProDJEE Arena") was just a second brand line stacked under the first.
@@ -224,6 +227,22 @@
       : `<button class="tab ${tab === id ? "on" : ""}" data-act="tab" data-v="${id}" ${tab === id ? 'aria-current="page"' : ""}>${ic}<span>${label}</span>${id === "vault" && due ? `<span class="dot-badge">${due}</span>` : ""}</button>`).join("");
     $("#sidenav").innerHTML = brand() + TABS.map(([id, label, ic]) => `<button class="side-link ${tab === id ? "on" : ""}" data-act="tab" data-v="${id}">${ic}${label}${id === "vault" && due ? `<span class="dot-badge">${due}</span>` : ""}</button>`).join("") +
       `<div class="side-foot">${window.QBANK.filter(isPYQ).length} verified PYQs · saved on this device + your Google Drive</div>`;
+    syncNavA11y();
+  }
+  // Only one of tabbar/sidenav is ever visible (the CSS media query at
+  // 900px switches between them) - but a screen reader shouldn't have to
+  // rely on that alone to skip the off-screen one, so the inactive one is
+  // also pulled out of the accessibility tree directly.
+  const navA11yQuery = window.matchMedia ? matchMedia("(min-width: 900px)") : null;
+  function syncNavA11y() {
+    const desktop = navA11yQuery ? navA11yQuery.matches : false;
+    const tb = $("#tabbar"), sn = $("#sidenav");
+    if (tb) tb.setAttribute("aria-hidden", String(desktop));
+    if (sn) sn.setAttribute("aria-hidden", String(!desktop));
+  }
+  if (navA11yQuery) {
+    if (navA11yQuery.addEventListener) navA11yQuery.addEventListener("change", syncNavA11y);
+    else navA11yQuery.addListener(syncNavA11y);
   }
   const appbar = (title, opts = {}) => `
     <header class="appbar">
@@ -294,14 +313,14 @@
       </button>
       ${due ? `<button class="glass press mode" style="margin-top:12px" data-act="setup" data-v="vault"><span class="ico" style="color:var(--gold)">${I.vault}</span><span><h3>${due} mistake${due > 1 ? "s" : ""} due for revision</h3><p>Master them to clear the vault and earn badges.</p></span><span class="pill crimson count">Revise</span></button>` : ""}
       <div class="section-title"><h3>Your subjects</h3><button class="link" data-act="tab" data-v="stats">Full analysis ›</button></div>
+      ${note()}
       <div class="subj-grid">${subj.map((x) => `
         <button class="glass press subj" data-act="subject" data-v="${x.s}">
           ${ring(58, 6, x.att ? x.cor / x.att : 0, `<span style="color:var(--text-2)">${SUBJ_ICON[x.s].replace("<svg", '<svg width="20" height="20"')}</span>`)}
           <span class="meta"><b>${x.s}</b><span>${x.att ? `${pct(x.cor, x.att)}% accuracy · ${x.att} attempted` : `${x.n} questions · not started`}</span></span>
         </button>`).join("")}</div>
       <div class="section-title"><h3>Badges</h3><button class="link" data-act="tab" data-v="profile">${got.length}/${BADGES.length} ›</button></div>
-      <div class="badge-strip">${BADGES.map((b) => `<div class="medal ${S.badges[b.id] ? "" : "locked"}" title="${b.name}: ${b.desc}">${b.icon}</div>`).join("")}</div>
-      ${note()}`);
+      <div class="badge-strip">${BADGES.map((b) => `<div class="medal ${S.badges[b.id] ? "" : "locked"}" title="${b.name}: ${b.desc}">${b.icon}</div>`).join("")}</div>`);
   }
 
   /* ================================= PLAY ================================= */
