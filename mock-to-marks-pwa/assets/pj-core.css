@@ -1,16 +1,18 @@
 /* ProDJEE shared chrome: top bar, avatar, greeting, gates, consent, toasts.
-   Uses the prodjee.in brand system: deep-space navy glass, pastel tints of the
-   three logo hues (coral #ff4040, gold #ffb500, green #00ff80),
-   Fraunces display + Manrope body. Everything is namespaced with "pj-". */
+   Uses the prodjee.in brand system: deep-space navy glass, with the same
+   saturated tones as Arena's own UI (gold #ffc23d, crimson #f04848, mint
+   #4ff0a0) rather than paler tints of them, so the shared chrome, the hub
+   and Mock-to-Marks read as the same product as Arena, not a paler cousin
+   of it. Fraunces display + Manrope body. Everything is namespaced "pj-". */
 :root{
   --pj-bg:#0a0b14;
   --pj-ink:#f2eff9;
   --pj-ink-soft:#b6b1cf;
   --pj-ink-faint:#8a86a6;
-  --pj-gold:#ffd699;
-  --pj-gold-strong:#ffe6ba;
-  --pj-coral:#ffb2a3;
-  --pj-green:#a9ecc9;
+  --pj-gold:#ffc23d;
+  --pj-gold-strong:#ffe07a;
+  --pj-coral:#f04848;
+  --pj-green:#4ff0a0;
   --pj-glass:color-mix(in srgb, #1c1f36 55%, transparent);
   --pj-glass-2:color-mix(in srgb, #24273f 60%, transparent);
   --pj-border:color-mix(in srgb, #fff 15%, transparent);

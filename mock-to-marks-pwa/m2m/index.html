@@ -37,9 +37,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&display=swap" rel="stylesheet">
 <style>
-/* ProDJEE brand system v3: deep-space navy glass. Every accent in this file is
-   a pastel tint of the 3 hues actually sampled from the ProDJEE logo — coral-red
-   (#ff4040), gold (#ffb500), spring-green (#00ff80). No other hue is used.
+/* ProDJEE brand system v4: deep-space navy glass, using the same saturated
+   tones as Arena's own UI (gold #ffc23d, crimson #f04848, mint #4ff0a0)
+   rather than paler tints of them, so Mock-to-Marks and Arena read as one
+   product. No other hue is used besides these three and the raw logo hues
+   reserved for the background blobs.
    Fraunces display + Manrope body + JetBrains Mono for data.
    Committed single dark identity — not a light/dark pair. */
 :root{
@@ -53,15 +55,15 @@
   --ink-soft:#b6b1cf;
   --ink-faint:#8a86a6;
   --neutral-soft:color-mix(in srgb, var(--ink-faint) 20%, transparent);
-  --primary:#ffd699;
-  --primary-strong:#ffe6ba;
+  --primary:#ffc23d;
+  --primary-strong:#ffe07a;
   --primary-soft:color-mix(in srgb, var(--primary) 18%, transparent);
   --on-primary:#2b1c05;
-  --good:#a9ecc9;
+  --good:#4ff0a0;
   --good-soft:color-mix(in srgb, var(--good) 18%, transparent);
-  --warn:#ffd699;
+  --warn:#ffc23d;
   --warn-soft:color-mix(in srgb, var(--warn) 18%, transparent);
-  --danger:#ffb2a3;
+  --danger:#f04848;
   --danger-soft:color-mix(in srgb, var(--danger) 18%, transparent);
   --shadow-color:250 60% 3%;
   --serif:'Fraunces', Georgia, 'Times New Roman', serif;
@@ -1234,7 +1236,7 @@ var App = {
         key: RAZORPAY_KEY_ID, amount: order.amount, currency: 'INR', order_id: order.orderId,
         name: 'Mock-to-Marks', description: '14-day recovery plan — lifetime unlock',
         prefill: { email: authUser.email || '', name: authUser.displayName || '' },
-        theme: { color: '#ffd699' },
+        theme: { color: '#ffc23d' },
         handler: function(response){ App.verifyPayment(response); },
         modal: { ondismiss: function(){ if(btn){ btn.disabled=false; btn.textContent='Pay ₹499 — Unlock plan'; } } }
       });
