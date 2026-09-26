@@ -294,6 +294,7 @@ a{color:var(--primary);}
 .qcard select{border:1px solid var(--border);border-radius:6px;padding:5px 8px;background:var(--surface);font-size:12.5px;}
 .qcard .subrow{display:flex;gap:8px;margin-bottom:10px;}
 .qcard .subrow input[type=text]{flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:6px;font-size:12.5px;}
+.qcard .subrow .chapter-select{flex:1;min-width:0;padding:6px 9px;}
 .qcard .subrow input[type=number]{width:64px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12.5px;}
 .qcard-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint);margin:10px 0 6px;}
 .qcard-label:first-of-type{margin-top:0;}
@@ -632,6 +633,11 @@ var WEIGHTS = {
 };
 
 var SUBJECTS = ['Physics','Chemistry','Mathematics'];
+// Chapter names per subject, taken from Arena's own JEE question bank (its
+// chaptersOf() output) so the two apps never disagree on what a chapter is
+// called - kept as a small static list here rather than loading Arena's
+// multi-megabyte question files just for their chapter names.
+var SUBJECT_CHAPTERS = {"Physics":["Alternating Current","Atoms","Atoms & Nuclei","Capacitance","Capacitors","Centre of Mass","Centre of Mass & Collisions","Circular Motion","Current Electricity","Dual Nature of Matter","Electromagnetic Induction","Electromagnetic Waves","Electrostatics","Gravitation","Kinematics","Kinetic Theory","Laws of Motion","Magnetic Effects of Current","Magnetism & Matter","Mechanical Properties of Fluids","Mechanical Properties of Solids","Modern Physics","Moving Charges & Magnetism","Nuclei","Oscillations","Ray Optics","Rotational Motion","Semiconductors","Thermal Properties","Thermal Properties of Matter","Thermodynamics","Units & Dimensions","Units & Measurements","Vector Algebra","Wave Optics","Waves","Work, Energy & Power"],"Chemistry":["Alcohols & Carbonyls","Alcohols, Phenols & Ethers","Aldehydes & Ketones","Amines","Atomic Structure","Biomolecules","Carboxylic Acids","Carboxylic Acids & Derivatives","Chemical Bonding","Chemical Equilibrium","Chemical Kinetics","Classification of Elements","Coordination Compounds","Dual Nature of Matter","Electrochemistry","General Organic Chemistry","Haloalkanes & Haloarenes","Haloarenes","Hydrocarbons","Ionic Equilibrium","Mole Concept","Nuclei","Organic Analysis","Organic Nomenclature","Periodic Properties","Polymers","Purification & Characterisation","Redox Reactions","Redox Titrations","Salt Analysis","Solutions","Some Basic Concepts of Chemistry","States of Matter","Thermodynamics","d & f Block Elements","p Block Elements","p-Block Elements"],"Mathematics":["3D Geometry","Application of Derivatives","Area Under Curves","Binomial Theorem","Circle","Circles","Complex Numbers","Conic Sections","Continuity","Continuity & Differentiability","Definite Integration","Differential Equations","Differentiation","Ellipse","Functions","Hyperbola","Indefinite & Definite Integration","Indefinite Integration","Inverse Trigonometric Functions","Inverse Trigonometry","Limits","Limits & Continuity","Matrices & Determinants","Parabola","Permutations & Combinations","Probability","Quadratic Equations","Sequences & Series","Sets & Relations","Statistics","Straight Lines","Trigonometric Equations","Trigonometry","Vector Algebra"]};
 var STORE_KEY = 'mtm_state_v1';
 var NUM_Q = 25;
 
@@ -1094,6 +1100,14 @@ var App = {
       if((field==='primary'||field==='secondary') && val==='') val=null;
       if(field==='primary' && q.secondary===val) q.secondary=null;
       q[field]=val;
+      if(field==='subject'){
+        // Chapters are subject-specific, so a chapter picked under the old
+        // subject is almost never valid under the new one.
+        q.chapter='';
+        var chSel = target.closest('.qcard, .cp-card');
+        chSel = chSel && chSel.querySelector('.chapter-select');
+        if(chSel) chSel.innerHTML = chapterOptionsHtml(q.subject, q.chapter);
+      }
       if(field==='result' && val==='correct'){
         q.primary=null; q.secondary=null;
         var card = document.getElementById('qcard-'+qi);
@@ -1614,6 +1628,16 @@ function reasonChips(name, qi, current, excludeVal){
   }).join('');
 }
 
+function chapterOptionsHtml(subject, current){
+  var chapters = SUBJECT_CHAPTERS[subject] || [];
+  // A chapter typed/saved before this dropdown existed (or from a subject
+  // this list doesn't cover) still needs a slot, so it isn't silently
+  // dropped the moment its card renders.
+  var opts = '<option value="">Chapter / topic (optional)</option>';
+  if(current && chapters.indexOf(current)<0) opts += '<option value="'+esc(current)+'" selected>'+esc(current)+'</option>';
+  opts += chapters.map(function(c){ return '<option value="'+esc(c)+'"'+(c===current?' selected':'')+'>'+esc(c)+'</option>'; }).join('');
+  return opts;
+}
 function questionCard(q, qi){
   var resultChips = RESULTS.map(function(r){
     var checked = q.result===r.id ? 'checked' : '';
@@ -1624,7 +1648,7 @@ function questionCard(q, qi){
     '<div class="qcard-head"><span class="qnum">Q'+(qi+1)+'</span>'+
       '<select data-field="q.'+qi+'.subject">'+subjOpts+'</select></div>'+
     '<div class="subrow">'+
-      '<input type="text" placeholder="Chapter / topic (optional)" value="'+esc(q.chapter)+'" data-field="q.'+qi+'.chapter">'+
+      '<select data-field="q.'+qi+'.chapter" class="chapter-select">'+chapterOptionsHtml(q.subject, q.chapter)+'</select>'+
       '<input type="number" placeholder="min" title="Time taken (min)" value="'+(q.time===null||q.time===undefined?'':q.time)+'" data-field="q.'+qi+'.time">'+
     '</div>'+
     '<div class="qcard-label">Result</div>'+
