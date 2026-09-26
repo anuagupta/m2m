@@ -14,15 +14,15 @@
 <script defer src="/_vercel/insights/script.js"></script>
 <title>Mock-to-Marks — ProDJEE</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Log your last mock test, see exactly why you're losing marks — language, approach, formula recall, calculation slips, or time management — and get a focused 14-day recovery plan built around your actual gaps.">
+<meta name="description" content="Log your last mock test, see exactly why you're losing marks — language, approach, formula recall, calculation slips, or time management — and get a focused 7- or 14-day recovery plan built around your actual gaps.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Mock-to-Marks — ProDJEE">
-<meta property="og:description" content="Log your last mock test, see exactly why you're losing marks, and get a focused 14-day recovery plan built around your actual gaps.">
+<meta property="og:description" content="Log your last mock test, see exactly why you're losing marks, and get a focused 7- or 14-day recovery plan built around your actual gaps.">
 <meta property="og:image" content="https://prodjee.in/icon-512.png">
 <meta property="og:url" content="https://prodjee.in/m2m/">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Mock-to-Marks — ProDJEE">
-<meta name="twitter:description" content="Log your last mock test, see exactly why you're losing marks, and get a focused 14-day recovery plan built around your actual gaps.">
+<meta name="twitter:description" content="Log your last mock test, see exactly why you're losing marks, and get a focused 7- or 14-day recovery plan built around your actual gaps.">
 <meta name="twitter:image" content="https://prodjee.in/icon-512.png">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0a0b14">
@@ -603,7 +603,7 @@ var LOOP_STEPS = [
     icon: icon('<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>')},
   {label:'Diagnose', desc:'Six root causes, ranked by marks lost.',
     icon: icon('<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.6" y2="16.6"/>')},
-  {label:'Plan', desc:'14 days, two focused blocks a day.',
+  {label:'Plan', desc:'7 or 14 days, two focused blocks a day.',
     icon: icon('<rect x="3" y="5" width="18" height="16" rx="2.5"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/>')},
   {label:'Retest', desc:'Next mock, marks compared side by side.',
     icon: icon('<polyline points="3 17 9 11 13 15 21 6"/><polyline points="15 6 21 6 21 12"/>')}
@@ -786,9 +786,9 @@ function materializeBlocks(blocks, startDate){
     };
   });
 }
-function planFromBlocks(mock, blocks){
+function planFromBlocks(mock, blocks, days){
   return {
-    id: uid(), mockId: mock.id, startDate: mock.date,
+    id: uid(), mockId: mock.id, startDate: mock.date, days: days || 14,
     blocks: materializeBlocks(blocks, mock.date), checkpointDone:false, checkpointQuestions:null,
     followupMockId:null
   };
@@ -931,7 +931,7 @@ var APPLE_SIGNIN_ENABLED = false;
 function signInGateHtml(){
   return '<div class="gate-bg" data-action="closeGate"><div class="gate-card">'+
     '<h3>Sign in to continue</h3>'+
-    '<p class="gate-sub">Sign in to save your mocks and pick up where you left off on any device. Your diagnosis is free — you only pay to unlock the 14-day plan.</p>'+
+    '<p class="gate-sub">Sign in to save your mocks and pick up where you left off on any device. Your diagnosis is free — you only pay to unlock your recovery plan.</p>'+
     '<button class="btn btn-primary" data-action="signIn" style="width:100%;margin-top:20px;display:flex;align-items:center;justify-content:center;gap:10px;">'+GOOGLE_ICON+' Continue with Google</button>'+
     (APPLE_SIGNIN_ENABLED ? '<button class="btn btn-apple" data-action="signInApple" style="width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:10px;">'+APPLE_ICON+' Continue with Apple</button>' : '')+
     '<div class="gate-error" id="gateError" hidden></div>'+
@@ -939,10 +939,10 @@ function signInGateHtml(){
 }
 function payGateHtml(){
   return '<div class="gate-bg" data-action="closeGate"><div class="gate-card">'+
-    '<h3>Unlock your 14-day plan</h3>'+
+    '<h3>Unlock your recovery plan</h3>'+
     '<p class="gate-sub">Your diagnosis is free. Unlock the full recovery plan — plus every future mock and plan — once, for ₹499.</p>'+
     '<ul class="checklist" style="margin:16px 0;">'+
-      '<li>✓ Full 14-day plan built from your actual mistakes</li>'+
+      '<li>✓ A 7- or 14-day plan built from your actual mistakes</li>'+
       '<li>✓ Unlimited mocks and plans, forever</li>'+
       '<li>✓ 7-day no-questions-asked refund</li>'+
     '</ul>'+
@@ -954,6 +954,16 @@ function payGateHtml(){
       '<button class="btn btn-ghost btn-sm" data-action="redeemPromoCode">Apply</button>'+
     '</div>'+
     '<p class="helper" style="text-align:center;margin-top:14px;">Payments secured by Razorpay. <a href="/refund.html" target="_blank">Refund policy</a></p>'+
+  '</div></div>';
+}
+function planLengthGateHtml(){
+  return '<div class="gate-bg" data-action="closeGate"><div class="gate-card">'+
+    '<h3>Choose your plan length</h3>'+
+    '<p class="gate-sub">Both are built from the same diagnosis - pick whichever fits how long you have before your next mock.</p>'+
+    '<div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;">'+
+      '<button class="btn btn-primary" data-action="choosePlanLength" data-v="7" style="width:100%;">7-day plan — faster, more intense</button>'+
+      '<button class="btn btn-primary" data-action="choosePlanLength" data-v="14" style="width:100%;">14-day plan — steadier pace</button>'+
+    '</div>'+
   '</div></div>';
 }
 function showGateOverlay(html, resumeFn){
@@ -1134,17 +1144,24 @@ var App = {
       return;
     }
     if(findPlan(mock.id)){ nav('diagnosis', {mockId:mock.id}); return; }
+    if(!state.routeParams.planDays){ showGateOverlay(planLengthGateHtml(), null); return; }
+    var days = state.routeParams.planDays;
     var btn = g('genPlanBtn');
     if(btn){ if(btn.disabled) return; btn.disabled = true; btn.textContent = 'Building your plan…'; }
-    requestPlanBlocks({questions: planQuestions(mock.questions)}).then(function(blocks){
-      if(!findPlan(mock.id)) state.plans.push(planFromBlocks(mock, blocks));
+    requestPlanBlocks({questions: planQuestions(mock.questions), days: days}).then(function(blocks){
+      if(!findPlan(mock.id)) state.plans.push(planFromBlocks(mock, blocks, days));
       persist();
       nav('diagnosis', {mockId:mock.id});
     }).catch(function(err){
-      if(btn){ btn.disabled = false; btn.textContent = 'Generate my 14-day plan'; }
+      if(btn){ btn.disabled = false; btn.textContent = 'Generate my '+days+'-day plan'; }
       if(err && err.notEntitled){ showPayGate(function(){ App.generatePlan(); }); return; }
       planError(err);
     });
+  },
+  choosePlanLength: function(el){
+    state.routeParams.planDays = Number(el.dataset.v) === 7 ? 7 : 14;
+    App.closeGate();
+    App.generatePlan();
   },
 
   openTask: function(el){
@@ -1269,7 +1286,7 @@ var App = {
       if(!order || !order.ok) throw new Error((order && order.error) || 'Could not start payment');
       var rp = new Razorpay({
         key: RAZORPAY_KEY_ID, amount: order.amount, currency: 'INR', order_id: order.orderId,
-        name: 'Mock-to-Marks', description: '14-day recovery plan — lifetime unlock',
+        name: 'Mock-to-Marks', description: 'Recovery plan — lifetime unlock',
         prefill: { email: authUser.email || '', name: authUser.displayName || '' },
         theme: { color: '#ffc23d' },
         handler: function(response){ App.verifyPayment(response); },
@@ -1359,7 +1376,7 @@ var App = {
   deleteMock: function(el){
     var id = el.dataset.id;
     var mock = findMock(id); if(!mock) return;
-    if(!window.confirm('Delete "'+mock.name+'" and its 14-day plan? This cannot be undone.')) return;
+    if(!window.confirm('Delete "'+mock.name+'" and its plan? This cannot be undone.')) return;
     state.mocks = state.mocks.filter(function(m){ return m.id!==id; });
     state.plans = state.plans.filter(function(p){ return p.mockId!==id; });
     persist();
@@ -1470,7 +1487,7 @@ function topbar(){
   var mockLabel = mock ? '<span class="topnav-mockname">'+esc(mock.name)+'</span>' : '';
   var nav2 = mock ? (
     '<button class="btn btn-ghost btn-sm" data-action="toDiagnosis" data-id="'+mock.id+'">Diagnosis</button>'+
-    (findPlan(mock.id) ? '<button class="btn btn-ghost btn-sm" data-action="toCalendar" data-id="'+mock.id+'">14-day plan</button>' : '')
+    (findPlan(mock.id) ? '<button class="btn btn-ghost btn-sm" data-action="toCalendar" data-id="'+mock.id+'">'+(findPlan(mock.id).days||14)+'-day plan</button>' : '')
   ) : '';
   var profileName = (state.profile && state.profile.name) ? state.profile.name.trim() : '';
   var photoUrl = authUser && authUser.photoURL;
@@ -1644,7 +1661,7 @@ function viewAnalyze(){
     '<div class="qgrid">'+ mock.questions.map(function(q,i){ return questionCard(q,i); }).join('') +'</div>'+
     '<div style="margin-top:26px;display:flex;justify-content:center;">'+
       '<button class="btn btn-primary" id="genPlanBtn" data-action="generatePlan" '+(done<total?'disabled':'')+' style="padding:13px 26px;">'+
-        (mock.role==='followup' ? 'Compare with Day 1' : 'Generate my 14-day plan')+'</button>'+
+        (mock.role==='followup' ? 'Compare with Day 1' : 'Generate my plan')+'</button>'+
     '</div>'+
     (mock.role!=='followup' && !(entitlement && entitlement.entitled) ? '<p class="helper" style="text-align:center;">One-time ₹499 unlock for the plan — the diagnosis above is always free.</p>' : '')+
     '<p class="helper" style="text-align:center;">Mark every problematic question with exactly one primary reason. "Correct" hides the reason chips automatically.</p>'+
@@ -1677,7 +1694,7 @@ function viewDiagnosis(){
       '<div class="radar-side">'+
         '<div class="radar-stat-label">Readiness index (this mock)</div>'+
         '<div class="radar-stat-value '+readinessClass(prepData.overall)+'">'+prepData.overall+'<sup>/100</sup></div>'+
-        '<div class="radar-stat-note" style="color:var(--good);font-weight:700;">'+(100-prepData.overall)+' points of headroom — exactly what your 14-day plan is built to close.</div>'+
+        '<div class="radar-stat-note" style="color:var(--good);font-weight:700;">'+(100-prepData.overall)+' points of headroom — exactly what your recovery plan is built to close.</div>'+
         '<div class="radar-stat-note">A composite of the six fronts on the left, weighted by how often and severely each cost you marks. A single-mock estimate, not a predicted score or rank — track it across mocks for a real trend.</div>'+
       '</div>'+
     '</div>'+
@@ -1700,7 +1717,7 @@ function viewDiagnosis(){
         '</div></div>';
     }).join('') + (active.length===0 ? '<div class="empty">No repeated mistake pattern found — nice paper.</div>' : '') + '</div>'+
     '<div style="margin-top:28px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">'+
-      (plan ? '<button class="btn btn-primary" data-action="toCalendar" data-id="'+mock.id+'" style="padding:13px 26px;">View my 14-day plan →</button>'
+      (plan ? '<button class="btn btn-primary" data-action="toCalendar" data-id="'+mock.id+'" style="padding:13px 26px;">View my '+(plan.days||14)+'-day plan →</button>'
             : '<button class="btn btn-primary" data-action="toAnalyze" data-id="'+mock.id+'" style="padding:13px 26px;">Finish analysis to generate plan</button>')+
       (state.demo ? '<button class="btn btn-ghost" data-action="toCreate">Analyse my real mock →</button>' : '')+
     '</div>'+
@@ -1762,11 +1779,14 @@ function calendarBody(mock, plan){
   var byDay = {};
   plan.blocks.forEach(function(b){ (byDay[b.day]=byDay[b.day]||[]).push(b); });
   var days = Object.keys(byDay).map(Number).sort(function(a,b){return a-b;});
+  var planLength = plan.days || 14; // 7 or 14; the day-7 checkpoint only exists for the 14-day version
+  var lastPracticeDay = days.length ? days[days.length-1] : (planLength-1);
+  var nextMockDay = lastPracticeDay + 1;
 
   var startDate = new Date(plan.startDate || Date.now());
   var day1date = fmtDate(startDate);
   var day7date = fmtDate(new Date(new Date(startDate).setDate(startDate.getDate()+6)));
-  var day14date = fmtDate(new Date(new Date(startDate).setDate(startDate.getDate()+13)));
+  var nextMockDate = fmtDate(new Date(new Date(startDate).setDate(startDate.getDate()+(nextMockDay-1))));
 
   var followup = plan.followupMockId ? findMock(plan.followupMockId) : null;
 
@@ -1790,7 +1810,7 @@ function calendarBody(mock, plan){
       }).join('')+
     '</div>');
 
-    if(day===7 && !plan.checkpointDone){
+    if(day===7 && planLength===14 && !plan.checkpointDone){
       cards.push(state.routeParams.checkpointMode ? checkpointForm() :
         '<div class="daycard special"><div class="daycard-head"><span class="daycard-title">Checkpoint test</span><span class="daycard-date">'+day7date+'</span></div>'+
         '<p style="font-size:13px;color:var(--ink-soft);">Run a short timed set, then adjust the remaining 6 days based on what’s still showing up.</p>'+
@@ -1800,7 +1820,7 @@ function calendarBody(mock, plan){
     }
   });
 
-  cards.push('<div class="daycard special"><div class="daycard-head"><span class="daycard-title">Day 14 — Next mock</span><span class="daycard-date">'+day14date+'</span></div>'+
+  cards.push('<div class="daycard special"><div class="daycard-head"><span class="daycard-title">Day '+nextMockDay+' — Next mock</span><span class="daycard-date">'+nextMockDate+'</span></div>'+
     (followup ?
       '<p style="font-size:13px;color:var(--ink-soft);">Comparison ready.</p><button class="btn btn-primary btn-sm day-cta" data-action="toCompare" data-id="'+mock.id+'">View comparison →</button>'
       : '<p style="font-size:13px;color:var(--ink-soft);">Take your next mock, then log it the same way — we’ll compare it against Day 1 automatically.</p><button class="btn btn-primary btn-sm day-cta" data-action="toCreate" data-role="followup" data-for-mock-id="'+mock.id+'">Log next mock & compare</button>')+
@@ -1810,7 +1830,7 @@ function calendarBody(mock, plan){
   return '<div class="shell page">'+
     (state.demo?'':'<button class="page-back" data-action="toDiagnosis" data-id="'+mock.id+'">← Diagnosis</button>')+
     '<div class="plan-summary">'+
-      '<div><h2 class="page-title">14-day plan — '+esc(mock.name)+'</h2><p class="page-sub">Two focused blocks a day. Tap a block for full instructions and a timer.</p></div>'+
+      '<div><h2 class="page-title">'+planLength+'-day plan — '+esc(mock.name)+'</h2><p class="page-sub">Two focused blocks a day. Tap a block for full instructions and a timer.</p></div>'+
       '<div class="plan-progress-ring">'+buildProgressRing(progressPct)+'<span class="plan-progress-num mono">'+doneBlocks+'/'+totalBlocks+'</span><span style="font-size:12px;color:var(--ink-faint);">blocks<br>done</span></div>'+
     '</div>'+
     '<div class="daylist">'+cards.join('')+'</div>'+

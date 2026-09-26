@@ -126,9 +126,16 @@ function blocksFor(schedule, firstDay, questions) {
   });
 }
 
-// Full plan: 24 blocks over days 2..13.
-function buildPlanBlocks(questions) {
-  const schedule = scheduleBlocks(allocateBlocks(computeScores(questions), 24, 2), 12, 2);
+// Full plan: 2 blocks/day, days 2..(days-1). Day 1 is the mock itself and
+// day `days` is reserved for the next mock, so a "14-day plan" practises
+// on days 2..13 (12 days, 24 blocks - the original behaviour) and a
+// "7-day plan" on days 2..6 (5 days, 10 blocks). The day-7 checkpoint
+// only exists for the 14-day version - it never lands inside a 7-day
+// plan's practice range, and a plan that short is anyway too tight for a
+// mid-course reallocation to leave enough days to act on it.
+function buildPlanBlocks(questions, days = 14) {
+  const practiceDays = Math.max(1, days - 2);
+  const schedule = scheduleBlocks(allocateBlocks(computeScores(questions), practiceDays * 2, 2), practiceDays, 2);
   return blocksFor(schedule, 2, questions);
 }
 

@@ -26,5 +26,6 @@ module.exports = async (req, res) => {
     res.status(200).json({ ok: true, blocks: checkpointBlocks(questions, cp) });
     return;
   }
-  res.status(200).json({ ok: true, blocks: buildPlanBlocks(questions) });
+  const days = body.days === 7 ? 7 : 14; // only two valid lengths; anything else falls back to 14
+  res.status(200).json({ ok: true, blocks: buildPlanBlocks(questions, days) });
 };
