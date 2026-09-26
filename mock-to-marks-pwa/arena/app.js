@@ -62,16 +62,18 @@
   // Your name is edited from the top-bar profile only, everywhere on
   // ProDJEE - so Arena just displays it, it doesn't keep its own copy.
   const studentName = () => (window.PJ && PJ.getName()) || "";
-  // Set right before showing the sign-in gate from the Play tab, so signing
-  // in resumes straight into Play instead of leaving them on Home.
-  let pendingPlayIntent = false;
+  // Holds the action to resume once signed in (set right before showing the
+  // gate), so completing sign-in continues straight into whatever was
+  // gated - not just the Play tab, but the actual game start itself, since
+  // that's the one choke point every way of starting a game goes through.
+  let pendingSignedInAction = null;
   if (window.PJ) {
     // One-time migration: a name typed into Arena's old "for reports" field
     // (now removed) becomes the shared name, so switching over doesn't
     // silently drop a nickname someone already set here.
     PJ.onChange((u) => {
       if (u && S.name && S.name.trim() && S.name.trim() !== (u.displayName || "").trim() && !PJ.hasNameOverride()) PJ.setName(S.name);
-      if (u && pendingPlayIntent) { pendingPlayIntent = false; tab = "play"; renderTab("play"); }
+      if (u && pendingSignedInAction) { const fn = pendingSignedInAction; pendingSignedInAction = null; fn(); }
     });
     PJ.onRemoteData((keys) => { if (keys.indexOf(STORE_KEY) >= 0) location.reload(); });
   }
@@ -473,6 +475,11 @@
     }
   });
   function startGame() {
+    // The real choke point: every way of starting a game (the Home
+    // "quick-play" CTA, the setup screen's "start", the Play tab itself)
+    // ends up here, so gating only the tab click let quick-play and the
+    // setup screen's own start button through while signed out.
+    if (window.PJ && !PJ.user) { pendingSignedInAction = startGame; PJ.requireSignIn(); return; }
     const pool = poolFor(setup); if (!pool.length) return;
     S.lastLength = setup.length; save();
     const length = Math.min(setup.length, pool.length);
@@ -894,7 +901,7 @@
     if (act === "modal-bg" && e.target !== el) return;
     switch (act) {
       case "tab":
-        if (v === "play" && window.PJ && !PJ.user) { pendingPlayIntent = true; PJ.requireSignIn(); break; }
+        if (v === "play" && window.PJ && !PJ.user) { pendingSignedInAction = () => { tab = "play"; renderTab("play"); }; PJ.requireSignIn(); break; }
         setup = null; if (G) return; sfx.tap(); renderTab(v); break;
       case "exam": S.exam = v; save(); renderTab(); break;
       case "quick-play": sfx.tap(); setup = { mode: "mixed", exam: S.exam, subject: SUBJECTS[S.exam][0], chapters: new Set(), length: S.lastLength || 10 }; startGame(); break;
