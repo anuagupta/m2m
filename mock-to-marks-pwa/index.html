@@ -19,12 +19,12 @@
   (function(){ var q = location.search; if (/[?&]route=/.test(q)) location.replace('/m2m/' + q + location.hash); })();
 </script>
 <meta charset="UTF-8">
-<title>ProDJEE — JEE practice that actually moves your marks</title>
+<title>ProDJEE — JEE/NEET practice that actually moves your marks</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="ProDJEE: Arena turns 2,640 real JEE Main PYQs into a game; Mock-to-Marks shows exactly why you're losing marks in mocks and builds a 14-day recovery plan.">
+<meta name="description" content="ProDJEE: Arena turns real JEE Main & NEET PYQs into a game; Mock-to-Marks shows exactly why you're losing marks in mocks and builds a 14-day recovery plan.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="ProDJEE — Arena + Mock-to-Marks">
-<meta property="og:description" content="Real JEE Main PYQs as a game, plus a mock-test diagnosis that tells you exactly where your marks are leaking.">
+<meta property="og:description" content="Real JEE Main & NEET PYQs as a game, plus a mock-test diagnosis that tells you exactly where your marks are leaking.">
 <meta property="og:image" content="https://prodjee.in/icon-512.png">
 <meta property="og:url" content="https://prodjee.in/">
 <meta name="twitter:card" content="summary">
@@ -142,13 +142,13 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
     var u = PJ.user, a = arenaStats(), m = m2mStats();
     view.innerHTML =
       '<section class="hero">'+
-        '<h1>JEE prep that <em>actually</em> moves your marks.</h1>'+
+        '<h1>JEE/NEET prep that <em>actually</em> moves your marks.</h1>'+
         '<p>Two tools, one sign-in. Practise real previous-year questions like a game, then find out exactly where your mock-test marks are leaking.</p>'+
         (u ? '' : '<div class="signed-out-cta"><button class="pj-btn pj-btn-primary" data-pj-act="sign-in">Continue with Google</button><span style="color:var(--pj-ink-faint);font-size:13px">Free to start. Your data stays with you.</span></div>')+
       '</section>'+
       '<div class="cards">'+
         '<a class="tile arena" href="/arena/"><span class="tag">Free</span><h2>Arena</h2>'+
-          '<p>2,640 real JEE Main 2025–26 PYQs, each checked against the official key, plus a practice bank. Earn Gyan Points, keep your streak, clear your Mistake Vault.</p>'+
+          '<p>2,640 real JEE Main & NEET PYQs, each checked against the official key, plus a practice bank. Earn Gyan Points, keep your streak, clear your Mistake Vault.</p>'+
           (u && a ? '<div class="statrow"><span>'+n(a.gp)+' GP</span><span>🔥 '+a.streak+'-day streak</span><span>'+n(a.correct)+' correct</span></div>' : '<ul><li>🎯 Chapter-wise PYQ runs</li><li>⚡ Hints, full solutions, timers</li><li>📈 Weak-chapter tracking</li></ul>')+
           '<span class="go">Play Arena →</span></a>'+
         '<a class="tile m2m" href="/m2m/"><span class="tag">Diagnosis free · Plan ₹499</span><h2>Mock-to-Marks</h2>'+
@@ -183,7 +183,7 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
           '<div class="row"><div class="t"><b>Sign out</b><small>Your data stays on this device and in Drive.</small></div><button class="pj-btn pj-btn-ghost pj-btn-sm" id="signOut">Sign out</button></div>'+
         '</div>'+
         '<p style="color:var(--pj-ink-faint);font-size:12.5px;margin-top:14px">Read our <a href="/privacy.html" style="color:var(--pj-gold)">Privacy Policy</a>, <a href="/terms.html" style="color:var(--pj-gold)">Terms</a>, <a href="/disclaimer.html" style="color:var(--pj-gold)">Disclaimer</a> and <a href="/refund.html" style="color:var(--pj-gold)">Refund Policy</a>. Manage Google access at <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener" style="color:var(--pj-gold)">myaccount.google.com/permissions</a>. Questions? <a href="mailto:prodjeelabs@gmail.com" style="color:var(--pj-gold)">Contact us</a>.</p>'+
-        '<p style="color:var(--pj-ink-faint);font-size:11.5px;margin-top:8px">© 2026 ProDJEE. Not affiliated with the National Testing Agency (NTA). JEE is conducted by NTA.</p>'+
+        '<p style="color:var(--pj-ink-faint);font-size:11.5px;margin-top:8px">© 2026 ProDJEE. Not affiliated with the National Testing Agency (NTA). JEE and NEET are conducted by NTA.</p>'+
       '</div>';
     PJ.paint();
     var sn = document.getElementById('syncNow');
