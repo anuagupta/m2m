@@ -776,7 +776,7 @@
       <div class="section-title"><h3>Badges · ${Object.keys(S.badges).length}/${BADGES.length}</h3></div>
       <div class="badges">${BADGES.map((b) => `<div class="badge-card ${S.badges[b.id] ? "" : "locked"}"><div class="medal">${b.icon}</div><b>${b.name}</b><span>${b.desc}</span></div>`).join("")}</div>
       ${note()}
-      <p class="note">${[["Privacy", "privacy"], ["Terms", "terms"], ["Disclaimer", "disclaimer"], ["Refunds", "refund"]].map(([l, f]) => `<a href="/${f}.html" target="_blank" style="color:var(--text-3);text-decoration:underline">${l}</a>`).join(" · ")}</p>`);
+      <p class="note">${[["Privacy", "/privacy.html"], ["Terms", "/terms.html"], ["Disclaimer", "/disclaimer.html"], ["Refunds", "/refund.html"], ["Contact us", "mailto:prodjeelabs@gmail.com"]].map(([l, href]) => `<a href="${href}" target="_blank" style="color:var(--text-3);text-decoration:underline">${l}</a>`).join(" · ")}</p>`);
     const nm = $("#nm"); if (nm) nm.addEventListener("change", () => { S.name = nm.value.trim(); save(); });
   }
 

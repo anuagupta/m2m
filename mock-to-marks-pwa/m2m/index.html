@@ -1507,7 +1507,6 @@ function viewLanding(){
     '</div>'+
   '</div></div>'+
   '<div class="shell footnote">Built for JEE Main aspirants in the 100–150 range. You log results by hand for now — answer-sheet scanning is on the way.'+
-    '<div style="margin-top:10px;"><a href="/privacy.html" style="color:var(--ink-faint);margin-right:14px;">Privacy</a><a href="/terms.html" style="color:var(--ink-faint);margin-right:14px;">Terms</a><a href="/disclaimer.html" style="color:var(--ink-faint);margin-right:14px;">Disclaimer</a><a href="/refund.html" style="color:var(--ink-faint);">Refunds</a></div>'+
   '</div>';
 }
 
@@ -1944,6 +1943,10 @@ function viewProfile(){
         (state.mocks.length ? '<button class="btn btn-danger" data-action="startFresh">Clear all data</button>' : '')+
       '</div>'+
     '</div>'+
+    '<p style="font-size:12px;color:var(--ink-faint);text-align:center;margin-top:30px;">'+
+      [['Privacy','privacy'],['Terms','terms'],['Disclaimer','disclaimer'],['Refunds','refund']].map(function(pair){ return '<a href="/'+pair[1]+'.html" style="color:var(--ink-faint);text-decoration:underline;">'+pair[0]+'</a>'; }).join(' · ')+
+      ' · <a href="mailto:prodjeelabs@gmail.com" style="color:var(--ink-faint);text-decoration:underline;">Contact us</a>'+
+    '</p>'+
   '</div>';
 }
 
