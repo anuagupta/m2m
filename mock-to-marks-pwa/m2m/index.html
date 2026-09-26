@@ -206,6 +206,10 @@ a{color:var(--primary);}
 .section{padding:56px 0;border-top:1px solid var(--border-soft);}
 .section h2{font-size:24px;}
 .section-lead{color:var(--ink-soft);margin-top:8px;max-width:56ch;font-size:14.5px;}
+.fixlist{list-style:none;margin:20px 0 0;padding:0;max-width:640px;}
+.fixlist li{padding:12px 0;border-top:1px solid var(--border-soft);font-size:14.5px;color:var(--ink-soft);line-height:1.6;}
+.fixlist li:first-child{border-top:none;}
+.fixlist b{color:var(--ink);font-family:var(--serif);font-weight:700;}
 .causes-grid{margin-top:28px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
 .cause-card{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:16px;}
 .cause-title{font-family:var(--serif);font-weight:600;font-size:15.5px;}
@@ -1451,9 +1455,7 @@ function topbar(){
     stickyProgress = '<div class="topbar-progress"><div class="topbar-progress-fill" id="topbarProgressFill" style="width:'+Math.round(doneCount/totalQ*100)+'%;"></div></div>';
   }
   return '<div class="topbar"><div class="topbar-inner">'+
-    '<button class="wordmark" data-action="toLanding"><img class="wordmark-logo" src="'+LOGO_DATA_URI+'" alt="ProDJEE logo">'+
-      '<span class="wordmark-text">Mock-to-Marks</span>'+
-    '</button>'+
+    '<button class="wordmark" data-action="toLanding"><img class="wordmark-logo" src="'+LOGO_DATA_URI+'" alt="ProDJEE logo"></button>'+
     '<div class="topnav">'+mockLabel+nav2+
     '<button class="btn btn-primary btn-sm" data-action="toCreate">New mock</button>'+
     (state.mocks.length ? '<button class="btn btn-ghost btn-sm" data-action="startFresh" title="Clear all data on this device">Start fresh</button>' : '')+
@@ -1499,12 +1501,16 @@ function viewLanding(){
     }).join('') +'</div>'+
   '</div></div>'+
   '<div class="section"><div class="shell">'+
-    '<h2>Search-and-Destroy, for time management</h2>'+
-    '<p class="section-lead">Time management isn’t "solve faster." It’s choosing the most recoverable marks first.</p>'+
-    '<div class="sd-wrap">'+
-      '<div class="sd-card"><h3>Step 1 — Search</h3><ol><li>Scan the section and mark each question A (fast), B (solvable, slower), or C (unclear).</li><li>Solve every A question first. Don’t get stuck on a hard one early.</li></ol></div>'+
-      '<div class="sd-card"><h3>Step 2 — Destroy</h3><ol><li>Return to B questions, highest marks-per-minute first.</li><li>Attempt only B questions with a clear first step.</li><li>Leave C for last; keep 5–10 minutes to check signs, units and options.</li></ol></div>'+
-    '</div>'+
+    '<h2>The one-line fix for each</h2>'+
+    '<p class="section-lead">Once you know why a question went wrong, the fix is almost always this simple.</p>'+
+    '<ul class="fixlist">'+
+      '<li><b>Language</b> — Reading a textbook is the best solution.</li>'+
+      '<li><b>Situation</b> — Try to solve unfamiliar questions and understand the situation before reaching for a formula.</li>'+
+      '<li><b>Approach</b> — Practice a lot of unseen questions.</li>'+
+      '<li><b>Formula / Law</b> — Derive the formula again from first principles, every time you forget it.</li>'+
+      '<li><b>Silly / Calculation</b> — Burst Mode.</li>'+
+      '<li><b>Time management</b> — Time management isn’t "solve faster." It’s choosing the most recoverable marks first.</li>'+
+    '</ul>'+
   '</div></div>'+
   '<div class="shell footnote">Built for JEE Main aspirants in the 100–150 range. You log results by hand for now — answer-sheet scanning is on the way.'+
   '</div>';

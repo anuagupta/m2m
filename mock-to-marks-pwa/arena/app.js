@@ -61,6 +61,15 @@
   const pct = (c, a) => (a ? Math.round((100 * c) / a) : 0);
   const kindOf = (q) => q.kind || (q.source && !/^Sample/.test(q.source) ? "pyq" : "sample");
   const isPYQ = (q) => kindOf(q) === "pyq";
+  // Shown under a question: for a real PYQ, just the exam/year/shift (never
+  // the subject or an internal question number); for anything else (a
+  // practice question sourced from coaching material, or a plain sample),
+  // nothing at all - no institute or batch name is ever shown.
+  const qSourceLabel = (q) => {
+    if (!isPYQ(q)) return "";
+    const m = String(q.source || "").match(/^(.*?\d{4})(\s*·\s*\d{1,2}\s+\S+\s*·\s*Shift\s*\d+)?/i);
+    return m ? m[1] + (m[2] || "") : "";
+  };
   const byId = Object.fromEntries(window.QBANK.map((q) => [q.id, q]));
   const bank = (exam, pyq = false) => window.QBANK.filter((q) => q.exam === exam && (!pyq || isPYQ(q)));
   const chaptersOf = (exam, subject, pyq) => [...new Set(bank(exam, pyq).filter((q) => q.subject === subject).map((q) => q.chapter))].sort();
@@ -509,7 +518,7 @@
           ${answerUI}
           <div id="grace" class="grace" aria-live="polite">${c.grace !== null && !done ? `Auto-skip in ${c.grace}s` : ""}</div>
           ${c.hintLeft > 0 && !done ? `<div class="reveal hint" id="hint-box"><h4>💡 Hint</h4><p>${esc(q.hint)}</p><div class="hint-bar"><i style="animation-duration:${c.hintLeft}s"></i></div></div>` : ""}
-          <p class="q-src">${esc(q.source || "Sample (not PYQ)")}</p>
+          ${qSourceLabel(q) ? `<p class="q-src">${esc(qSourceLabel(q))}</p>` : ""}
         </article>
       </div>`;
     const dock = done ? sheetHTML() : `
