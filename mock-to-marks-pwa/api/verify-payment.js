@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const admin = require('./_firebaseAdmin');
 const verifyAuth = require('./_verifyAuth');
 const cors = require('./_cors');
+const { extendEntitlement } = require('./_subscription');
 
 module.exports = async (req, res) => {
   if (!cors(req, res)) return;
@@ -52,10 +53,15 @@ module.exports = async (req, res) => {
     if (order.consumed) {
       return { ok: false, status: 400, error: 'This payment has already been used to unlock an account.' };
     }
+    const userRef = admin.firestore().collection('users').doc(uid);
+    const userDoc = await tx.get(userRef);
+    const entitledUntil = extendEntitlement(userDoc.exists ? userDoc.data().entitledUntil : null, order.plan);
     tx.update(orderRef, { consumed: true, consumedAt: Date.now() });
-    tx.set(admin.firestore().collection('users').doc(uid), {
+    tx.set(userRef, {
       entitled: true,
       entitledAt: Date.now(),
+      entitledUntil: entitledUntil,
+      plan: order.plan,
       lastPaymentId: paymentId
     }, { merge: true });
     return { ok: true };

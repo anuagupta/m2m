@@ -2,6 +2,7 @@ const admin = require('./_firebaseAdmin');
 const verifyAuth = require('./_verifyAuth');
 const cors = require('./_cors');
 const { cleanQuestions, buildPlanBlocks, checkpointBlocks } = require('./_plan');
+const { isActive } = require('./_subscription');
 
 // Builds the paid 14-day plan (or its day-7 rebuild) for entitled accounts only.
 module.exports = async (req, res) => {
@@ -11,7 +12,7 @@ module.exports = async (req, res) => {
   if (!uid) { res.status(401).json({ ok: false, error: 'sign in required' }); return; }
 
   const doc = await admin.firestore().collection('users').doc(uid).get();
-  if (!doc.exists || doc.data().entitled !== true) {
+  if (!isActive(doc.exists ? doc.data() : null)) {
     res.status(402).json({ ok: false, error: 'not_entitled' });
     return;
   }

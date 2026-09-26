@@ -1,4 +1,5 @@
 const admin = require('./_firebaseAdmin');
+const { extendEntitlement } = require('./_subscription');
 
 // Razorpay webhook (events: payment.captured, refund.processed).
 // The payload is treated only as a hint: every decision is made from the
@@ -47,7 +48,13 @@ module.exports = async (req, res) => {
       }
       if (payment.status === 'captured' && payment.amount === order.amount && !order.consumed) {
         tx.update(orderRef, { consumed: true, consumedAt: Date.now(), consumedBy: 'webhook' });
-        tx.set(userRef, { entitled: true, entitledAt: Date.now(), lastPaymentId: paymentId }, { merge: true });
+        tx.set(userRef, {
+          entitled: true,
+          entitledAt: Date.now(),
+          entitledUntil: extendEntitlement(user.entitledUntil, order.plan),
+          plan: order.plan,
+          lastPaymentId: paymentId
+        }, { merge: true });
       }
     });
     res.status(200).json({ ok: true });

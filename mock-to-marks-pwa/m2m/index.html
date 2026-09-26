@@ -893,7 +893,7 @@ function demoMock(){
    Two independent gates: sign-in (Google, via Firebase Auth) gates every
    route except landing; payment gates plan generation specifically. Free
    tier = sign in, analyse unlimited mocks, see your diagnosis. Paid tier
-   (one-time ₹499, lifetime) = the 14-day plan itself.
+   (₹49/month or ₹499/year, per Google account) = the 7-/14-day plan itself.
    Firestore rules deny client writes to /users/{uid} entirely - "entitled"
    can only be set by verify-payment.js after checking Razorpay's signature
    server-side, so this can't be spoofed from devtools the way a shared
@@ -940,13 +940,17 @@ function signInGateHtml(){
 function payGateHtml(){
   return '<div class="gate-bg" data-action="closeGate"><div class="gate-card">'+
     '<h3>Unlock your recovery plan</h3>'+
-    '<p class="gate-sub">Your diagnosis is free. Unlock the full recovery plan — plus every future mock and plan — once, for ₹499.</p>'+
+    '<p class="gate-sub">Your diagnosis is free. Subscribe to unlock the full recovery plan — plus unlimited future mocks and plans.</p>'+
     '<ul class="checklist" style="margin:16px 0;">'+
       '<li>✓ A 7- or 14-day plan built from your actual mistakes</li>'+
-      '<li>✓ Unlimited mocks and plans, forever</li>'+
+      '<li>✓ Unlimited mock analyses and plans while subscribed</li>'+
       '<li>✓ 7-day no-questions-asked refund</li>'+
     '</ul>'+
-    '<button class="btn btn-primary" data-action="startPayment" style="width:100%;">Pay ₹499 — Unlock plan</button>'+
+    '<div class="chiprow" id="planChoice" style="justify-content:center;">'+
+      '<label class="chip"><input type="radio" name="planChoice" value="monthly"><span>₹49/month</span></label>'+
+      '<label class="chip"><input type="radio" name="planChoice" value="yearly" checked><span>₹499/year — save ₹89</span></label>'+
+    '</div>'+
+    '<button class="btn btn-primary" data-action="startPayment" style="width:100%;margin-top:16px;">Build My Improvement Plan</button>'+
     '<div class="gate-error" id="gateError" hidden></div>'+
     '<button type="button" class="btn-text" data-action="togglePromoField" id="promoToggle" style="display:block;margin:14px auto 0;font-size:12.5px;">Have a code?</button>'+
     '<div id="promoField" hidden style="margin-top:10px;gap:8px;">'+
@@ -979,6 +983,11 @@ function fetchEntitlement(){
     entitlement = doc.exists ? doc.data() : {entitled:false};
     return entitlement;
   }).catch(function(){ entitlement = {entitled:false}; return entitlement; });
+}
+// A subscription is active only while entitled is true AND (it has no
+// expiry - a lifetime promo grant - OR that expiry hasn't passed yet).
+function isEntitled(){
+  return !!(entitlement && entitlement.entitled && (!entitlement.entitledUntil || entitlement.entitledUntil > Date.now()));
 }
 function trackSource(){
   if(!authUser) return;
@@ -1137,7 +1146,7 @@ var App = {
     var mock = findMock(state.routeParams.mockId); if(!mock) return;
     var incomplete = mock.questions.some(function(q){return !q.result;});
     if(incomplete) return;
-    if(!entitlement || !entitlement.entitled){ showPayGate(function(){ App.generatePlan(); }); return; }
+    if(!isEntitled()){ showPayGate(function(){ App.generatePlan(); }); return; }
     if(mock.role==='followup'){
       persist();
       nav('compare', {mockId: mock.linkedMockId, followupId: mock.id});
@@ -1276,26 +1285,30 @@ var App = {
     if(!authUser) return;
     var btn = document.querySelector('.gate-card [data-action="startPayment"]');
     var errEl = document.getElementById('gateError');
+    var picked = document.querySelector('#planChoice input[name="planChoice"]:checked');
+    var plan = picked ? picked.value : 'yearly';
+    var label = plan==='monthly' ? '₹49/month' : '₹499/year';
     if(errEl) errEl.hidden = true;
     if(btn){ btn.disabled = true; btn.textContent = 'Preparing payment…'; }
     authUser.getIdToken().then(function(idToken){
       return fetch(API_BASE+'/create-order', {
-        method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+idToken}
+        method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+idToken},
+        body: JSON.stringify({ plan: plan })
       }).then(function(r){ return r.json(); });
     }).then(function(order){
       if(!order || !order.ok) throw new Error((order && order.error) || 'Could not start payment');
       var rp = new Razorpay({
         key: RAZORPAY_KEY_ID, amount: order.amount, currency: 'INR', order_id: order.orderId,
-        name: 'Mock-to-Marks', description: 'Recovery plan — lifetime unlock',
+        name: 'Mock-to-Marks', description: 'Recovery plan subscription — '+label,
         prefill: { email: authUser.email || '', name: authUser.displayName || '' },
         theme: { color: '#ffc23d' },
         handler: function(response){ App.verifyPayment(response); },
-        modal: { ondismiss: function(){ if(btn){ btn.disabled=false; btn.textContent='Pay ₹499 — Unlock plan'; } } }
+        modal: { ondismiss: function(){ if(btn){ btn.disabled=false; btn.textContent='Build My Improvement Plan'; } } }
       });
       rp.open();
     }).catch(function(err){
       if(errEl){ errEl.hidden = false; errEl.textContent = err.message || 'Could not start payment. Try again.'; }
-      if(btn){ btn.disabled = false; btn.textContent = 'Pay ₹499 — Unlock plan'; }
+      if(btn){ btn.disabled = false; btn.textContent = 'Build My Improvement Plan'; }
     });
   },
   verifyPayment: function(response){
@@ -1313,13 +1326,14 @@ var App = {
       }).then(function(r){ return r.json(); });
     }).then(function(res){
       if(!res || !res.ok) throw new Error('Payment could not be verified. Email prodjeelabs@gmail.com with payment ID: '+response.razorpay_payment_id);
-      entitlement = {entitled:true};
+      return fetchEntitlement();
+    }).then(function(){
       var resume = gatePending; gatePending = null;
       App.closeGate();
       if(resume) resume();
     }).catch(function(err){
       if(errEl){ errEl.hidden = false; errEl.textContent = err.message; }
-      if(btn){ btn.disabled = false; btn.textContent = 'Pay ₹499 — Unlock plan'; }
+      if(btn){ btn.disabled = false; btn.textContent = 'Build My Improvement Plan'; }
     });
   },
   togglePromoField: function(){
@@ -1565,9 +1579,26 @@ function viewLanding(){
   '</div></div>'+
   '<div class="section"><div class="shell">'+
     '<div class="card" style="text-align:center;padding:36px 24px;">'+
-      '<h2 style="font-size:24px;">Stuck at the same score?</h2>'+
-      '<p class="section-lead" style="margin:10px auto 0;">Get a day-by-day, proven strategy — built from your own mock — to move the needle before your next attempt.</p>'+
-      '<button class="btn btn-primary" data-action="toCreate" style="margin-top:20px;">Analyse my mock</button>'+
+      '<h2 style="font-size:24px;">Stuck at the same mock-test score?</h2>'+
+      '<p class="section-lead" style="margin:10px auto 0;">Turn your latest mock into a personalised 7/14 day improvement plan — created by AI using a system designed by veteran JEE &amp; NEET mentors. Get two focused study sessions each day, so you always know what to do next.</p>'+
+      '<ul class="fixlist" style="text-align:left;max-width:560px;margin:20px auto 0;">'+
+        '<li><b>Burst Mode</b> — improve accuracy, reduce silly mistakes and avoid negative marking</li>'+
+        '<li><b>Search &amp; Destroy</b> — sharpen question selection and manage exam time better</li>'+
+        '<li><b>Focused reading sessions</b> — improve question interpretation and concept application</li>'+
+        '<li><b>Targeted unsolved-question practice</b> — strengthen weak topics and close concept gaps</li>'+
+        '<li><b>Planned chapter revision &amp; formula derivation</b> — improve recall and retention</li>'+
+      '</ul>'+
+      '<p class="helper" style="margin-top:16px;">Unlimited mock analyses and improvement plans, with secure access through your Google account.</p>'+
+      '<div style="margin-top:20px;">'+
+        '<div class="section-lead" style="font-weight:700;margin-bottom:8px;">Choose your plan</div>'+
+        '<div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;">'+
+          '<span style="border:1px solid var(--border);background:var(--surface-2);border-radius:99px;padding:6px 14px;font-weight:600;font-size:13.5px;">₹49/month</span>'+
+          '<span class="section-lead" style="margin:0;">or</span>'+
+          '<span style="border:1px solid var(--primary);background:color-mix(in srgb, var(--primary) 14%, var(--surface-2));border-radius:99px;padding:6px 14px;font-weight:600;font-size:13.5px;">₹499/year — save ₹89</span>'+
+        '</div>'+
+      '</div>'+
+      '<button class="btn btn-primary" data-action="toCreate" style="margin-top:20px;">Build My Improvement Plan</button>'+
+      '<p class="helper" style="margin-top:12px;">Practise smarter. Improve with a plan.</p>'+
     '</div>'+
   '</div></div>';
 }
@@ -1663,7 +1694,7 @@ function viewAnalyze(){
       '<button class="btn btn-primary" id="genPlanBtn" data-action="generatePlan" '+(done<total?'disabled':'')+' style="padding:13px 26px;">'+
         (mock.role==='followup' ? 'Compare with Day 1' : 'Generate my plan')+'</button>'+
     '</div>'+
-    (mock.role!=='followup' && !(entitlement && entitlement.entitled) ? '<p class="helper" style="text-align:center;">One-time ₹499 unlock for the plan — the diagnosis above is always free.</p>' : '')+
+    (mock.role!=='followup' && !isEntitled() ? '<p class="helper" style="text-align:center;">Subscribe from ₹49/month to unlock the plan — the diagnosis above is always free.</p>' : '')+
     '<p class="helper" style="text-align:center;">Mark every problematic question with exactly one primary reason. "Correct" hides the reason chips automatically.</p>'+
   '</div>';
 }
@@ -1955,7 +1986,7 @@ function viewProfile(){
     '<p class="section-lead" style="margin-top:4px;">Your mocks and plans live on this device — export a backup if you want a copy elsewhere. Your account and unlock status are saved to your Google sign-in, so they follow you to a new device.</p>'+
     (authUser ? '<div class="card" style="margin-top:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">'+
       '<div><div style="font-size:13.5px;color:var(--ink);">Signed in as <b>'+esc(authUser.email||'')+'</b></div>'+
-      '<div style="font-size:12px;color:'+(entitlement&&entitlement.entitled?'var(--good)':'var(--ink-faint)')+';margin-top:3px;">'+(entitlement&&entitlement.entitled?'✓ Plan unlocked':'Free tier — diagnosis only, plan not yet unlocked')+'</div></div>'+
+      '<div style="font-size:12px;color:'+(isEntitled()?'var(--good)':'var(--ink-faint)')+';margin-top:3px;">'+(isEntitled()?('✓ Subscribed'+(entitlement.entitledUntil?' — valid till '+fmtDate(entitlement.entitledUntil):'')):'Free tier — diagnosis only, plan not subscribed')+'</div></div>'+
       '<a class="btn btn-ghost btn-sm" href="/#profile" style="text-decoration:none;">Account &amp; data</a>'+
       '<button class="btn btn-ghost btn-sm" data-action="signOut">Sign out</button>'+
     '</div>' : '')+
