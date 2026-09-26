@@ -546,7 +546,7 @@ select,.field input[type=text],.field input[type=number],.field input[type=date]
     <div class="side-brand"><img src="/assets/logo-192.png" alt="ProDJEE logo"></div>
     <button class="side-link" data-action="toCreate">New mock</button>
     <button class="side-link" data-action="loadDemo">Sample mock</button>
-    <button class="side-link" data-action="openProfile">Settings</button>
+    <button class="side-link" data-action="openProfile">My Mocks</button>
   </nav>
   <div id="app"></div>
 </div>
@@ -937,7 +937,8 @@ function signInGateHtml(){
     '<div class="gate-error" id="gateError" hidden></div>'+
   '</div></div>';
 }
-function payGateHtml(){
+function payGateHtml(preselectPlan){
+  var monthly = preselectPlan==='monthly';
   return '<div class="gate-bg" data-action="closeGate"><div class="gate-card">'+
     '<h3>Unlock your recovery plan</h3>'+
     '<p class="gate-sub">Your diagnosis is free. Subscribe to unlock the full recovery plan — plus unlimited future mocks and plans.</p>'+
@@ -947,16 +948,11 @@ function payGateHtml(){
       '<li>✓ 7-day no-questions-asked refund</li>'+
     '</ul>'+
     '<div class="chiprow" id="planChoice" style="justify-content:center;">'+
-      '<label class="chip"><input type="radio" name="planChoice" value="monthly"><span>₹49/month</span></label>'+
-      '<label class="chip"><input type="radio" name="planChoice" value="yearly" checked><span>₹499/year — save ₹89</span></label>'+
+      '<label class="chip"><input type="radio" name="planChoice" value="monthly"'+(monthly?' checked':'')+'><span>₹49/month</span></label>'+
+      '<label class="chip"><input type="radio" name="planChoice" value="yearly"'+(monthly?'':' checked')+'><span>₹499/year — save ₹89</span></label>'+
     '</div>'+
     '<button class="btn btn-primary" data-action="startPayment" style="width:100%;margin-top:16px;">Build My Improvement Plan</button>'+
     '<div class="gate-error" id="gateError" hidden></div>'+
-    '<button type="button" class="btn-text" data-action="togglePromoField" id="promoToggle" style="display:block;margin:14px auto 0;font-size:12.5px;">Have a code?</button>'+
-    '<div id="promoField" hidden style="margin-top:10px;gap:8px;">'+
-      '<input type="text" id="promoInput" placeholder="Enter code" autocapitalize="off" autocorrect="off" spellcheck="false" style="flex:1;padding:9px 11px;border:1px solid var(--border);border-radius:7px;background:var(--surface-2);color:var(--ink);font-size:13px;">'+
-      '<button class="btn btn-ghost btn-sm" data-action="redeemPromoCode">Apply</button>'+
-    '</div>'+
     '<p class="helper" style="text-align:center;margin-top:14px;">Payments secured by Razorpay. <a href="/refund.html" target="_blank">Refund policy</a></p>'+
   '</div></div>';
 }
@@ -1010,6 +1006,7 @@ auth.onAuthStateChanged(function(user){
   trackSource();
   fetchEntitlement().then(function(){
     if(gatePending){ var resume = gatePending; gatePending = null; App.closeGate(); resume(); }
+    else render(); // picks up subscription status wherever it's already showing (landing CTA, diagnosis helper, profile)
   });
 });
 
@@ -1031,6 +1028,19 @@ function nav(route, params){
 var App = {
   toLanding: function(){ state.demo=false; nav('landing'); },
   toCreate: function(el){ nav('create', {role: el && el.dataset.role || 'initial', forMockId: el && el.dataset.forMockId || null}); },
+  // Landing page's pricing CTA: skips straight to the real payment gate
+  // (picking up whichever plan they chose there) instead of making them
+  // log and diagnose a mock first - they've already decided to subscribe.
+  buildImprovementPlan: function(){
+    var picked = document.querySelector('#landingPlanChoice input[name="landingPlanChoice"]:checked');
+    var plan = picked ? picked.value : 'yearly';
+    if(!authUser){ showSignInGate(function(){ App.buildImprovementPlanFor(plan); }); return; }
+    App.buildImprovementPlanFor(plan);
+  },
+  buildImprovementPlanFor: function(plan){
+    if(isEntitled()){ nav('create'); return; }
+    showGateOverlay(payGateHtml(plan), function(){ nav('create'); });
+  },
   toDiagnosis: function(el){ nav('diagnosis', {mockId: el.dataset.id}); },
   toAnalyze: function(el){ nav('analyze', {mockId: el.dataset.id}); },
   toCalendar: function(el){ nav('calendar', {mockId: el.dataset.id}); },
@@ -1336,46 +1346,9 @@ var App = {
       if(btn){ btn.disabled = false; btn.textContent = 'Build My Improvement Plan'; }
     });
   },
-  togglePromoField: function(){
-    var field = document.getElementById('promoField');
-    var toggle = document.getElementById('promoToggle');
-    if(!field) return;
-    field.style.display = 'flex';
-    if(toggle) toggle.style.display = 'none';
-    var inp = document.getElementById('promoInput');
-    if(inp){ inp.focus(); inp.addEventListener('keydown', function(e){ if(e.key==='Enter') App.redeemPromoCode(); }); }
-  },
-  redeemPromoCode: function(){
-    if(!authUser) return;
-    var input = document.getElementById('promoInput');
-    var btn = document.querySelector('#promoField [data-action="redeemPromoCode"]');
-    var errEl = document.getElementById('gateError');
-    var code = (input && input.value || '').trim();
-    if(errEl) errEl.hidden = true;
-    if(!code) return;
-    if(btn){ btn.disabled = true; btn.textContent = 'Checking…'; }
-    authUser.getIdToken().then(function(idToken){
-      return fetch(API_BASE+'/redeem-code', {
-        method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+idToken},
-        body: JSON.stringify({code: code})
-      }).then(function(r){ return r.json(); });
-    }).then(function(res){
-      if(!res || !res.ok) throw new Error((res && res.error) || 'That code isn’t valid.');
-      entitlement = {entitled:true};
-      var resume = gatePending; gatePending = null;
-      App.closeGate();
-      if(resume) resume();
-    }).catch(function(err){
-      if(errEl){ errEl.hidden = false; errEl.textContent = err.message; }
-      if(btn){ btn.disabled = false; btn.textContent = 'Apply'; }
-      if(input) input.select();
-    });
-  },
-
   openProfile: function(){ nav('profile'); },
   saveProfile: function(){
     state.profile = state.profile || {};
-    state.profile.name = (g('p_name').value||'').trim();
     state.profile.examTarget = (g('p_target').value||'').trim();
     profileEditing = false;
     persist();
@@ -1442,9 +1415,12 @@ var App = {
         state.mocks = state.mocks.concat(newMocks);
         state.plans = state.plans.concat(newPlans);
         if(data.profile && typeof data.profile==='object'){
-          state.profile = state.profile || {name:'',examTarget:''};
-          if(!state.profile.name && typeof data.profile.name==='string') state.profile.name = data.profile.name;
+          state.profile = state.profile || {examTarget:''};
           if(!state.profile.examTarget && typeof data.profile.examTarget==='string') state.profile.examTarget = data.profile.examTarget;
+          // Older backups kept a name field here; it's edited from the top-bar
+          // profile only now, so fold a name from an old backup in there
+          // instead of just dropping it, unless one's already been set.
+          if(typeof data.profile.name==='string' && data.profile.name.trim() && window.PJ && !PJ.hasNameOverride()) PJ.setName(data.profile.name);
         }
         persist();
         render();
@@ -1503,13 +1479,7 @@ function topbar(){
     '<button class="btn btn-ghost btn-sm" data-action="toDiagnosis" data-id="'+mock.id+'">Diagnosis</button>'+
     (findPlan(mock.id) ? '<button class="btn btn-ghost btn-sm" data-action="toCalendar" data-id="'+mock.id+'">'+(findPlan(mock.id).days||14)+'-day plan</button>' : '')
   ) : '';
-  var profileName = (state.profile && state.profile.name) ? state.profile.name.trim() : '';
-  var photoUrl = authUser && authUser.photoURL;
-  var silhouette = icon('<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/>');
-  var avatarInner = photoUrl
-    ? '<img class="avatar-photo" src="'+esc(photoUrl)+'" alt="" referrerpolicy="no-referrer" style="width:100%;height:100%;border-radius:99px;object-fit:cover;display:block;">'
-    : (profileName ? esc(profileName.charAt(0).toUpperCase()) : silhouette);
-  var profileBtn = '<button class="btn btn-ghost btn-sm" data-action="openProfile" title="Mock-to-Marks settings">Settings</button>';
+  var profileBtn = '<button class="btn btn-ghost btn-sm" data-action="openProfile" title="Your mocks, plans and data">My Mocks</button>';
   var stickyProgress = '';
   if(state.route==='analyze' && mock){
     var totalQ = mock.numQuestions || NUM_Q;
@@ -1520,7 +1490,7 @@ function topbar(){
     // No logo here: the shared pj-bar right above already shows one, and its
     // "Mock-to-Marks" link already does what this button's toLanding used to.
     '<div class="topnav">'+mockLabel+nav2+
-    '<span class="topnav-primary-actions">'+ // duplicated in the desktop sidenav (New mock / Settings); hidden there
+    '<span class="topnav-primary-actions">'+ // duplicated in the desktop sidenav (New mock / My Mocks); hidden there
       '<button class="btn btn-primary btn-sm" data-action="toCreate">New mock</button>'+
       profileBtn+
     '</span>'+
@@ -1589,15 +1559,19 @@ function viewLanding(){
         '<li><b>Planned chapter revision &amp; formula derivation</b> — improve recall and retention</li>'+
       '</ul>'+
       '<p class="helper" style="margin-top:16px;">Unlimited mock analyses and improvement plans, with secure access through your Google account.</p>'+
-      '<div style="margin-top:20px;">'+
-        '<div class="section-lead" style="font-weight:700;margin-bottom:8px;">Choose your plan</div>'+
-        '<div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;">'+
-          '<span style="border:1px solid var(--border);background:var(--surface-2);border-radius:99px;padding:6px 14px;font-weight:600;font-size:13.5px;">₹49/month</span>'+
-          '<span class="section-lead" style="margin:0;">or</span>'+
-          '<span style="border:1px solid var(--primary);background:color-mix(in srgb, var(--primary) 14%, var(--surface-2));border-radius:99px;padding:6px 14px;font-weight:600;font-size:13.5px;">₹499/year — save ₹89</span>'+
+      (authUser && isEntitled() ?
+        '<div style="margin-top:20px;"><span style="border:1px solid var(--good);background:color-mix(in srgb, var(--good) 14%, var(--surface-2));border-radius:99px;padding:6px 14px;font-weight:600;font-size:13.5px;color:var(--good);">✓ You\'re subscribed'+(entitlement.entitledUntil?' — valid till '+fmtDate(entitlement.entitledUntil):'')+'</span></div>'+
+        '<button class="btn btn-primary" style="margin-top:20px;" disabled>Already Subscribed</button>'
+      :
+        '<div style="margin-top:20px;">'+
+          '<div class="section-lead" style="font-weight:700;margin-bottom:8px;">Choose your plan</div>'+
+          '<div class="chiprow" id="landingPlanChoice" style="justify-content:center;">'+
+            '<label class="chip"><input type="radio" name="landingPlanChoice" value="monthly"><span>₹49/month</span></label>'+
+            '<label class="chip"><input type="radio" name="landingPlanChoice" value="yearly" checked><span>₹499/year — save ₹89</span></label>'+
+          '</div>'+
         '</div>'+
-      '</div>'+
-      '<button class="btn btn-primary" data-action="toCreate" style="margin-top:20px;">Build My Improvement Plan</button>'+
+        '<button class="btn btn-primary" data-action="buildImprovementPlan" style="margin-top:20px;">Build My Improvement Plan</button>'
+      )+
       '<p class="helper" style="margin-top:12px;">Practise smarter. Improve with a plan.</p>'+
     '</div>'+
   '</div></div>';
@@ -1940,8 +1914,8 @@ function computeDashboard(){
 
 /* ---------------- view: profile / dashboard ---------------- */
 function viewProfile(){
-  var p = state.profile || {name:'',examTarget:''};
-  var profileEditingNow = profileEditing || !p.name;
+  var p = state.profile || {examTarget:''};
+  var profileEditingNow = profileEditing || !p.examTarget;
   var dash = computeDashboard();
   var mocksSorted = dash.mocks.slice().sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
 
@@ -1982,27 +1956,21 @@ function viewProfile(){
 
   return topbar() + '<div class="shell page">'+
     '<button class="page-back" data-action="toLanding">← Back</button>'+
-    '<h2 class="page-title">Your profile</h2>'+
-    '<p class="section-lead" style="margin-top:4px;">Your mocks and plans live on this device — export a backup if you want a copy elsewhere. Your account and unlock status are saved to your Google sign-in, so they follow you to a new device.</p>'+
+    '<h2 class="page-title">Your mocks</h2>'+
+    '<p class="section-lead" style="margin-top:4px;">Your mocks and plans live on this device — export a backup if you want a copy elsewhere.</p>'+
     (authUser ? '<div class="card" style="margin-top:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">'+
-      '<div><div style="font-size:13.5px;color:var(--ink);">Signed in as <b>'+esc(authUser.email||'')+'</b></div>'+
-      '<div style="font-size:12px;color:'+(isEntitled()?'var(--good)':'var(--ink-faint)')+';margin-top:3px;">'+(isEntitled()?('✓ Subscribed'+(entitlement.entitledUntil?' — valid till '+fmtDate(entitlement.entitledUntil):'')):'Free tier — diagnosis only, plan not subscribed')+'</div></div>'+
-      '<a class="btn btn-ghost btn-sm" href="/#profile" style="text-decoration:none;">Account &amp; data</a>'+
-      '<button class="btn btn-ghost btn-sm" data-action="signOut">Sign out</button>'+
+      '<div style="font-size:13px;color:var(--ink-faint);">Signed in as '+esc(PJ.getName()||authUser.email||'')+'</div>'+
+      '<a class="btn btn-ghost btn-sm" href="/#profile" style="text-decoration:none;">Account, subscription &amp; sign out →</a>'+
     '</div>' : '')+
 
     '<div class="card" style="margin-top:22px;">'+
       (profileEditingNow ?
-        '<div class="field-row">'+
-          '<div class="field" style="margin-bottom:0;"><label for="p_name">Name</label><input type="text" id="p_name" value="'+esc(p.name)+'" placeholder="e.g. Rohan Verma"></div>'+
-          '<div class="field" style="margin-bottom:0;"><label for="p_target">Target exam</label><input type="text" id="p_target" value="'+esc(p.examTarget)+'" placeholder="e.g. JEE Main 2027 or NEET 2027"></div>'+
-        '</div>'+
+        '<div class="field"><label for="p_target">Target exam</label><input type="text" id="p_target" value="'+esc(p.examTarget)+'" placeholder="e.g. JEE Main 2027 or NEET 2027"></div>'+
         '<button class="btn btn-primary btn-sm" data-action="saveProfile" style="margin-top:16px;">Save</button>'
       :
         '<div class="profile-readout">'+
-          '<div class="profile-readout-row"><span class="profile-readout-label">Name</span><span class="profile-readout-value">'+(p.name?esc(p.name):'<span class="profile-readout-empty">Not set</span>')+'</span></div>'+
           '<div class="profile-readout-row"><span class="profile-readout-label">Target exam</span><span class="profile-readout-value">'+(p.examTarget?esc(p.examTarget):'<span class="profile-readout-empty">Not set</span>')+'</span></div>'+
-          '<button class="profile-edit-btn" data-action="editProfile" title="Edit name and target exam">'+icon('<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>')+'</button>'+
+          '<button class="profile-edit-btn" data-action="editProfile" title="Edit target exam">'+icon('<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>')+'</button>'+
         '</div>'
       )+
     '</div>'+
@@ -2039,10 +2007,6 @@ function viewProfile(){
         (state.mocks.length ? '<button class="btn btn-danger" data-action="startFresh">Clear all data</button>' : '')+
       '</div>'+
     '</div>'+
-    '<p style="font-size:12px;color:var(--ink-faint);text-align:center;margin-top:30px;">'+
-      [['Privacy','privacy'],['Terms','terms'],['Disclaimer','disclaimer'],['Refunds','refund']].map(function(pair){ return '<a href="/'+pair[1]+'.html" style="color:var(--ink-faint);text-decoration:underline;">'+pair[0]+'</a>'; }).join(' · ')+
-      ' · <a href="mailto:prodjeelabs@gmail.com" style="color:var(--ink-faint);text-decoration:underline;">Contact us</a>'+
-    '</p>'+
   '</div>';
 }
 
@@ -2288,6 +2252,12 @@ function boot(){
   if(!handled) render();
   App.maybeNotifyToday();
 }
+// Bridge for pj-core.js, loaded after this script: a name typed into this
+// app's old profile "Name" field (now removed - only editable from the
+// top-bar profile) becomes the shared name, once, so it isn't just dropped.
+window.__pjMigrateName = function(){
+  if(state.profile && state.profile.name && window.PJ && !PJ.hasNameOverride()) PJ.setName(state.profile.name);
+};
 if(window.claude && window.claude.hot){
   window.claude.hot.ready ? window.claude.hot.ready(boot) : boot();
 } else {
@@ -2299,5 +2269,6 @@ if(window.claude && window.claude.hot){
 <script>
   // Shared ProDJEE session: sign-in required, greeting, Drive sync.
   PJ.requireSignIn();
+  PJ.onChange(function(u){ if(u) window.__pjMigrateName(); });
   PJ.onRemoteData(function(keys){ if(keys.indexOf('mtm_state_v1')>=0) location.reload(); });
 </script>

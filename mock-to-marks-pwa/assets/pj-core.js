@@ -24,7 +24,7 @@
   var DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
   var DRIVE_FILE = 'prodjee-data.json';
   var CONSENT_VERSION = '2026-09-26b'; // bumped: consent mechanism changed from two checkboxes to a single Continue + Terms link
-  var TRACKED = ['mtm_state_v1', 'prodjee.arena.v1', 'pj.consent'];
+  var TRACKED = ['mtm_state_v1', 'prodjee.arena.v1', 'pj.consent', 'pj.nameOverride'];
 
   var LS = window.localStorage;
   var rawSet = Storage.prototype.setItem, rawRemove = Storage.prototype.removeItem, rawGet = Storage.prototype.getItem;
@@ -76,9 +76,18 @@
   ];
   var SUBS = ['Small wins stack up. Let’s get one now.', 'Consistency beats cramming. Every single time.',
     'Your future rank says thanks.', 'Pick a section and start the streak.'];
+  // The name shown across the hub, Arena and Mock-to-Marks: the Google
+  // account name, unless the student set their own nickname (only doable
+  // from the top-bar profile page) - one value, so it can't drift into
+  // three different "your name" fields with three different answers.
+  function getName() {
+    var o = jget('pj.nameOverride', '');
+    return (o && o.trim()) || (user && user.displayName) || '';
+  }
+  function setName(v) { jset('pj.nameOverride', String(v || '').trim()); touch('pj.nameOverride'); emit(); }
+  function hasNameOverride() { return !!(jget('pj.nameOverride', '') || '').trim(); }
   function firstName() {
-    var n = (user && user.displayName) || '';
-    n = n.trim().split(/\s+/)[0] || 'legend';
+    var n = getName().trim().split(/\s+/)[0] || 'legend';
     return n;
   }
   function greeting() {
@@ -96,7 +105,7 @@
     var els = document.querySelectorAll('[data-pj-avatar]');
     for (var i = 0; i < els.length; i++) {
       els[i].innerHTML = avatarHTML();
-      els[i].setAttribute('title', user ? (user.displayName || 'Profile') + ' — profile' : 'Sign in');
+      els[i].setAttribute('title', user ? (getName() || 'Profile') + ' — profile' : 'Sign in');
       els[i].setAttribute('aria-label', user ? 'Open profile' : 'Sign in');
     }
     var g = document.querySelectorAll('[data-pj-greet]');
@@ -432,6 +441,9 @@
     deleteAll: deleteAll,
     greeting: greeting,
     firstName: firstName,
+    getName: getName,
+    setName: setName,
+    hasNameOverride: hasNameOverride,
     avatarHTML: avatarHTML,
     toast: toast,
     paint: paint,

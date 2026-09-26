@@ -59,9 +59,14 @@
   // Saved immediately so the old shape doesn't linger in storage.
   if (typeof S.totalGP === "number") { S.totalGP = { JEE: S.totalGP, NEET: 0 }; save(); }
   if (!S.totalGP || typeof S.totalGP !== "object") { S.totalGP = { JEE: 0, NEET: 0 }; save(); }
-  // Shared ProDJEE account: default the report name to the Google name; reload if Drive brings newer progress.
+  // Your name is edited from the top-bar profile only, everywhere on
+  // ProDJEE - so Arena just displays it, it doesn't keep its own copy.
+  const studentName = () => (window.PJ && PJ.getName()) || "";
   if (window.PJ) {
-    PJ.onChange((u) => { if (u && !S.name && u.displayName) { S.name = u.displayName.trim(); save(); } });
+    // One-time migration: a name typed into Arena's old "for reports" field
+    // (now removed) becomes the shared name, so switching over doesn't
+    // silently drop a nickname someone already set here.
+    PJ.onChange((u) => { if (u && S.name && S.name.trim() && S.name.trim() !== (u.displayName || "").trim() && !PJ.hasNameOverride()) PJ.setName(S.name); });
     PJ.onRemoteData((keys) => { if (keys.indexOf(STORE_KEY) >= 0) location.reload(); });
   }
 
@@ -201,7 +206,7 @@
 
   /* ============================== SHELL / NAV ============================= */
   let tab = "home", view = "home";
-  const TABS = [["home", "Home", I.home], ["play", "Play", I.play], ["vault", "Vault", I.vault], ["stats", "Stats", I.stats], ["profile", "Profile", I.user]];
+  const TABS = [["home", "Home", I.home], ["play", "Play", I.play], ["vault", "Vault", I.vault], ["stats", "Stats", I.stats], ["profile", "Rewards", I.user]];
   // Logo only, no text: the shared pj-bar right above already carries the
   // "ProDJEE" wordmark on every page, so repeating it here (as this used to,
   // "ProDJEE Arena") was just a second brand line stacked under the first.
@@ -786,29 +791,27 @@
   function renderProfile() {
     tab = "profile"; view = "profile";
     const r = rankFor(gpFor());
+    const nm = studentName();
     show(`
-      ${appbar("Profile")}
+      ${appbar("Rewards")}
       <div class="glass" style="display:flex;align-items:center;gap:16px">
-        <div class="avatar">${esc((S.name || "P").trim().charAt(0).toUpperCase())}</div>
-        <div style="flex:1;min-width:0"><h2>${S.name ? esc(S.name) : '<span class="muted">Add your name below</span>'}</h2><div class="chips-row" style="margin-top:6px;flex-wrap:wrap"><span class="pill accent">${r.cur.name}</span><span class="pill gold">${fmt(gpFor())} GP</span></div></div>
+        <div class="avatar">${esc((nm || "P").trim().charAt(0).toUpperCase())}</div>
+        <div style="flex:1;min-width:0"><h2>${nm ? esc(nm) : '<span class="muted">Signed out</span>'}</h2><div class="chips-row" style="margin-top:6px;flex-wrap:wrap"><span class="pill accent">${r.cur.name}</span><span class="pill gold">${fmt(gpFor())} GP</span></div></div>
       </div>
       <div class="section-title"><h3>Settings</h3></div>
       <div class="glass">
-        <div class="field"><label class="eyebrow" for="nm">Your name (for reports)</label><input id="nm" maxlength="40" value="${esc(S.name)}" placeholder="e.g. Aarav" style="margin-top:6px" /></div>
         <div class="setting-row"><div><b>Sound & vibration</b><div class="faint">Chimes, buzzers, fanfare, haptics</div></div><button class="toggle ${S.sound ? "on" : ""}" data-act="toggle-sound-set" aria-pressed="${S.sound}" aria-label="Sound"></button></div>
         <div class="setting-row"><div><b>Real PYQs only</b><div class="faint">Hide practice samples in every mode</div></div><button class="toggle ${S.pyqOnly ? "on" : ""}" data-act="pyq" aria-pressed="${S.pyqOnly}" aria-label="PYQs only"></button></div>
         <div class="setting-row" style="display:block"><b>Daily GP goal</b><div class="chips" style="margin-top:8px">${[500, 1000, 2000, 3000].map((g) => `<button class="chip gold ${S.dailyGoal === g ? "on" : ""}" data-act="goal" data-v="${g}">${fmt(g)}</button>`).join("")}</div></div>
         <div class="setting-row"><div><b>Parent report</b><div class="faint">Share overall progress on WhatsApp</div></div><button class="btn gold sm" data-act="parent-lifetime">Send</button></div>
-        <div class="setting-row"><div><b>Account &amp; backup</b><div class="faint">${window.PJ && PJ.user ? esc(PJ.user.email || "") + " · Drive backup " + (PJ.driveStatus() === "on" ? "on" : "off") : "Signed out"}</div></div><a class="btn ghost sm" href="/#profile" style="text-decoration:none">Manage</a></div>
+        <div class="setting-row"><div><b>Account &amp; backup</b><div class="faint">${window.PJ && PJ.user ? esc(PJ.user.email || "") + " · Drive backup " + (PJ.driveStatus() === "on" ? "on" : "off") : "Signed out"} — change your name here too</div></div><a class="btn ghost sm" href="/#profile" style="text-decoration:none">Manage</a></div>
         <div class="setting-row"><div><b>Reset all progress</b><div class="faint">Clears GP, badges, vault and history</div></div><button class="btn ghost sm" data-act="reset">Reset</button></div>
       </div>
       <div class="section-title"><h3>Rank ladder</h3></div>
       <div class="ranks">${RANKS.map((x, i) => `<div class="rank-item ${i === r.i ? "cur" : i < r.i ? "done" : ""}"><b class="num">${i < r.i ? "✓ " : i === r.i ? "▶ " : ""}${x.name}</b><span class="faint">${fmt(x.gp)} GP</span></div>`).join("")}</div>
       <div class="section-title"><h3>Badges · ${Object.keys(S.badges).length}/${BADGES.length}</h3></div>
       <div class="badges">${BADGES.map((b) => `<div class="badge-card ${S.badges[b.id] ? "" : "locked"}"><div class="medal">${b.icon}</div><b>${b.name}</b><span>${b.desc}</span></div>`).join("")}</div>
-      ${note()}
-      <p class="note">${[["Privacy", "/privacy.html"], ["Terms", "/terms.html"], ["Disclaimer", "/disclaimer.html"], ["Refunds", "/refund.html"], ["Contact us", "mailto:prodjeelabs@gmail.com"]].map(([l, href]) => `<a href="${href}" target="_blank" style="color:var(--text-3);text-decoration:underline">${l}</a>`).join(" · ")}</p>`);
-    const nm = $("#nm"); if (nm) nm.addEventListener("change", () => { S.name = nm.value.trim(); save(); });
+      ${note()}`);
   }
 
   /* ============================ WELCOME / REPORT ========================== */
@@ -816,7 +819,7 @@
     const L = lifetime(S.exam); if (!L.att) return;
     const last = S.sessions[S.sessions.length - 1], due = vaultDue(S.exam).length;
     modal(`
-      <div class="eyebrow">Welcome back${S.name ? ", " + esc(S.name) : ""}</div>
+      <div class="eyebrow">Welcome back${studentName() ? ", " + esc(studentName()) : ""}</div>
       <h2 style="margin:4px 0 14px">Your ${S.exam} report card</h2>
       <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
         <div class="stat"><div class="v">${pct(L.cor, L.att)}%</div><div class="l">Accuracy</div></div>
@@ -832,7 +835,7 @@
   }
   function reportText(sess) {
     const L = lifetime(S.exam), r = rankFor(gpFor());
-    const lines = [`📊 ProDJEE Arena · Progress Report`, `Student: ${S.name || "—"}`, `Date: ${new Date().toLocaleDateString("en-IN", { dateStyle: "medium" })} · Exam: ${sess ? sess.exam : S.exam}`];
+    const lines = [`📊 ProDJEE Arena · Progress Report`, `Student: ${studentName() || "—"}`, `Date: ${new Date().toLocaleDateString("en-IN", { dateStyle: "medium" })} · Exam: ${sess ? sess.exam : S.exam}`];
     if (sess) lines.push("", `Today's session: ${sess.n} questions`, `✅ ${sess.correct} correct (${pct(sess.correct, sess.n)}%) · ⏱ avg ${Math.round(sess.time / sess.n)} s/question`, `GP earned: ${signed(sess.gp)} · Hints: ${sess.hints} · Solutions viewed: ${sess.solutions}`);
     lines.push("", `Overall: ${L.cor}/${L.att} correct (${pct(L.cor, L.att)}%)`, `Total GP: ${fmt(gpFor())} · Rank: ${r.cur.name}`, `Streak: ${liveStreak()} day(s) 🔥 · Today's goal: ${Math.round((100 * Math.max(0, dailyFor(dayKey()))) / S.dailyGoal)}%`);
     if (L.strong.length) lines.push(`Strong: ${L.strong.map((x) => x.label).join(", ")}`);
@@ -917,7 +920,7 @@
       case "goal": S.dailyGoal = +v; save(); renderProfile(); break;
       case "zoom": modal(`<img src="${esc(imgSrc(v))}" alt="${esc(el.dataset.alt || "Figure")}" class="zoom-img" /><button class="btn ghost block" data-act="close-modal" style="margin-top:12px">Close</button>`); break;
       case "reset": modal(`<h2>Reset everything?</h2><p class="muted">This permanently deletes your GP, badges, vault and history on this device.</p><div class="grid cols-2"><button class="btn ghost" data-act="close-modal">Cancel</button><button class="btn primary" data-act="reset-yes">Yes, reset</button></div>`); break;
-      case "reset-yes": { const keep = { name: S.name, sound: S.sound, exam: S.exam }; S = Object.assign(fresh(), keep); save(); closeModal(); renderHome(); break; }
+      case "reset-yes": { const keep = { sound: S.sound, exam: S.exam }; S = Object.assign(fresh(), keep); save(); closeModal(); renderHome(); break; }
       case "copy-share": { const t = $("#share-text"); const done = () => { el.textContent = "Copied ✓"; };
         try { navigator.clipboard.writeText(t.value).then(done, () => { t.select(); el.textContent = "Press Ctrl/⌘+C"; }); } catch (e) { t.select(); el.textContent = "Press Ctrl/⌘+C"; } break; }
       case "close-modal": case "modal-bg": closeModal(); break;

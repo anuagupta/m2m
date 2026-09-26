@@ -130,11 +130,12 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
     }catch(e){ return null; }
   }
   var entitlement = null;
+  function isSubActive(d){ return !!(d && d.entitled === true && (!d.entitledUntil || d.entitledUntil > Date.now())); }
   function loadEntitlement(){
     var u = PJ.user; if(!u) return;
     firebase.firestore().collection('users').doc(u.uid).get()
-      .then(function(d){ entitlement = d.exists && d.data().entitled ? 'paid' : 'free'; route(); })
-      .catch(function(){ entitlement = 'unknown'; route(); });
+      .then(function(d){ entitlement = d.exists ? d.data() : {entitled:false}; route(); })
+      .catch(function(){ entitlement = {entitled:false}; route(); });
   }
   function n(x){ return Math.round(x).toLocaleString('en-IN'); }
 
@@ -167,16 +168,26 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
     var driveRow = ds==='on'
       ? '<div class="row"><div class="t"><b>Google Drive backup <span class="pill ok">On</span></b><small>'+(last?'Last synced '+new Date(last).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}):'Not synced yet')+'. Stored in a private app folder only ProDJEE can see.</small></div><button class="pj-btn pj-btn-ghost pj-btn-sm" id="syncNow">Sync now</button></div>'
       : '<div class="row"><div class="t"><b>Google Drive backup <span class="pill warn">Off</span></b><small>Your data is only on this device. If you clear the browser or change phones, it’s gone.</small></div><button class="pj-btn pj-btn-primary pj-btn-sm" data-pj-act="enable-drive">Enable backup</button></div>';
+    var subActive = isSubActive(entitlement);
+    var subValue = entitlement===null ? '…' : (subActive ? 'Subscribed' : 'Free');
+    var subSub = subActive && entitlement.entitledUntil ? 'Valid till '+new Date(entitlement.entitledUntil).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : 'Plan status';
     view.innerHTML =
       '<div class="prof">'+
         '<a class="back" href="/">← Home</a>'+
-        '<div class="panel"><div class="who"><span class="pj-avatar" data-pj-avatar></span><div><b>'+esc(u.displayName||'ProDJEE student')+'</b><span>'+esc(u.email||'')+'</span></div></div></div>'+
+        '<div class="panel"><div class="who">'+
+          '<span class="pj-avatar" data-pj-avatar></span>'+
+          '<div style="flex:1;min-width:0;" id="nameBlock">'+
+            '<div id="nameReadout" style="display:flex;align-items:center;gap:8px;"><b>'+esc(PJ.getName()||'ProDJEE student')+'</b>'+
+              '<button class="pj-btn pj-btn-ghost pj-btn-sm" id="editNameBtn" title="Change your display name" style="padding:2px 8px;">Edit</button></div>'+
+            '<span>'+esc(u.email||'')+'</span>'+
+          '</div>'+
+        '</div></div>'+
         '<div class="panel"><h3>Arena</h3><div class="kv">'+
           '<div><b>'+n(a.gp)+'</b><small>Gyan Points</small></div><div><b>🔥 '+a.streak+'</b><small>Day streak</small></div>'+
           '<div><b>'+n(a.correct)+'</b><small>Correct answers</small></div><div><b>'+n(a.sessions)+'</b><small>Sessions</small></div></div></div>'+
         '<div class="panel"><h3>Mock-to-Marks</h3><div class="kv">'+
           '<div><b>'+m.mocks+'</b><small>Mocks logged</small></div><div><b>'+m.plans+'</b><small>Plans</small></div>'+
-          '<div><b>'+(entitlement==='paid'?'Unlocked':entitlement==='free'?'Free':'…')+'</b><small>Plan status</small></div></div></div>'+
+          '<div><b>'+subValue+'</b><small>'+subSub+'</small></div></div></div>'+
         '<div class="panel"><h3>Your data</h3>'+ driveRow +
           '<div class="row"><div class="t"><b>Download my data</b><small>A JSON file with everything ProDJEE stores for you on this device.</small></div><button class="pj-btn pj-btn-ghost pj-btn-sm" id="exportData">Download</button></div>'+
           '<div class="row"><div class="t"><b>Delete my data</b><small>Erases your study data from this device and your Google Drive backup, then signs you out. Payment records are kept as required by law; to close your account email prodjeelabs@gmail.com.</small></div><button class="pj-btn pj-btn-danger pj-btn-sm" id="deleteData">Delete</button></div>'+
@@ -186,6 +197,16 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
         '<p style="color:var(--pj-ink-faint);font-size:11.5px;margin-top:8px">© 2026 ProDJEE. Not affiliated with the National Testing Agency (NTA). JEE and NEET are conducted by NTA.</p>'+
       '</div>';
     PJ.paint();
+    var editBtn = document.getElementById('editNameBtn');
+    if(editBtn) editBtn.onclick = function(){
+      var block = document.getElementById('nameReadout');
+      block.innerHTML = '<input id="nameInput" value="'+esc(PJ.getName())+'" maxlength="40" style="font-size:15px;padding:6px 9px;border:1px solid var(--pj-border,#444);border-radius:8px;background:transparent;color:inherit;width:180px;">'+
+        '<button class="pj-btn pj-btn-primary pj-btn-sm" id="saveNameBtn">Save</button>';
+      var inp = document.getElementById('nameInput'); inp.focus(); inp.select();
+      var save = function(){ PJ.setName(inp.value); renderProfile(); };
+      document.getElementById('saveNameBtn').onclick = save;
+      inp.addEventListener('keydown', function(e){ if(e.key==='Enter') save(); });
+    };
     var sn = document.getElementById('syncNow');
     if(sn) sn.onclick = function(){ sn.disabled = true; sn.textContent = 'Syncing…'; PJ.syncNow().then(function(ok){ PJ.toast(ok?'Synced with Google Drive ✅':'Sync didn’t finish. Try again.'); renderProfile(); }); };
     document.getElementById('exportData').onclick = PJ.exportData;
