@@ -349,7 +349,11 @@
     if (isBonus) { const mcq = cands.filter((q) => q.type === "mcq"); if (mcq.length) cands = mcq; }
     const now = Date.now(); let best = null, bestScore = Infinity;
     cands.forEach((q) => {
-      let sc = Math.abs(qRating(q) - (sRating(q) + (isBonus ? -100 : 60))) + Math.random() * 160 + (S.seen[q.id] || 0) * 120;
+      // Penalise chapters already drawn this session so a "random test" over
+      // many chapters actually spreads across them, instead of the pure
+      // difficulty-match below repeatedly favouring whichever one or two
+      // chapters happen to sit closest to the current skill rating.
+      let sc = Math.abs(qRating(q) - (sRating(q) + (isBonus ? -100 : 60))) + Math.random() * 160 + (S.seen[q.id] || 0) * 120 + (G.chUsed[chKey(q)] || 0) * 260;
       const v = S.vault[q.id]; if (v && v.due <= now) sc -= G.mode === "vault" ? 1000 : 120;
       if (sc < bestScore) { bestScore = sc; best = q; }
     });
@@ -363,13 +367,14 @@
   function startGame() {
     const pool = poolFor(setup); if (!pool.length) return;
     S.lastLength = setup.length; save();
-    G = { exam: setup.exam, mode: setup.mode, pool, length: Math.min(setup.length, pool.length), idx: 0, used: new Set(), records: [], sessionGP: 0, streakRun: 0, bestRun: 0, cur: null, newBadges: [] };
+    G = { exam: setup.exam, mode: setup.mode, pool, length: Math.min(setup.length, pool.length), idx: 0, used: new Set(), chUsed: {}, records: [], sessionGP: 0, streakRun: 0, bestRun: 0, cur: null, newBadges: [] };
     nextQuestion();
   }
   function nextQuestion() {
     if (G.idx >= G.length) return finishGame();
     const pick = pickNext(); if (!pick) return finishGame();
     G.used.add(pick.q.id);
+    G.chUsed[chKey(pick.q)] = (G.chUsed[chKey(pick.q)] || 0) + 1;
     G.cur = { q: pick.q, isBonus: pick.isBonus, order: shuffle([0, 1, 2, 3]), gp: RULES.startGP, bonusLeft: RULES.bonusSec, grace: null, time: 0,
       hintUsed: false, hintLeft: 0, solShown: false, selected: null, numVal: "", phase: "play", result: null, delta: 0 };
     document.body.classList.toggle("bonus", pick.isBonus);
