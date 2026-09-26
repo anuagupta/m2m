@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-FD29SH9PJF"></script>
+  <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-FD29SH9PJF');</script>
+  <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0b14" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="description" content="ProDJEE Arena: gamified JEE Main & NEET practice. Earn Gyan Points, build streaks, fix weak chapters." />
+  <title>Arena — ProDJEE</title>
+  <link rel="icon" href="logo.png" />
+  <link rel="apple-touch-icon" href="logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="vendor/katex/katex.min.css" />
+  <script defer src="vendor/katex/katex.min.js"></script>
+  <script defer src="vendor/katex/contrib/auto-render.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="/assets/pj-core.css" />
+  <link rel="manifest" href="/manifest.json" />
+</head>
+<body>
+  <div class="ambient" aria-hidden="true">
+    <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div><div class="blob b5"></div><div class="blob b6"></div><div class="blob b7"></div><div class="blob b8"></div>
+    <div class="grain"></div>
+  </div>
+  <header class="pj-bar pj-static"><div class="pj-bar-inner">
+    <a class="pj-brand" href="/"><img src="/assets/logo-192.png" alt="ProDJEE logo"><b>Pro<span>DJEE</span></b></a>
+    <nav class="pj-links" aria-label="Sections"><a href="/">Home</a><a href="/arena/" class="on">Arena</a><a href="/m2m/">Mock-to-Marks</a></nav>
+    <button class="pj-avatar" data-pj-avatar data-pj-act="profile"></button>
+  </div></header>
+  <div class="pj-greet" data-pj-greet></div>
+  <div class="pj-banner" data-pj-banner></div>
+  <div class="shell">
+    <nav class="sidenav" id="sidenav" aria-label="Main"></nav>
+    <main class="app" id="app"></main>
+  </div>
+  <nav class="tabbar" id="tabbar" aria-label="Main"></nav>
+  <div id="layer"></div>
+  <div id="overlay"></div>
+  <div id="fx" aria-hidden="true"></div>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="/assets/pj-core.js" charset="utf-8"></script>
+  <script>PJ.requireSignIn();</script>
+  <script src="questions.js"></script>
+  <script src="practice.js"></script>
+  <script src="pyq.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

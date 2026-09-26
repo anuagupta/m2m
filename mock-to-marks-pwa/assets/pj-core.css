@@ -1,0 +1,82 @@
+/* ProDJEE shared chrome: top bar, avatar, greeting, gates, consent, toasts.
+   Uses the prodjee.in brand system: deep-space navy glass, with the same
+   saturated tones as Arena's own UI (gold #ffc23d, crimson #f04848, mint
+   #4ff0a0) rather than paler tints of them, so the shared chrome, the hub
+   and Mock-to-Marks read as the same product as Arena, not a paler cousin
+   of it. Fraunces display + Manrope body. Everything is namespaced "pj-". */
+:root{
+  --pj-bg:#0a0b14;
+  --pj-ink:#f2eff9;
+  --pj-ink-soft:#b6b1cf;
+  --pj-ink-faint:#8a86a6;
+  --pj-gold:#ffc23d;
+  --pj-gold-strong:#ffe07a;
+  --pj-coral:#f04848;
+  --pj-green:#4ff0a0;
+  --pj-glass:color-mix(in srgb, #1c1f36 55%, transparent);
+  --pj-glass-2:color-mix(in srgb, #24273f 60%, transparent);
+  --pj-border:color-mix(in srgb, #fff 15%, transparent);
+  --pj-serif:'Fraunces', Georgia, serif;
+  --pj-sans:'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.pj-bar{position:sticky;top:0;z-index:60;background:color-mix(in srgb, var(--pj-bg) 72%, transparent);
+  backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);
+  border-bottom:1px solid var(--pj-border);font-family:var(--pj-sans);color:var(--pj-ink);}
+.pj-bar-inner{max-width:1100px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;}
+.pj-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;flex:none;}
+.pj-brand img{width:34px;height:34px;border-radius:10px;display:block;}
+.pj-brand b{font-family:var(--pj-serif);font-weight:600;font-size:19px;letter-spacing:-.01em;}
+.pj-brand b span{color:var(--pj-gold);}
+.pj-links{display:flex;gap:4px;margin-left:8px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;}
+.pj-links::-webkit-scrollbar{display:none;}
+.pj-links a{color:var(--pj-ink-soft);text-decoration:none;font-size:13.5px;font-weight:600;padding:7px 11px;border-radius:99px;white-space:nowrap;}
+.pj-links a:hover{color:var(--pj-ink);background:var(--pj-glass-2);}
+.pj-links a.on{color:var(--pj-bg);background:var(--pj-gold);}
+.pj-avatar{width:36px;height:36px;border-radius:99px;flex:none;border:1px solid var(--pj-border);
+  background:var(--pj-glass-2);color:var(--pj-ink-soft);display:inline-flex;align-items:center;justify-content:center;
+  overflow:hidden;cursor:pointer;padding:0;text-decoration:none;transition:transform .12s;}
+.pj-avatar:hover{transform:scale(1.07);}
+.pj-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+.pj-avatar svg{width:22px;height:22px;}
+.pj-greet{max-width:1100px;margin:0 auto;padding:10px 16px 0;font-family:var(--pj-serif);font-size:clamp(20px,4.6vw,28px);
+  font-weight:600;letter-spacing:-.01em;color:var(--pj-ink);min-height:1.2em;}
+.pj-greet:empty{display:none;}
+.pj-greet small{display:block;font-family:var(--pj-sans);font-size:13px;font-weight:500;color:var(--pj-ink-faint);margin-top:2px;letter-spacing:0;}
+.pj-banner{max-width:1100px;margin:10px auto 0;padding:0 16px;font-family:var(--pj-sans);}
+.pj-banner > div{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  background:color-mix(in srgb, var(--pj-gold) 12%, transparent);border:1px solid color-mix(in srgb, var(--pj-gold) 35%, transparent);
+  color:var(--pj-ink);border-radius:14px;padding:10px 14px;font-size:13.5px;}
+.pj-btn{font-family:var(--pj-sans);font-weight:700;font-size:14px;border-radius:12px;padding:11px 16px;border:1px solid transparent;
+  cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;}
+.pj-btn-primary{background:var(--pj-gold);color:#2b1c05;}
+.pj-btn-primary:hover{background:var(--pj-gold-strong);}
+.pj-btn-ghost{background:var(--pj-glass-2);color:var(--pj-ink);border-color:var(--pj-border);}
+.pj-btn-danger{background:color-mix(in srgb, var(--pj-coral) 18%, transparent);color:var(--pj-coral);border-color:color-mix(in srgb, var(--pj-coral) 40%, transparent);}
+.pj-btn-sm{padding:7px 12px;font-size:13px;border-radius:10px;}
+.pj-btn:disabled{opacity:.5;cursor:not-allowed;}
+.pj-scrim{position:fixed;inset:0;z-index:1000;background:color-mix(in srgb, #05060c 70%, transparent);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:16px;
+  font-family:var(--pj-sans);color:var(--pj-ink);overflow-y:auto;}
+.pj-card{width:100%;max-width:440px;background:#15172a;border:1px solid var(--pj-border);border-radius:22px;padding:24px;
+  box-shadow:0 30px 80px -30px #000;}
+.pj-card h2{font-family:var(--pj-serif);font-weight:600;font-size:26px;margin:10px 0 6px;letter-spacing:-.01em;}
+.pj-card p{color:var(--pj-ink-soft);font-size:14px;line-height:1.55;margin:0 0 10px;}
+.pj-card .pj-logo{width:56px;height:56px;border-radius:16px;display:block;}
+.pj-card a{color:var(--pj-gold);}
+.pj-check{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.5;color:var(--pj-ink);margin:12px 0;cursor:pointer;}
+.pj-check input{margin-top:3px;width:18px;height:18px;flex:none;accent-color:#ffb500;}
+.pj-fine{font-size:12px !important;color:var(--pj-ink-faint) !important;margin-top:12px !important;}
+.pj-err{color:var(--pj-coral);font-size:13px;margin-top:10px;}
+.pj-toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:1100;
+  background:#1d2038;color:var(--pj-ink);border:1px solid var(--pj-border);border-radius:99px;padding:10px 16px;
+  font:600 13px var(--pj-sans);box-shadow:0 12px 30px -12px #000;max-width:calc(100vw - 32px);text-align:center;}
+.pj-foot{max-width:1100px;margin:36px auto 0;padding:18px 16px 28px;border-top:1px solid var(--pj-border);
+  font-family:var(--pj-sans);font-size:12.5px;color:var(--pj-ink-faint);display:flex;flex-wrap:wrap;gap:8px 16px;}
+.pj-foot a{color:var(--pj-ink-soft);text-decoration:none;}
+.pj-foot a:hover{color:var(--pj-ink);}
+@media (max-width:560px){
+  .pj-brand b{display:none;}
+  .pj-links{margin-left:0;}
+}
+.pj-static{position:relative;}
+body.immersive .pj-bar, body.immersive .pj-greet, body.immersive .pj-banner{display:none;}

@@ -1,29 +1,21 @@
 {
-  "name": "Mock-to-Marks — ProDJEE",
-  "short_name": "Mock-to-Marks",
-  "description": "JEE mock-test diagnosis and 14-day recovery planner.",
-  "start_url": "./index.html",
-  "scope": "./",
+  "name": "ProDJEE — Arena + Mock-to-Marks",
+  "short_name": "ProDJEE",
+  "description": "Real JEE Main PYQs as a game, plus mock-test diagnosis and a 14-day recovery plan.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0a0b14",
   "theme_color": "#0a0b14",
   "orientation": "portrait-primary",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
   ],
   "shortcuts": [
-    {
-      "name": "New mock",
-      "short_name": "New mock",
-      "url": "./index.html?route=new",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Today's plan",
-      "short_name": "Today",
-      "url": "./index.html?route=today",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
-    }
+    { "name": "Play Arena", "short_name": "Arena", "url": "/arena/", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "New mock", "short_name": "New mock", "url": "/m2m/?route=new", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Today's plan", "short_name": "Today", "url": "/m2m/?route=today", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
   ]
 }
