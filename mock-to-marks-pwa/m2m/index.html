@@ -1080,7 +1080,13 @@ auth.onAuthStateChanged(function(user){
 // stack instead of jumping to a hardcoded destination.
 var navHistory = [];
 function nav(route, params, skipHistory){
-  if(route!=='landing' && !state.demo && !authUser){ showSignInGate(function(){ nav(route, params); }); return; }
+  // Only the demo mock itself is free to view signed out - state.demo is a
+  // sticky flag (stays true for the rest of the session once "Sample mock"
+  // is opened), so gating on it directly let a signed-out student create
+  // and analyse a REAL mock afterwards without ever being asked to sign
+  // in, as long as they never navigated back to landing first.
+  var isDemoView = params && params.mockId === 'demo';
+  if(route!=='landing' && !isDemoView && !authUser){ showSignInGate(function(){ nav(route, params); }); return; }
   if(!skipHistory && state.route){
     navHistory.push({route: state.route, params: state.routeParams});
     if(navHistory.length > 30) navHistory.shift();
