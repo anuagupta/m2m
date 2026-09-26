@@ -42,6 +42,15 @@
   let S = fresh();
   try { const raw = localStorage.getItem(STORE_KEY); if (raw) S = Object.assign(fresh(), JSON.parse(raw)); } catch (e) {}
   const gpFor = (exam = S.exam) => S.totalGP[exam] || 0;
+  // A day's GP entry started as a single combined number (same bug as
+  // totalGP: JEE progress showing up in the NEET tab's daily goal and vice
+  // versa). Read it per-exam without rewriting every past day; only the
+  // entry a session actually touches gets normalized to {JEE,NEET} below.
+  const dailyFor = (day, exam = S.exam) => {
+    const v = S.daily[day];
+    if (typeof v === "number") return exam === "JEE" ? v : 0;
+    return (v && v[exam]) || 0;
+  };
   const save = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch (e) {} };
   // Older saves kept a single combined GP total across both exams (the bug
   // this fixes: JEE points showing up in the NEET tab and vice versa).
@@ -232,7 +241,7 @@
   /* ================================= HOME ================================= */
   function renderHome() {
     tab = "home"; view = "home";
-    const r = rankFor(gpFor()), today = Math.max(0, S.daily[dayKey()] || 0), goalP = Math.min(1, today / S.dailyGoal);
+    const r = rankFor(gpFor()), today = Math.max(0, dailyFor(dayKey())), goalP = Math.min(1, today / S.dailyGoal);
     const streak = liveStreak(), due = vaultDue(S.exam).length;
     const week = Array.from({ length: 7 }, (_, i) => daysAgo(6 - i));
     const subj = SUBJECTS[S.exam].map((s) => {
@@ -264,7 +273,7 @@
               <div class="chips-row" style="margin-top:6px"><span class="pill gold">🔥 ${streak}-day streak</span></div>
             </div>
           </div>
-          <div class="week-dots">${week.map((d) => { const k = dayKey(d), v = S.daily[k]; return `<span><i class="${v >= S.dailyGoal ? "hit" : v !== undefined ? "played" : ""} ${k === dayKey() ? "today" : ""}">${v >= S.dailyGoal ? "✓" : ""}</i>${d.toLocaleDateString("en-IN", { weekday: "narrow" })}</span>`; }).join("")}</div>
+          <div class="week-dots">${week.map((d) => { const k = dayKey(d), v = dailyFor(k), played = S.daily[k] !== undefined; return `<span><i class="${v >= S.dailyGoal ? "hit" : played ? "played" : ""} ${k === dayKey() ? "today" : ""}">${v >= S.dailyGoal ? "✓" : ""}</i>${d.toLocaleDateString("en-IN", { weekday: "narrow" })}</span>`; }).join("")}</div>
         </div>
       </section>
       <button class="cta" data-act="quick-play">
@@ -635,7 +644,9 @@
       const st = (S.stats[r.key] = S.stats[r.key] || { att: 0, cor: 0 }); st.att++; if (r.result === "correct") st.cor++;
     });
     const today = dayKey();
-    S.daily[today] = (S.daily[today] || 0) + G.sessionGP;
+    if (typeof S.daily[today] === "number") S.daily[today] = { JEE: S.daily[today], NEET: 0 };
+    if (!S.daily[today] || typeof S.daily[today] !== "object") S.daily[today] = { JEE: 0, NEET: 0 };
+    S.daily[today][G.exam] = Math.max(0, (S.daily[today][G.exam] || 0) + G.sessionGP);
     S.totalGP[G.exam] = Math.max(0, gpFor(G.exam) + G.sessionGP);
     if (S.streak.last !== today) { S.streak.count = S.streak.last === dayKey(daysAgo(1)) ? S.streak.count + 1 : 1; S.streak.last = today; S.streak.best = Math.max(S.streak.best, S.streak.count); }
     S.counters.sessions++;
@@ -720,7 +731,7 @@
     return { rows, att, cor, weak, strong };
   }
   function weekHTML() {
-    const days = Array.from({ length: 7 }, (_, i) => daysAgo(6 - i)), vals = days.map((d) => Math.max(0, S.daily[dayKey(d)] || 0)), max = Math.max(S.dailyGoal, ...vals);
+    const days = Array.from({ length: 7 }, (_, i) => daysAgo(6 - i)), vals = days.map((d) => Math.max(0, dailyFor(dayKey(d)))), max = Math.max(S.dailyGoal, ...vals);
     return `<div class="week" role="img" aria-label="GP over the last 7 days: ${vals.join(", ")}">${days.map((d, i) => `<div class="col"><b>${vals[i] ? fmt(vals[i]) : ""}</b><i class="${vals[i] >= S.dailyGoal ? "goal" : ""}" style="height:${(vals[i] / max) * 80}%"></i><span>${d.toLocaleDateString("en-IN", { weekday: "short" }).slice(0, 2)}</span></div>`).join("")}</div>`;
   }
   function renderStats() {
@@ -823,7 +834,7 @@
     const L = lifetime(S.exam), r = rankFor(gpFor());
     const lines = [`📊 ProDJEE Arena · Progress Report`, `Student: ${S.name || "—"}`, `Date: ${new Date().toLocaleDateString("en-IN", { dateStyle: "medium" })} · Exam: ${sess ? sess.exam : S.exam}`];
     if (sess) lines.push("", `Today's session: ${sess.n} questions`, `✅ ${sess.correct} correct (${pct(sess.correct, sess.n)}%) · ⏱ avg ${Math.round(sess.time / sess.n)} s/question`, `GP earned: ${signed(sess.gp)} · Hints: ${sess.hints} · Solutions viewed: ${sess.solutions}`);
-    lines.push("", `Overall: ${L.cor}/${L.att} correct (${pct(L.cor, L.att)}%)`, `Total GP: ${fmt(gpFor())} · Rank: ${r.cur.name}`, `Streak: ${liveStreak()} day(s) 🔥 · Today's goal: ${Math.round((100 * Math.max(0, S.daily[dayKey()] || 0)) / S.dailyGoal)}%`);
+    lines.push("", `Overall: ${L.cor}/${L.att} correct (${pct(L.cor, L.att)}%)`, `Total GP: ${fmt(gpFor())} · Rank: ${r.cur.name}`, `Streak: ${liveStreak()} day(s) 🔥 · Today's goal: ${Math.round((100 * Math.max(0, dailyFor(dayKey()))) / S.dailyGoal)}%`);
     if (L.strong.length) lines.push(`Strong: ${L.strong.map((x) => x.label).join(", ")}`);
     if (L.weak.length) lines.push(`Needs work: ${L.weak.map((x) => x.label).join(", ")}`);
     return lines.join("\n");
