@@ -62,11 +62,17 @@
   // Your name is edited from the top-bar profile only, everywhere on
   // ProDJEE - so Arena just displays it, it doesn't keep its own copy.
   const studentName = () => (window.PJ && PJ.getName()) || "";
+  // Set right before showing the sign-in gate from the Play tab, so signing
+  // in resumes straight into Play instead of leaving them on Home.
+  let pendingPlayIntent = false;
   if (window.PJ) {
     // One-time migration: a name typed into Arena's old "for reports" field
     // (now removed) becomes the shared name, so switching over doesn't
     // silently drop a nickname someone already set here.
-    PJ.onChange((u) => { if (u && S.name && S.name.trim() && S.name.trim() !== (u.displayName || "").trim() && !PJ.hasNameOverride()) PJ.setName(S.name); });
+    PJ.onChange((u) => {
+      if (u && S.name && S.name.trim() && S.name.trim() !== (u.displayName || "").trim() && !PJ.hasNameOverride()) PJ.setName(S.name);
+      if (u && pendingPlayIntent) { pendingPlayIntent = false; tab = "play"; renderTab("play"); }
+    });
     PJ.onRemoteData((keys) => { if (keys.indexOf(STORE_KEY) >= 0) location.reload(); });
   }
 
@@ -866,7 +872,9 @@
     const act = el.dataset.act, v = el.dataset.v;
     if (act === "modal-bg" && e.target !== el) return;
     switch (act) {
-      case "tab": setup = null; if (G) return; sfx.tap(); renderTab(v); break;
+      case "tab":
+        if (v === "play" && window.PJ && !PJ.user) { pendingPlayIntent = true; PJ.requireSignIn(); break; }
+        setup = null; if (G) return; sfx.tap(); renderTab(v); break;
       case "exam": S.exam = v; save(); renderTab(); break;
       case "quick-play": sfx.tap(); setup = { mode: "mixed", exam: S.exam, subject: SUBJECTS[S.exam][0], chapters: new Set(), length: S.lastLength || 10 }; startGame(); break;
       case "setup": sfx.tap(); renderSetup(v); break;

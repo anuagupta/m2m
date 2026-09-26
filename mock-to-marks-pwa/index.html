@@ -217,11 +217,14 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
     };
   }
 
+  // No forced sign-in wall here - the hub is free to browse. Signing in is
+  // only ever asked for at an actual gated action: the top-bar avatar
+  // (pj-core's own click handler already gates that) or the hero's
+  // "Continue with Google" button.
   function route(){ if(location.hash==='#profile') renderProfile(); else renderHome(); }
   window.addEventListener('hashchange', route);
   PJ.onRemoteData(function(){ route(); });
   PJ.onChange(function(){ route(); });
-  PJ.requireSignIn();
   route();
 
   if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('/sw.js').catch(function(){}); }); }
