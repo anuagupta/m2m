@@ -35,13 +35,21 @@
   const STORE_KEY = "prodjee.arena.v1";
   const fresh = () => ({
     name: "", exam: "JEE", sound: true, dailyGoal: 1000, pyqOnly: false, lastLength: 10,
-    totalGP: 0, ratings: {}, stats: {}, seen: {}, vault: {}, vaultCleared: 0,
+    totalGP: { JEE: 0, NEET: 0 }, ratings: {}, stats: {}, seen: {}, vault: {}, vaultCleared: 0,
     daily: {}, streak: { count: 0, last: "", best: 0 }, badges: {},
     counters: { correct: 0, bonusCorrect: 0, numCorrect: 0, sessions: 0 }, sessions: []
   });
   let S = fresh();
   try { const raw = localStorage.getItem(STORE_KEY); if (raw) S = Object.assign(fresh(), JSON.parse(raw)); } catch (e) {}
+  const gpFor = (exam = S.exam) => S.totalGP[exam] || 0;
   const save = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch (e) {} };
+  // Older saves kept a single combined GP total across both exams (the bug
+  // this fixes: JEE points showing up in the NEET tab and vice versa).
+  // Treat that old number as the JEE side of a fresh split, since JEE is
+  // the app's default exam, rather than discarding a tester's progress.
+  // Saved immediately so the old shape doesn't linger in storage.
+  if (typeof S.totalGP === "number") { S.totalGP = { JEE: S.totalGP, NEET: 0 }; save(); }
+  if (!S.totalGP || typeof S.totalGP !== "object") { S.totalGP = { JEE: 0, NEET: 0 }; save(); }
   // Shared ProDJEE account: default the report name to the Google name; reload if Drive brings newer progress.
   if (window.PJ) {
     PJ.onChange((u) => { if (u && !S.name && u.displayName) { S.name = u.displayName.trim(); save(); } });
@@ -224,7 +232,7 @@
   /* ================================= HOME ================================= */
   function renderHome() {
     tab = "home"; view = "home";
-    const r = rankFor(S.totalGP), today = Math.max(0, S.daily[dayKey()] || 0), goalP = Math.min(1, today / S.dailyGoal);
+    const r = rankFor(gpFor()), today = Math.max(0, S.daily[dayKey()] || 0), goalP = Math.min(1, today / S.dailyGoal);
     const streak = liveStreak(), due = vaultDue(S.exam).length;
     const week = Array.from({ length: 7 }, (_, i) => daysAgo(6 - i));
     const subj = SUBJECTS[S.exam].map((s) => {
@@ -240,10 +248,10 @@
       <section class="hero">
         <div class="glass hero-gp">
           <div class="eyebrow">Total Gyan Points</div>
-          <div class="big-gp num gold-text" data-count="${S.totalGP}">0</div>
+          <div class="big-gp num gold-text" data-count="${gpFor()}">0</div>
           <div class="chips-row" style="margin-top:12px;justify-content:space-between">
             <span class="pill accent">${I.trophy.replace("<svg", '<svg width="14" height="14"')} ${r.cur.name}</span>
-            <span class="faint">${r.next ? `${fmt(r.next.gp - S.totalGP)} GP to ${r.next.name}` : "Top rank reached"}</span>
+            <span class="faint">${r.next ? `${fmt(r.next.gp - gpFor())} GP to ${r.next.name}` : "Top rank reached"}</span>
           </div>
           <div class="rank-bar"><i style="width:${(r.prog * 100).toFixed(1)}%"></i></div>
         </div>
@@ -625,7 +633,7 @@
     });
     const today = dayKey();
     S.daily[today] = (S.daily[today] || 0) + G.sessionGP;
-    S.totalGP = Math.max(0, S.totalGP + G.sessionGP);
+    S.totalGP[G.exam] = Math.max(0, gpFor(G.exam) + G.sessionGP);
     if (S.streak.last !== today) { S.streak.count = S.streak.last === dayKey(daysAgo(1)) ? S.streak.count + 1 : 1; S.streak.last = today; S.streak.best = Math.max(S.streak.best, S.streak.count); }
     S.counters.sessions++;
     const sess = { at: Date.now(), exam: G.exam, mode: G.mode, n: G.records.length, correct: G.records.filter((r) => r.result === "correct").length, gp: G.sessionGP,
@@ -639,7 +647,7 @@
     disarmGuard();
     const sess = commitSession();
     if (!sess) { G = null; return renderHome(); }
-    const nb = G.newBadges.slice(), rec = G.records.slice(), prevTotal = Math.max(0, S.totalGP - sess.gp);
+    const nb = G.newBadges.slice(), rec = G.records.slice(), prevTotal = Math.max(0, gpFor(sess.exam) - sess.gp);
     G = null; renderResults(sess, nb, rec, prevTotal);
   }
   function barsHTML(rows) {
@@ -652,7 +660,7 @@
   let lastSession = null;
   function renderResults(sess, newBadges, records, prevTotal) {
     view = "results"; lastSession = sess;
-    const acc = pct(sess.correct, sess.n), r = rankFor(S.totalGP), prevRank = rankFor(prevTotal);
+    const acc = pct(sess.correct, sess.n), r = rankFor(gpFor(sess.exam)), prevRank = rankFor(prevTotal);
     const rows = chapterRows(sess.byChapter).sort((a, b) => pct(a.cor, a.att) - pct(b.cor, b.att));
     const count = (res) => records.filter((x) => x.result === res).length;
     const outs = [["correct", "Correct", "var(--mint)"], ["wrong", "Wrong", "var(--crimson)"], ["skip", "Skipped", "#7c7c8a"], ["solution", "Solution", "var(--gold)"]];
@@ -666,7 +674,7 @@
           <div class="muted">Gyan Points · ${head}</div>
           <div class="chips-row" style="justify-content:center;margin-top:12px;flex-wrap:wrap">
             <span class="pill accent">${r.i > prevRank.i ? "⬆ Ranked up: " : ""}${r.cur.name}</span>
-            <span class="pill gold">Total <span data-count="${S.totalGP}" data-from="${prevTotal}">${fmt(prevTotal)}</span> GP</span>
+            <span class="pill gold">Total <span data-count="${gpFor(sess.exam)}" data-from="${prevTotal}">${fmt(prevTotal)}</span> GP</span>
             <span class="pill">🔥 ${liveStreak()}-day streak</span>
           </div>
         </div>
@@ -722,7 +730,7 @@
       <div class="stat-grid">
         <div class="stat"><div class="v">${L.att}</div><div class="l">Attempted</div></div>
         <div class="stat"><div class="v">${pct(L.cor, L.att)}%</div><div class="l">Accuracy</div></div>
-        <div class="stat"><div class="v gold-text">${fmt(S.totalGP)}</div><div class="l">Total GP</div></div>
+        <div class="stat"><div class="v gold-text">${fmt(gpFor())}</div><div class="l">Total GP</div></div>
         <div class="stat"><div class="v">${S.streak.best}</div><div class="l">Best streak</div></div>
       </div>
       <div class="spacer"></div>
@@ -763,12 +771,12 @@
   /* =============================== PROFILE ================================ */
   function renderProfile() {
     tab = "profile"; view = "profile";
-    const r = rankFor(S.totalGP);
+    const r = rankFor(gpFor());
     show(`
       ${appbar("Profile")}
       <div class="glass" style="display:flex;align-items:center;gap:16px">
         <div class="avatar">${esc((S.name || "P").trim().charAt(0).toUpperCase())}</div>
-        <div style="flex:1;min-width:0"><h2>${S.name ? esc(S.name) : '<span class="muted">Add your name below</span>'}</h2><div class="chips-row" style="margin-top:6px;flex-wrap:wrap"><span class="pill accent">${r.cur.name}</span><span class="pill gold">${fmt(S.totalGP)} GP</span></div></div>
+        <div style="flex:1;min-width:0"><h2>${S.name ? esc(S.name) : '<span class="muted">Add your name below</span>'}</h2><div class="chips-row" style="margin-top:6px;flex-wrap:wrap"><span class="pill accent">${r.cur.name}</span><span class="pill gold">${fmt(gpFor())} GP</span></div></div>
       </div>
       <div class="section-title"><h3>Settings</h3></div>
       <div class="glass">
@@ -809,10 +817,10 @@
       <button class="btn primary block" data-act="close-modal" style="margin-top:8px">Let's go</button>`);
   }
   function reportText(sess) {
-    const L = lifetime(S.exam), r = rankFor(S.totalGP);
+    const L = lifetime(S.exam), r = rankFor(gpFor());
     const lines = [`📊 ProDJEE Arena · Progress Report`, `Student: ${S.name || "—"}`, `Date: ${new Date().toLocaleDateString("en-IN", { dateStyle: "medium" })} · Exam: ${sess ? sess.exam : S.exam}`];
     if (sess) lines.push("", `Today's session: ${sess.n} questions`, `✅ ${sess.correct} correct (${pct(sess.correct, sess.n)}%) · ⏱ avg ${Math.round(sess.time / sess.n)} s/question`, `GP earned: ${signed(sess.gp)} · Hints: ${sess.hints} · Solutions viewed: ${sess.solutions}`);
-    lines.push("", `Overall: ${L.cor}/${L.att} correct (${pct(L.cor, L.att)}%)`, `Total GP: ${fmt(S.totalGP)} · Rank: ${r.cur.name}`, `Streak: ${liveStreak()} day(s) 🔥 · Today's goal: ${Math.round((100 * Math.max(0, S.daily[dayKey()] || 0)) / S.dailyGoal)}%`);
+    lines.push("", `Overall: ${L.cor}/${L.att} correct (${pct(L.cor, L.att)}%)`, `Total GP: ${fmt(gpFor())} · Rank: ${r.cur.name}`, `Streak: ${liveStreak()} day(s) 🔥 · Today's goal: ${Math.round((100 * Math.max(0, S.daily[dayKey()] || 0)) / S.dailyGoal)}%`);
     if (L.strong.length) lines.push(`Strong: ${L.strong.map((x) => x.label).join(", ")}`);
     if (L.weak.length) lines.push(`Needs work: ${L.weak.map((x) => x.label).join(", ")}`);
     return lines.join("\n");
@@ -869,7 +877,7 @@
       case "again": renderSetup(setup ? setup.mode : "mixed"); break;
       case "parent-session": shareText(reportText(lastSession)); break;
       case "parent-lifetime": shareText(reportText(null)); break;
-      case "share-badge": { const b = BADGES.find((x) => x.id === v); shareText(`${b.icon} I just unlocked "${b.name}" on ProDJEE Arena. ${fmt(S.totalGP)} Gyan Points and counting. Can you beat me?`); break; }
+      case "share-badge": { const b = BADGES.find((x) => x.id === v); shareText(`${b.icon} I just unlocked "${b.name}" on ProDJEE Arena. ${fmt(gpFor())} Gyan Points and counting. Can you beat me?`); break; }
       case "toggle-sound": S.sound = !S.sound; save(); if (view === "game") renderGame(); else renderTab(); break;
       case "toggle-sound-set": S.sound = !S.sound; save(); el.classList.toggle("on", S.sound); el.setAttribute("aria-pressed", S.sound); break;
       case "goal": S.dailyGoal = +v; save(); renderProfile(); break;
