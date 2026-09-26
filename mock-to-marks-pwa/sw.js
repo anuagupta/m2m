@@ -1,37 +1,36 @@
-// Mock-to-Marks — minimal offline app-shell cache.
-var CACHE_NAME = 'mtm-cache-v10';
-var ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './intro.mp4'];
+// ProDJEE — offline app shell for the hub, Arena and Mock-to-Marks.
+// Pages are network-first (so updates reach students immediately and old
+// Mock-to-Marks installs pick up the new hub); static files are cache-first.
+var CACHE_NAME = 'prodjee-cache-v11';
+var ASSETS = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png',
+  '/assets/pj-core.css', '/assets/pj-core.js', '/assets/logo-192.png', '/m2m/', '/arena/'];
 
 self.addEventListener('install', function (event) {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(function (cache) { return cache.addAll(ASSETS); })
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then(function (cache) { return cache.addAll(ASSETS); }).catch(function () {}));
   self.skipWaiting();
 });
-
 self.addEventListener('activate', function (event) {
-  event.waitUntil(
-    caches.keys().then(function (keys) {
-      return Promise.all(keys.filter(function (k) { return k !== CACHE_NAME; }).map(function (k) { return caches.delete(k); }));
-    })
-  );
+  event.waitUntil(caches.keys().then(function (keys) {
+    return Promise.all(keys.filter(function (k) { return k !== CACHE_NAME; }).map(function (k) { return caches.delete(k); }));
+  }));
   self.clients.claim();
 });
-
+function saveCopy(req, res) {
+  if (res && res.status === 200 && res.type === 'basic') { var copy = res.clone(); caches.open(CACHE_NAME).then(function (c) { c.put(req, copy); }); }
+  return res;
+}
 self.addEventListener('fetch', function (event) {
-  if (event.request.method !== 'GET') return;
-  event.respondWith(
-    caches.match(event.request).then(function (cached) {
-      if (cached) return cached;
-      return fetch(event.request).then(function (response) {
-        if (response && response.status === 200 && response.type === 'basic') {
-          var copy = response.clone();
-          caches.open(CACHE_NAME).then(function (cache) { cache.put(event.request, copy); });
-        }
-        return response;
-      }).catch(function () {
-        if (event.request.mode === 'navigate') return caches.match('./index.html');
-      });
-    })
-  );
+  var req = event.request;
+  if (req.method !== 'GET') return;
+  var url = new URL(req.url);
+  if (url.origin !== location.origin || url.pathname.indexOf('/api/') === 0 || url.pathname.indexOf('/_vercel/') === 0) return;
+  if (req.mode === 'navigate') {
+    event.respondWith(fetch(req).then(function (res) { return saveCopy(req, res); })
+      .catch(function () { return caches.match(req).then(function (c) { return c || caches.match('/'); }); }));
+    return;
+  }
+  event.respondWith(caches.match(req).then(function (cached) {
+    var net = fetch(req).then(function (res) { return saveCopy(req, res); });
+    return cached || net;
+  }));
 });

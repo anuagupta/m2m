@@ -42,6 +42,11 @@
   let S = fresh();
   try { const raw = localStorage.getItem(STORE_KEY); if (raw) S = Object.assign(fresh(), JSON.parse(raw)); } catch (e) {}
   const save = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch (e) {} };
+  // Shared ProDJEE account: default the report name to the Google name; reload if Drive brings newer progress.
+  if (window.PJ) {
+    PJ.onChange((u) => { if (u && !S.name && u.displayName) { S.name = u.displayName.trim(); save(); } });
+    PJ.onRemoteData((keys) => { if (keys.indexOf(STORE_KEY) >= 0) location.reload(); });
+  }
 
   /* ================================ HELPERS =============================== */
   const $ = (sel) => document.querySelector(sel);
@@ -178,7 +183,7 @@
       ? `<button class="tab play-tab ${tab === id ? "on" : ""}" data-act="tab" data-v="${id}" aria-label="Play"><span class="play-dot">${ic}</span></button>`
       : `<button class="tab ${tab === id ? "on" : ""}" data-act="tab" data-v="${id}" ${tab === id ? 'aria-current="page"' : ""}>${ic}<span>${label}</span>${id === "vault" && due ? `<span class="dot-badge">${due}</span>` : ""}</button>`).join("");
     $("#sidenav").innerHTML = brand() + TABS.map(([id, label, ic]) => `<button class="side-link ${tab === id ? "on" : ""}" data-act="tab" data-v="${id}">${ic}${label}${id === "vault" && due ? `<span class="dot-badge">${due}</span>` : ""}</button>`).join("") +
-      `<div class="side-foot">${window.QBANK.filter(isPYQ).length} verified PYQs · local progress</div>`;
+      `<div class="side-foot">${window.QBANK.filter(isPYQ).length} verified PYQs · saved on this device + your Google Drive</div>`;
   }
   const appbar = (title) => `
     <header class="appbar">
@@ -219,7 +224,7 @@
     show(`
       ${appbar()}
       <div class="greet"><div class="eyebrow">${new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short" })}</div>
-        <h1>${greeting()}${S.name ? `, ${esc(S.name)}` : ""}.</h1></div>
+        <h1>Ready for today\u2019s run?</h1></div>
       <section class="hero">
         <div class="glass hero-gp">
           <div class="eyebrow">Total Gyan Points</div>
@@ -703,7 +708,7 @@
         <div class="setting-row"><div><b>Real PYQs only</b><div class="faint">Hide practice samples in every mode</div></div><button class="toggle ${S.pyqOnly ? "on" : ""}" data-act="pyq" aria-pressed="${S.pyqOnly}" aria-label="PYQs only"></button></div>
         <div class="setting-row" style="display:block"><b>Daily GP goal</b><div class="chips" style="margin-top:8px">${[500, 1000, 2000, 3000].map((g) => `<button class="chip gold ${S.dailyGoal === g ? "on" : ""}" data-act="goal" data-v="${g}">${fmt(g)}</button>`).join("")}</div></div>
         <div class="setting-row"><div><b>Parent report</b><div class="faint">Share overall progress on WhatsApp</div></div><button class="btn gold sm" data-act="parent-lifetime">Send</button></div>
-        <div class="setting-row"><div><b>Google sign-in · leaderboard · parent app</b><div class="faint">Phase 2. Progress is saved on this device for now.</div></div><span class="pill">Soon</span></div>
+        <div class="setting-row"><div><b>Account &amp; backup</b><div class="faint">${window.PJ && PJ.user ? esc(PJ.user.email || "") + " · Drive backup " + (PJ.driveStatus() === "on" ? "on" : "off") : "Signed out"}</div></div><a class="btn ghost sm" href="/#profile" style="text-decoration:none">Manage</a></div>
         <div class="setting-row"><div><b>Reset all progress</b><div class="faint">Clears GP, badges, vault and history</div></div><button class="btn ghost sm" data-act="reset">Reset</button></div>
       </div>
       <div class="section-title"><h3>Rank ladder</h3></div>

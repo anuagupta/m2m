@@ -16,77 +16,91 @@
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Privacy Policy — Mock-to-Marks</title>
-<link rel="icon" href="icon-192.png">
+<title>Privacy Policy — ProDJEE</title>
+<link rel="icon" href="/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="legal.css">
+<link rel="stylesheet" href="/legal.css">
 </head>
 <body>
 <div class="bg-blobs" aria-hidden="true"><span class="blob blob-gold"></span><span class="blob blob-green"></span><span class="blob blob-coral"></span></div>
 <div class="topbar"><div class="shell">
-  <a class="wordmark" href="./">Mock-to-Marks</a>
+  <a class="wordmark" href="/">ProDJEE</a>
   <nav class="doc-nav">
-    <a href="privacy.html" class="active">Privacy</a>
-    <a href="terms.html">Terms</a>
-    <a href="refund.html">Refunds</a>
+    <a href="/privacy.html" class="active">Privacy</a>
+    <a href="/terms.html">Terms</a>
+    <a href="/refund.html">Refunds</a>
+    <a href="/disclaimer.html">Disclaimer</a>
   </nav>
 </div></div>
 <div class="shell">
   <h1>Privacy Policy</h1>
-  <p class="updated">Last updated: 13 September 2026</p>
+  <p class="updated">Last updated: 26 September 2026</p>
 
-  <p>Mock-to-Marks is a mock-test diagnosis and study-planning tool built by ProDJEE, operated as an individual business. This page explains what information we collect, why, and what you can do about it.</p>
+  <p>ProDJEE (operated as an individual business) runs prodjee.in, which includes <b>Arena</b> (JEE previous-year-question practice) and <b>Mock-to-Marks</b> (mock-test diagnosis and study planning). This policy explains what information we handle, where it lives and what you can do about it. Our design principle is simple: <b>your study data stays with you</b> &mdash; on your device and in your own Google Drive &mdash; not on our servers.</p>
 
   <h2>1. Who this covers</h2>
-  <p>This policy applies to everyone who uses the Mock-to-Marks web app at prodjee.in, whether or not you've signed in or paid.</p>
+  <p>Everyone who uses prodjee.in or the installed ProDJEE app, including Arena and Mock-to-Marks.</p>
 
-  <h2>2. What we collect</h2>
+  <h2>2. What we collect and where it is stored</h2>
   <ul>
-    <li><b>Account information</b> — when you sign in with Google, we receive your name, email address, and profile photo from Google. We use this only to identify your account; we never see or store your Google password.</li>
-    <li><b>Mock-test and plan data</b> — the exam results, mistake patterns, and study-plan progress you enter into the app, linked to your account so your history and plan persist across devices.</li>
-    <li><b>Payment status</b> — when you unlock the paid plan, our payment processor (Razorpay) handles your card/UPI/bank details directly. We never see or store this information ourselves — we only retain the payment status and a transaction reference, so we can confirm your access and process refunds if needed.</li>
-    <li><b>Local device data</b> — some app state (like an in-progress mock you haven't finished) is kept only in your browser's local storage and never leaves your device.</li>
+    <li><b>Google account information</b> &mdash; when you sign in with Google we receive your name, email address and profile photo. We use them to identify your account, greet you by name and show your photo in the app. We never see your Google password.</li>
+    <li><b>Study data</b> &mdash; your Arena progress (Gyan Points, streaks, answers, Mistake Vault, settings) and your Mock-to-Marks entries (mock results, mistake analysis, plans, profile preferences). This is stored <b>only</b> (a) in your browser&rsquo;s local storage on your device, and (b) if you allow it, in a private, hidden app folder in <b>your own Google Drive</b> (see section 4). It is not sent to or stored on ProDJEE&rsquo;s servers.</li>
+    <li><b>Consent record</b> &mdash; the date you confirmed you are 18+ or have a parent/guardian&rsquo;s permission and accepted these policies. Stored with your study data (device + your Drive).</li>
+    <li><b>Payment and entitlement records</b> &mdash; when you buy the Mock-to-Marks plan, Razorpay processes your card/UPI/bank details directly; we never see them. We keep your payment status, order/transaction reference and whether your plan is unlocked, on Google Firebase, so we can confirm access and handle refunds. We also keep promo-code redemptions there.</li>
+    <li><b>How you found us</b> &mdash; if you arrive through a tagged link, we may store that source (e.g. a campaign name) against your account in Firebase to understand which channels work.</li>
+    <li><b>Usage analytics</b> &mdash; we use Google Analytics 4 and Vercel Web Analytics to understand aggregate usage (pages visited, device type, approximate location, referrer). Google Analytics uses cookies. We do not use advertising or remarketing features.</li>
   </ul>
 
   <h2>3. How we use it</h2>
   <ul>
-    <li>To generate your mistake diagnosis and 14-day practice plan.</li>
-    <li>To confirm which features you're entitled to (free vs. paid).</li>
-    <li>To respond if you contact us for support or a refund.</li>
+    <li>To run Arena and Mock-to-Marks, generate your diagnosis and plan, and show your progress.</li>
+    <li>To back up and restore your study data through your Google Drive.</li>
+    <li>To confirm which features you are entitled to (free vs. paid) and to process refunds.</li>
+    <li>To improve the product using aggregate analytics.</li>
+    <li>To respond when you contact us.</li>
   </ul>
-  <p>We do not use your data for advertising, and we do not sell your personal information to anyone.</p>
+  <p>We do not use your data for advertising, we do not sell it, and we do not build marketing profiles.</p>
 
-  <h2>4. Who we share it with</h2>
-  <p>We share the minimum necessary data with the services that run the app, each governed by their own privacy policy:</p>
+  <h2>4. Google Drive backup and Google API data</h2>
+  <p>With your permission, ProDJEE uses the Google Drive permission <code>drive.appdata</code> to save one file (<code>prodjee-data.json</code>) in the hidden &ldquo;application data&rdquo; folder of your Google Drive. This permission only lets ProDJEE see files that ProDJEE itself created there; <b>we cannot see, open or change any of your other Drive files</b>. The file is read and written directly between your browser and Google; it does not pass through ProDJEE&rsquo;s servers.</p>
+  <p>You can refuse this permission and still use ProDJEE (your data then stays only on your device), turn it on later from your Profile, or revoke it at any time at <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">myaccount.google.com/permissions</a>. To remove the backup file yourself: Google Drive &rarr; Settings &rarr; Manage apps &rarr; ProDJEE &rarr; Delete hidden app data.</p>
+  <div class="callout"><p>ProDJEE&rsquo;s use and transfer of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Google API Services User Data Policy</a>, including the Limited Use requirements. We use Google user data only to provide the features described here, do not transfer it to others except as needed to provide those features or as required by law, do not use it for advertising, and do not allow humans to read it except with your consent, for security reasons, or as required by law.</p></div>
+
+  <h2>5. Who we share data with</h2>
   <ul>
-    <li><b>Google</b> — for sign-in.</li>
-    <li><b>Razorpay</b> — for payment processing.</li>
+    <li><b>Google</b> &mdash; sign-in (Firebase Authentication), your Drive backup, Firebase storage of payment/entitlement records, and Google Analytics.</li>
+    <li><b>Razorpay</b> &mdash; payment processing.</li>
+    <li><b>Vercel</b> &mdash; website hosting and privacy-friendly analytics.</li>
   </ul>
-  <p>We do not share your data with anyone else, and we do not sell it.</p>
+  <p>Each processes data under its own privacy policy. We share nothing else with anyone, except where required by law.</p>
 
-  <h2>5. Where it's stored</h2>
-  <p>Account and mock-test data is stored on Google's Firebase infrastructure with standard access controls limiting who can read it. Only you, and the systems needed to run the app, can access your data.</p>
+  <h2>6. Retention and deletion</h2>
+  <ul>
+    <li><b>Study data</b> stays on your device and in your Drive until you delete it. Use <b>Profile &rarr; Delete my data</b> to erase it from this device and from your Drive backup in one step, or <b>Download my data</b> to get a copy.</li>
+    <li><b>Payment and entitlement records</b> are kept for as long as needed for your access, refunds and legal/accounting obligations.</li>
+    <li>To close your account and erase the Firebase records we are not legally required to keep, email <a href="mailto:prodjeelabs@gmail.com">prodjeelabs@gmail.com</a> from your registered email address.</li>
+  </ul>
 
-  <h2>6. Data retention and deletion</h2>
-  <p>We keep your account data for as long as your account is active. To request deletion of your account and associated data, email <a href="mailto:prodjeelabs@gmail.com">prodjeelabs@gmail.com</a> from your registered email address. We'll confirm and complete deletion within a reasonable time, except where we're required to keep transaction records for legal or accounting purposes.</p>
-
-  <h2>7. If you're under 18</h2>
-  <p>Many of our users are students preparing for competitive exams and may be minors. We collect no more personal information than needed to run the service. A parent or guardian is welcome to contact us at any time about a minor's account or data.</p>
-
-  <div class="callout"><p>Have a question about your data, or want it deleted? Just email <a href="mailto:prodjeelabs@gmail.com">prodjeelabs@gmail.com</a> — that inbox is our grievance/privacy contact.</p></div>
+  <h2>7. Children and students under 18</h2>
+  <p>Most of our users are JEE aspirants, many under 18. Before first use, each user must confirm that they are 18 or older <b>or</b> that a parent or guardian has read our Terms and this Policy and given permission. We collect only what is needed to run the service and never use a child&rsquo;s data for tracking, profiling or targeted advertising. Parents and guardians can contact us at any time to review or delete a child&rsquo;s data.</p>
 
   <h2>8. Your rights</h2>
-  <p>Under India's Digital Personal Data Protection Act, 2023, you can ask us to access, correct, or erase your personal data, and to know how it's being used. Contact us using the email above to exercise any of these rights.</p>
+  <p>Under India&rsquo;s Digital Personal Data Protection Act, 2023 you may ask to access, correct, update or erase your personal data, withdraw consent, nominate someone to exercise your rights, and raise a grievance. Most study data you can manage yourself in the app; for anything else, email us. If you are not satisfied with our response you may approach the Data Protection Board of India.</p>
 
-  <h2>9. Cookies and local storage</h2>
-  <p>We use your browser's local storage to keep you signed in and to remember app state between visits. We don't use third-party advertising trackers.</p>
+  <h2>9. Security</h2>
+  <p>Data moves over encrypted HTTPS connections. Your Drive backup is protected by your Google account. Please keep your Google account and phone secure; anyone with access to your unlocked device can see data stored on it.</p>
 
-  <h2>10. Changes to this policy</h2>
-  <p>If this policy changes materially, we'll update the date at the top of this page. Continued use of the app after a change means you accept the update.</p>
+  <h2>10. Cookies and local storage</h2>
+  <p>We use your browser&rsquo;s local storage to keep you signed in, hold your study data and remember settings. Google Analytics sets cookies to measure aggregate usage. We do not use third-party advertising trackers.</p>
 
-  <footer>Mock-to-Marks by ProDJEE · Contact: <a href="mailto:prodjeelabs@gmail.com">prodjeelabs@gmail.com</a></footer>
+  <h2>11. Changes to this policy</h2>
+  <p>If this policy changes materially we will update the date above and, where required, ask for your consent again in the app.</p>
+
+  <div class="callout"><p><b>Grievance / privacy contact:</b> <a href="mailto:prodjeelabs@gmail.com">prodjeelabs@gmail.com</a>. We aim to acknowledge within 48 hours and resolve within 30 days.</p></div>
+
+  <footer>ProDJEE · Arena + Mock-to-Marks · Contact: <a href="mailto:prodjeelabs@gmail.com">prodjeelabs@gmail.com</a></footer>
 </div>
 </body>
 </html>

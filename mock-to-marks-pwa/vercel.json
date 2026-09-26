@@ -1,0 +1,6 @@
+{
+  "redirects": [
+    { "source": "/arena", "destination": "/arena/", "permanent": true },
+    { "source": "/m2m", "destination": "/m2m/", "permanent": true }
+  ]
+}
