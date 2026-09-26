@@ -27,7 +27,7 @@
   var TRACKED = ['mtm_state_v1', 'prodjee.arena.v1', 'pj.consent'];
 
   var LS = window.localStorage;
-  var rawSet = Storage.prototype.setItem, rawRemove = Storage.prototype.removeItem;
+  var rawSet = Storage.prototype.setItem, rawRemove = Storage.prototype.removeItem, rawGet = Storage.prototype.getItem;
   function lsGet(k) { try { return LS.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { rawSet.call(LS, k, v); } catch (e) {} }
   function lsDel(k) { try { rawRemove.call(LS, k); } catch (e) {} }
@@ -42,7 +42,13 @@
     var meta = jget('pj.meta', {}); meta[k] = Date.now(); jset('pj.meta', meta);
     scheduleSync();
   }
-  Storage.prototype.setItem = function (k, v) { rawSet.call(this, k, v); if (this === LS) touch(k); };
+  // Every localStorage write goes through here (M2M and Arena save on nearly
+  // every interaction), so skip the timestamp bump - and the sync it queues -
+  // when a key is set to the value it already had.
+  Storage.prototype.setItem = function (k, v) {
+    if (this === LS && TRACKED.indexOf(k) >= 0 && rawGet.call(this, k) === v) return;
+    rawSet.call(this, k, v); if (this === LS) touch(k);
+  };
   Storage.prototype.removeItem = function (k) { rawRemove.call(this, k); if (this === LS) touch(k); };
 
   /* ---------- Firebase ---------- */
@@ -101,12 +107,20 @@
     }
     paintBanner();
   }
+  function bannerDismissKey() { return 'pj.bannerDismiss.' + (user ? user.uid : ''); }
   function paintBanner() {
     var b = document.querySelectorAll('[data-pj-banner]');
     var html = '';
-    if (user && driveStatus() === 'off') {
+    if (user && driveNeedsResume) {
+      // The Drive token expired. Rather than popping a Google consent window
+      // on the user's very next tap anywhere on the page, ask first.
+      html = '<div><span>🔁 Backup paused — reconnect Google Drive to keep syncing.</span>' +
+        '<button class="pj-btn pj-btn-primary pj-btn-sm" data-pj-act="resume-drive">Resume backup</button></div>';
+    } else if (user && driveStatus() === 'off' && sessionStorage.getItem(bannerDismissKey()) !== '1') {
       html = '<div><span>📱 Your progress is saved only on this device. Turn on Google Drive backup so you never lose it.</span>' +
-        '<button class="pj-btn pj-btn-primary pj-btn-sm" data-pj-act="enable-drive">Enable backup</button></div>';
+        '<span style="display:flex;gap:8px;">' +
+        '<button class="pj-btn pj-btn-ghost pj-btn-sm" data-pj-act="dismiss-banner">Not now</button>' +
+        '<button class="pj-btn pj-btn-primary pj-btn-sm" data-pj-act="enable-drive">Enable backup</button></span></div>';
     }
     for (var i = 0; i < b.length; i++) b[i].innerHTML = html;
   }
@@ -201,15 +215,19 @@
       });
     });
   }
-  // When the token has expired, quietly renew it on the user's next tap.
-  var armed = false;
+  // When the token has expired, surface a banner rather than intercepting the
+  // user's next tap anywhere on the page with a surprise Google pop-up.
+  var driveNeedsResume = false;
   function armRefreshOnTap() {
-    if (armed || driveStatus() !== 'on') return; armed = true;
-    document.addEventListener('click', function once() {
-      document.removeEventListener('click', once, true); armed = false;
-      if (tokenOk() || !user) return;
-      requestDriveToken(false).then(function (ok) { if (ok) syncNow(); }).catch(function () {});
-    }, true);
+    if (driveStatus() !== 'on' || driveNeedsResume) return;
+    driveNeedsResume = true; paintBanner();
+  }
+  function resumeDrive() {
+    requestDriveToken(false).then(function (ok) {
+      if (ok) { driveNeedsResume = false; syncNow(); }
+      else toast('Couldn’t reconnect. Try again from your profile.');
+      paintBanner();
+    }).catch(function () { toast('Couldn’t reach Google. Try again.'); });
   }
 
   /* ---------- Drive REST ---------- */
@@ -313,13 +331,25 @@
     });
   }
 
-  /* ---------- account switching on a shared phone ---------- */
+  /* ---------- account switching on a shared phone ----------
+     A different Google account can sign in on the same device (siblings
+     sharing a phone). Local data must stay apart per account, but switching
+     back and forth shouldn't delete anyone's work - so the outgoing
+     account's local keys are stashed under its uid and restored if it
+     signs back in, instead of being wiped. */
   function ensureOwner(u) {
     var owner = lsGet('pj.owner');
     if (owner && owner !== u.uid) {
-      // A different Google account signed in on this device: keep accounts apart.
+      var stash = {}; TRACKED.forEach(function (k) { stash[k] = lsGet(k); });
+      jset('pj.stash.' + owner, { data: stash, meta: jget('pj.meta', {}) });
       TRACKED.forEach(function (k) { lsDel(k); });
       lsDel('pj.meta'); lsDel('pj.lastSync');
+      var incoming = jget('pj.stash.' + u.uid, null);
+      if (incoming) {
+        Object.keys(incoming.data || {}).forEach(function (k) { if (incoming.data[k] != null) lsSet(k, incoming.data[k]); });
+        if (incoming.meta) jset('pj.meta', incoming.meta);
+        lsDel('pj.stash.' + u.uid);
+      }
     }
     lsSet('pj.owner', u.uid);
   }
@@ -353,6 +383,8 @@
       requestDriveToken(true).then(function (ok) { toast(ok ? 'Drive backup is on ✅' : 'Drive permission wasn’t granted. Data stays on this device.'); paint(); if (ok) syncNow(); }).catch(function () { toast('Couldn’t reach Google. Try again.'); });
     }
     else if (act === 'profile') { e.preventDefault(); if (!user) { showSignInGate(); return; } location.href = '/#profile'; }
+    else if (act === 'resume-drive') { e.preventDefault(); resumeDrive(); }
+    else if (act === 'dismiss-banner') { e.preventDefault(); try { sessionStorage.setItem(bannerDismissKey(), '1'); } catch (e2) {} paintBanner(); }
   });
 
   var requireAuth = false, consentShown = false, signingIn = false;

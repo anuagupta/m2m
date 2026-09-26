@@ -1,0 +1,26 @@
+rules_version = '2';
+
+// Deployed with: firebase deploy --only firestore:rules
+// (owner action - see PR description for how to verify/deploy this.)
+//
+// Entitlement ("paid") status must only ever be set by the serverless
+// functions in /api, using the Admin SDK after verifying a real Razorpay
+// payment or a promo code server-side. If clients could write here, anyone
+// could grant themselves the ₹499 plan for free from devtools.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+    // Orders record who a Razorpay order was created for, and whether it has
+    // been consumed / refunded. Only the server (Admin SDK, which bypasses
+    // these rules) ever reads or writes them.
+    match /orders/{orderId} {
+      allow read, write: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

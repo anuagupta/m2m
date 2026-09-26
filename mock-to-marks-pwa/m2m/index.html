@@ -643,81 +643,7 @@ function computeScores(questions){
   });
 }
 
-function finalizeAllocation(active, raw, base, remaining){
-  var floors = raw.map(Math.floor);
-  var used = floors.reduce(function(a,b){return a+b;},0);
-  var leftover = remaining - used;
-  var order = raw.map(function(r,i){ return {i:i, rem:r-floors[i]}; }).sort(function(a,b){ return b.rem-a.rem; });
-  for(var k=0;k<leftover;k++){ floors[order[k % order.length].i]+=1; }
-  return active.map(function(c,i){ return Object.assign({}, c, {blocks: base+floors[i]}); });
-}
 
-function allocateBlocks(catScores, totalBlocks, basePerCat){
-  var active = catScores.filter(function(c){ return c.score>0; });
-  if(active.length===0) return [];
-  var baseTotal = active.length*basePerCat;
-  var base = basePerCat;
-  var remaining = totalBlocks - baseTotal;
-  if(remaining < 0){ base = 1; remaining = totalBlocks - active.length; }
-  var totalScore = active.reduce(function(s,c){ return s+c.score; },0);
-  var raw = active.map(function(c){ return totalScore>0 ? remaining*c.score/totalScore : remaining/active.length; });
-  return finalizeAllocation(active, raw, base, remaining);
-}
-
-function scheduleBlocks(allocation, days, slotsPerDay){
-  var pool=[];
-  allocation.forEach(function(a){ for(var i=0;i<a.blocks;i++) pool.push(a.id); });
-  var totalSlots = days*slotsPerDay;
-  while(pool.length < totalSlots) pool.push('mixed');
-  var counts={}; pool.forEach(function(id){ counts[id]=(counts[id]||0)+1; });
-  var schedule=[], prev=null;
-  for(var s=0;s<totalSlots;s++){
-    var candidates = Object.keys(counts).filter(function(id){ return counts[id]>0; });
-    candidates.sort(function(a,b){ return counts[b]-counts[a]; });
-    var choice = candidates.filter(function(id){ return id!==prev; })[0];
-    if(choice===undefined) choice = candidates[0];
-    counts[choice]--; schedule.push(choice); prev=choice;
-  }
-  return schedule;
-}
-
-function chaptersForCategory(questions, catId){
-  var list=[];
-  questions.forEach(function(q){
-    if(q.result && q.result!=='correct' && (q.primary===catId || q.secondary===catId) && q.chapter && q.chapter.trim()){
-      list.push(q.chapter.trim());
-    }
-  });
-  return list;
-}
-
-function blockContent(catId, chapter){
-  switch(catId){
-    case 'language': return {title:'Textbook clarity session', time:30,
-      instr:'Read the NCERT (or your primary textbook) section on '+(chapter||'the topic that tripped you up')+' for at least 30 minutes. Focus only on definitions, stated conditions and exact wording — not problem-solving.',
-      checks:['Wrote 3 key statements or conditions in your own words','Underlined every technical term you were unsure of','Re-read the original mock question — does it make sense now?']};
-    case 'situation': return {title:'Situation decoding drill', time:35,
-      instr:'Solve 10 unfamiliar situation-based questions'+(chapter?(' from '+chapter):'')+'. Before attempting each, write down: known information, unknown quantity, a quick diagram, and the applicable principle — in that order.',
-      checks:['Identified known vs unknown before solving','Sketched or visualised the situation first','Named the applicable principle before calculating anything']};
-    case 'approach': return {title:'Approach-building drill', time:35,
-      instr:'Attempt 10 unfamiliar questions'+(chapter?(' from '+chapter):'')+'. Spend at least 15 minutes on each before looking at any hint or solution.',
-      checks:['Recorded your first attempted step','Recorded the actual first useful step, after checking','Noted the method that was ultimately needed']};
-    case 'formula': return {title:'Formula recall & derivation', time:30,
-      instr:'Revise the formula or law you missed'+(chapter?(' in '+chapter):'')+'. Derive it from first principles where possible, then close your notes and test recall from memory alone.',
-      checks:['Built a formula card: formula, meaning, conditions, derivation cue','Recalled it once with notes fully closed','Reapplied it to the original mock question']};
-    case 'silly': return {title:'Burst Mode', time:30,
-      instr:'Pick a chapter whose concepts you’re already confident in — not a weak one. Solve 12 questions from it in one uninterrupted sitting, 30 minutes flat: no notes, no hints, no looking at the solution. Write every answer on paper as you go, then check all 12 against the answer key only after you’ve finished the set.',
-      checks:['Picked a chapter you’re genuinely confident in','Solved all 12 in one sitting, answers written on paper first','Checked every answer only after finishing all 12 — not mid-way','Noted how many you got right without losing focus']};
-    case 'time': return {title:'Search-and-Destroy time drill', time:40,
-      instr:'Run one timed set under exam conditions. First pass: classify every question A (fast), B (solvable, slower) or C (unclear). Solve all A questions first, then B in order of expected marks per minute. Leave C for last, and reserve the final 5–10 minutes only for checking.',
-      checks:['Classified every question before solving any of them','Solved A questions first, then B by marks-per-minute','Reserved at least 5 minutes purely for checking']};
-    default: return {title:'Mixed spaced-revision block', time:30,
-      instr:'No single category dominated here — use this block for a short mixed-topic revision set covering whatever feels least fresh in your notes.',
-      checks:['Reviewed at least two different chapters','Flagged anything that needs a longer look later']};
-  }
-}
-
-/* ---------------- readiness radar ---------------- */
 function computePreparedness(mock){
   var scores = computeScores(mock.questions);
   var n = mock.numQuestions || NUM_Q;
@@ -806,64 +732,53 @@ function priorityForRank(rank){
   return 'low';
 }
 
-/* ---------------- plan generation ---------------- */
-function buildPlan(mock){
-  var scores = computeScores(mock.questions);
-  var allocation = allocateBlocks(scores, 24, 2);
-  var schedule = scheduleBlocks(allocation, 12, 2); // 24 slots -> days 2..13
-  var perCatIndex = {};
-  var startDate = new Date(mock.date || Date.now());
-  var blocks = schedule.map(function(catId, i){
-    var day = 2 + Math.floor(i/2); // 2..13
-    perCatIndex[catId] = (perCatIndex[catId]||0);
-    // Burst Mode (silly/calculation) deliberately wants a chapter the student is
-    // already CONFIDENT in, the opposite of chaptersForCategory's weak-chapter
-    // list — so it's never auto-assigned one; the task instructions ask the
-    // student to pick it themselves.
-    var chapters = (catId==='mixed' || catId==='silly') ? [] : chaptersForCategory(mock.questions, catId);
-    var chapter = chapters.length ? chapters[perCatIndex[catId] % chapters.length] : null;
-    perCatIndex[catId]++;
-    var content = blockContent(catId, chapter);
-    var d = new Date(startDate); d.setDate(d.getDate() + (day-1));
+/* ---------------- plan generation ----------------
+   The 14-day plan is built by /api/generate-plan, which checks the paid
+   entitlement server-side. The client only turns the returned blocks into
+   dated, trackable tasks. The example plan shown in demo mode is fixed. */
+var DEMO_PLAN_BLOCKS = [{"day":2,"slot":0,"catId":"approach","title":"Approach-building drill","timeMin":35,"instr":"Attempt 10 unfamiliar questions from Rotational Motion. Spend at least 15 minutes on each before looking at any hint or solution.","checks":["Recorded your first attempted step","Recorded the actual first useful step, after checking","Noted the method that was ultimately needed"],"chapter":"Rotational Motion"},{"day":2,"slot":1,"catId":"time","title":"Search-and-Destroy time drill","timeMin":40,"instr":"Run one timed set under exam conditions. First pass: classify every question A (fast), B (solvable, slower) or C (unclear). Solve all A questions first, then B in order of expected marks per minute. Leave C for last, and reserve the final 5–10 minutes only for checking.","checks":["Classified every question before solving any of them","Solved A questions first, then B by marks-per-minute","Reserved at least 5 minutes purely for checking"],"chapter":"Definite Integrals"},{"day":3,"slot":0,"catId":"approach","title":"Approach-building drill","timeMin":35,"instr":"Attempt 10 unfamiliar questions from Kinematics. Spend at least 15 minutes on each before looking at any hint or solution.","checks":["Recorded your first attempted step","Recorded the actual first useful step, after checking","Noted the method that was ultimately needed"],"chapter":"Kinematics"},{"day":3,"slot":1,"catId":"silly","title":"Burst Mode","timeMin":30,"instr":"Pick a chapter whose concepts you’re already confident in — not a weak one. Solve 12 questions from it in one uninterrupted sitting, 30 minutes flat: no notes, no hints, no looking at the solution. Write every answer on paper as you go, then check all 12 against the answer key only after you’ve finished the set.","checks":["Picked a chapter you’re genuinely confident in","Solved all 12 in one sitting, answers written on paper first","Checked every answer only after finishing all 12 — not mid-way","Noted how many you got right without losing focus"],"chapter":null},{"day":4,"slot":0,"catId":"approach","title":"Approach-building drill","timeMin":35,"instr":"Attempt 10 unfamiliar questions from Definite Integrals. Spend at least 15 minutes on each before looking at any hint or solution.","checks":["Recorded your first attempted step","Recorded the actual first useful step, after checking","Noted the method that was ultimately needed"],"chapter":"Definite Integrals"},{"day":4,"slot":1,"catId":"time","title":"Search-and-Destroy time drill","timeMin":40,"instr":"Run one timed set under exam conditions. First pass: classify every question A (fast), B (solvable, slower) or C (unclear). Solve all A questions first, then B in order of expected marks per minute. Leave C for last, and reserve the final 5–10 minutes only for checking.","checks":["Classified every question before solving any of them","Solved A questions first, then B by marks-per-minute","Reserved at least 5 minutes purely for checking"],"chapter":"Equilibrium"},{"day":5,"slot":0,"catId":"approach","title":"Approach-building drill","timeMin":35,"instr":"Attempt 10 unfamiliar questions from Definite Integrals. Spend at least 15 minutes on each before looking at any hint or solution.","checks":["Recorded your first attempted step","Recorded the actual first useful step, after checking","Noted the method that was ultimately needed"],"chapter":"Definite Integrals"},{"day":5,"slot":1,"catId":"language","title":"Textbook clarity session","timeMin":30,"instr":"Read the NCERT (or your primary textbook) section on Definite Integrals for at least 30 minutes. Focus only on definitions, stated conditions and exact wording — not problem-solving.","checks":["Wrote 3 key statements or conditions in your own words","Underlined every technical term you were unsure of","Re-read the original mock question — does it make sense now?"],"chapter":"Definite Integrals"},{"day":6,"slot":0,"catId":"approach","title":"Approach-building drill","timeMin":35,"instr":"Attempt 10 unfamiliar questions from Electrostatics. Spend at least 15 minutes on each before looking at any hint or solution.","checks":["Recorded your first attempted step","Recorded the actual first useful step, after checking","Noted the method that was ultimately needed"],"chapter":"Electrostatics"},{"day":6,"slot":1,"catId":"formula","title":"Formula recall & derivation","timeMin":30,"instr":"Revise the formula or law you missed in Rotational Motion. Derive it from first principles where possible, then close your notes and test recall from memory alone.","checks":["Built a formula card: formula, meaning, conditions, derivation cue","Recalled it once with notes fully closed","Reapplied it to the original mock question"],"chapter":"Rotational Motion"},{"day":7,"slot":0,"catId":"silly","title":"Burst Mode","timeMin":30,"instr":"Pick a chapter whose concepts you’re already confident in — not a weak one. Solve 12 questions from it in one uninterrupted sitting, 30 minutes flat: no notes, no hints, no looking at the solution. Write every answer on paper as you go, then check all 12 against the answer key only after you’ve finished the set.","checks":["Picked a chapter you’re genuinely confident in","Solved all 12 in one sitting, answers written on paper first","Checked every answer only after finishing all 12 — not mid-way","Noted how many you got right without losing focus"],"chapter":null},{"day":7,"slot":1,"catId":"time","title":"Search-and-Destroy time drill","timeMin":40,"instr":"Run one timed set under exam conditions. First pass: classify every question A (fast), B (solvable, slower) or C (unclear). Solve all A questions first, then B in order of expected marks per minute. Leave C for last, and reserve the final 5–10 minutes only for checking.","checks":["Classified every question before solving any of them","Solved A questions first, then B by marks-per-minute","Reserved at least 5 minutes purely for checking"],"chapter":"Definite Integrals"},{"day":8,"slot":0,"catId":"language","title":"Textbook clarity session","timeMin":30,"instr":"Read the NCERT (or your primary textbook) section on Rotational Motion for at least 30 minutes. Focus only on definitions, stated conditions and exact wording — not problem-solving.","checks":["Wrote 3 key statements or conditions in your own words","Underlined every technical term you were unsure of","Re-read the original mock question — does it make sense now?"],"chapter":"Rotational Motion"},{"day":8,"slot":1,"catId":"situation","title":"Situation decoding drill","timeMin":35,"instr":"Solve 10 unfamiliar situation-based questions from Electrostatics. Before attempting each, write down: known information, unknown quantity, a quick diagram, and the applicable principle — in that order.","checks":["Identified known vs unknown before solving","Sketched or visualised the situation first","Named the applicable principle before calculating anything"],"chapter":"Electrostatics"},{"day":9,"slot":0,"catId":"approach","title":"Approach-building drill","timeMin":35,"instr":"Attempt 10 unfamiliar questions from Equilibrium. Spend at least 15 minutes on each before looking at any hint or solution.","checks":["Recorded your first attempted step","Recorded the actual first useful step, after checking","Noted the method that was ultimately needed"],"chapter":"Equilibrium"},{"day":9,"slot":1,"catId":"formula","title":"Formula recall & derivation","timeMin":30,"instr":"Revise the formula or law you missed in Equilibrium. Derive it from first principles where possible, then close your notes and test recall from memory alone.","checks":["Built a formula card: formula, meaning, conditions, derivation cue","Recalled it once with notes fully closed","Reapplied it to the original mock question"],"chapter":"Equilibrium"},{"day":10,"slot":0,"catId":"silly","title":"Burst Mode","timeMin":30,"instr":"Pick a chapter whose concepts you’re already confident in — not a weak one. Solve 12 questions from it in one uninterrupted sitting, 30 minutes flat: no notes, no hints, no looking at the solution. Write every answer on paper as you go, then check all 12 against the answer key only after you’ve finished the set.","checks":["Picked a chapter you’re genuinely confident in","Solved all 12 in one sitting, answers written on paper first","Checked every answer only after finishing all 12 — not mid-way","Noted how many you got right without losing focus"],"chapter":null},{"day":10,"slot":1,"catId":"time","title":"Search-and-Destroy time drill","timeMin":40,"instr":"Run one timed set under exam conditions. First pass: classify every question A (fast), B (solvable, slower) or C (unclear). Solve all A questions first, then B in order of expected marks per minute. Leave C for last, and reserve the final 5–10 minutes only for checking.","checks":["Classified every question before solving any of them","Solved A questions first, then B by marks-per-minute","Reserved at least 5 minutes purely for checking"],"chapter":"Kinematics"},{"day":11,"slot":0,"catId":"language","title":"Textbook clarity session","timeMin":30,"instr":"Read the NCERT (or your primary textbook) section on Definite Integrals for at least 30 minutes. Focus only on definitions, stated conditions and exact wording — not problem-solving.","checks":["Wrote 3 key statements or conditions in your own words","Underlined every technical term you were unsure of","Re-read the original mock question — does it make sense now?"],"chapter":"Definite Integrals"},{"day":11,"slot":1,"catId":"situation","title":"Situation decoding drill","timeMin":35,"instr":"Solve 10 unfamiliar situation-based questions from Electrostatics. Before attempting each, write down: known information, unknown quantity, a quick diagram, and the applicable principle — in that order.","checks":["Identified known vs unknown before solving","Sketched or visualised the situation first","Named the applicable principle before calculating anything"],"chapter":"Electrostatics"},{"day":12,"slot":0,"catId":"approach","title":"Approach-building drill","timeMin":35,"instr":"Attempt 10 unfamiliar questions from Definite Integrals. Spend at least 15 minutes on each before looking at any hint or solution.","checks":["Recorded your first attempted step","Recorded the actual first useful step, after checking","Noted the method that was ultimately needed"],"chapter":"Definite Integrals"},{"day":12,"slot":1,"catId":"formula","title":"Formula recall & derivation","timeMin":30,"instr":"Revise the formula or law you missed in Equilibrium. Derive it from first principles where possible, then close your notes and test recall from memory alone.","checks":["Built a formula card: formula, meaning, conditions, derivation cue","Recalled it once with notes fully closed","Reapplied it to the original mock question"],"chapter":"Equilibrium"},{"day":13,"slot":0,"catId":"silly","title":"Burst Mode","timeMin":30,"instr":"Pick a chapter whose concepts you’re already confident in — not a weak one. Solve 12 questions from it in one uninterrupted sitting, 30 minutes flat: no notes, no hints, no looking at the solution. Write every answer on paper as you go, then check all 12 against the answer key only after you’ve finished the set.","checks":["Picked a chapter you’re genuinely confident in","Solved all 12 in one sitting, answers written on paper first","Checked every answer only after finishing all 12 — not mid-way","Noted how many you got right without losing focus"],"chapter":null},{"day":13,"slot":1,"catId":"time","title":"Search-and-Destroy time drill","timeMin":40,"instr":"Run one timed set under exam conditions. First pass: classify every question A (fast), B (solvable, slower) or C (unclear). Solve all A questions first, then B in order of expected marks per minute. Leave C for last, and reserve the final 5–10 minutes only for checking.","checks":["Classified every question before solving any of them","Solved A questions first, then B by marks-per-minute","Reserved at least 5 minutes purely for checking"],"chapter":"Definite Integrals"}];
+function materializeBlocks(blocks, startDate){
+  var start = new Date(startDate || Date.now());
+  return blocks.map(function(b){
+    var d = new Date(start); d.setDate(d.getDate() + (b.day-1));
     return {
-      id: uid(), day:day, slot: (i%2), catId:catId,
-      title: content.title, timeMin: content.time, instr: content.instr, checks: content.checks,
-      chapter: chapter, dateLabel: fmtDate(d),
+      id: uid(), day:b.day, slot:b.slot, catId:b.catId,
+      title:b.title, timeMin:b.timeMin, instr:b.instr, checks:b.checks,
+      chapter:b.chapter, dateLabel: fmtDate(d),
       completed:false, reflection:''
     };
   });
+}
+function planFromBlocks(mock, blocks){
   return {
     id: uid(), mockId: mock.id, startDate: mock.date,
-    blocks: blocks, checkpointDone:false, checkpointQuestions:null,
+    blocks: materializeBlocks(blocks, mock.date), checkpointDone:false, checkpointQuestions:null,
     followupMockId:null
   };
 }
-
-function reallocateFromCheckpoint(plan, checkpointQuestions){
-  var scores = computeScores(checkpointQuestions.map(function(q){ return {result:q.result, primary:q.primary, secondary:null}; }));
-  var allocation = allocateBlocks(scores, 12, 1); // days 8-13, 2 slots x 6 days
-  var schedule = scheduleBlocks(allocation, 6, 2);
-  var perCatIndex = {};
-  var mock = findMock(plan.mockId);
-  var startDate = new Date(plan.startDate || Date.now());
-  var newBlocks = schedule.map(function(catId, i){
-    var day = 8 + Math.floor(i/2);
-    perCatIndex[catId] = (perCatIndex[catId]||0);
-    var chapters = (catId==='mixed' || catId==='silly') ? [] : chaptersForCategory(mock.questions, catId);
-    var chapter = chapters.length ? chapters[perCatIndex[catId] % chapters.length] : null;
-    perCatIndex[catId]++;
-    var content = blockContent(catId, chapter);
-    var d = new Date(startDate); d.setDate(d.getDate() + (day-1));
-    return {
-      id: uid(), day:day, slot:(i%2), catId:catId,
-      title: content.title, timeMin: content.time, instr: content.instr, checks: content.checks,
-      chapter: chapter, dateLabel: fmtDate(d),
-      completed:false, reflection:''
-    };
-  });
-  plan.blocks = plan.blocks.filter(function(b){ return b.day<8; }).concat(newBlocks);
-  plan.checkpointDone = true;
-  plan.checkpointQuestions = checkpointQuestions;
+// Calls the plan API. Resolves with blocks; rejects with {notEntitled:true}
+// when the account hasn't unlocked the plan, or an Error otherwise.
+function requestPlanBlocks(payload){
+  if(!authUser) return Promise.reject(new Error('Sign in first.'));
+  return authUser.getIdToken().then(function(idToken){
+    return fetch(API_BASE+'/generate-plan', {
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+idToken},
+      body: JSON.stringify(payload)
+    });
+  }).then(function(r){
+    return r.json().catch(function(){ return {}; }).then(function(res){
+      if(r.status===402){ entitlement = {entitled:false}; throw {notEntitled:true}; }
+      if(!r.ok || !res.ok || !Array.isArray(res.blocks)) throw new Error(res.error || 'Could not build your plan. Check your connection and try again.');
+      return res.blocks;
+    });
+  }, function(){ throw new Error('You look offline. Connect to the internet to build your plan.'); });
+}
+function planError(err){
+  var msg = (err && err.message) || 'Something went wrong. Try again.';
+  if(window.PJ && PJ.toast) PJ.toast(msg); else alert(msg);
+}
+function planQuestions(qs){
+  return qs.map(function(q){ return {result:q.result, primary:q.primary||null, secondary:q.secondary||null, chapter:q.chapter||''}; });
 }
 
 /* ---------------- helpers ---------------- */
@@ -957,7 +872,9 @@ var firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 var auth = firebase.auth();
 var db = firebase.firestore();
-var API_BASE = 'https://m2m-two.vercel.app/api';
+// Same-origin on Vercel (prodjee.in and preview builds); the production API
+// otherwise (local dev, mirrors).
+var API_BASE = /(^|\.)prodjee\.in$|\.vercel\.app$/.test(location.hostname) ? '/api' : 'https://m2m-two.vercel.app/api';
 var RAZORPAY_KEY_ID = 'rzp_live_TbWaaql6JJhDCl';
 
 var authUser = null;
@@ -1068,7 +985,7 @@ var App = {
     var m = demoMock();
     var existing = state.mocks.filter(function(x){return x.id!=='demo';});
     state.mocks = existing.concat([m]);
-    var plan = buildPlan(m); plan.id='demo-plan';
+    var plan = planFromBlocks(m, DEMO_PLAN_BLOCKS); plan.id='demo-plan';
     state.plans = state.plans.filter(function(p){return p.mockId!=='demo';}).concat([plan]);
     nav('diagnosis', {mockId:'demo'});
   },
@@ -1179,10 +1096,18 @@ var App = {
       nav('compare', {mockId: mock.linkedMockId, followupId: mock.id});
       return;
     }
-    var plan = buildPlan(mock);
-    state.plans.push(plan);
-    persist();
-    nav('diagnosis', {mockId:mock.id});
+    if(findPlan(mock.id)){ nav('diagnosis', {mockId:mock.id}); return; }
+    var btn = g('genPlanBtn');
+    if(btn){ if(btn.disabled) return; btn.disabled = true; btn.textContent = 'Building your plan…'; }
+    requestPlanBlocks({questions: planQuestions(mock.questions)}).then(function(blocks){
+      if(!findPlan(mock.id)) state.plans.push(planFromBlocks(mock, blocks));
+      persist();
+      nav('diagnosis', {mockId:mock.id});
+    }).catch(function(err){
+      if(btn){ btn.disabled = false; btn.textContent = 'Generate my 14-day plan'; }
+      if(err && err.notEntitled){ showPayGate(function(){ App.generatePlan(); }); return; }
+      planError(err);
+    });
   },
 
   openTask: function(el){
@@ -1229,11 +1154,23 @@ var App = {
     });
     if(incomplete) return;
     var plan = findPlan(state.routeParams.mockId); if(!plan) return;
-    reallocateFromCheckpoint(plan, cp);
-    persist();
-    delete state.routeParams._cpDraft;
-    delete state.routeParams.checkpointMode;
-    render();
+    var mock = findMock(plan.mockId); if(!mock) return;
+    var btn = document.querySelector('[data-action="submitCheckpoint"]');
+    if(btn){ if(btn.disabled) return; btn.disabled = true; btn.textContent = 'Re-weighting…'; }
+    var cpClean = cp.map(function(q){ return {result:q.result, primary:q.primary||null}; });
+    requestPlanBlocks({mode:'checkpoint', questions: planQuestions(mock.questions), checkpoint: cpClean}).then(function(blocks){
+      plan.blocks = plan.blocks.filter(function(b){ return b.day<8; }).concat(materializeBlocks(blocks, plan.startDate));
+      plan.checkpointDone = true;
+      plan.checkpointQuestions = cp;
+      persist();
+      delete state.routeParams._cpDraft;
+      delete state.routeParams.checkpointMode;
+      render();
+    }).catch(function(err){
+      if(btn){ btn.disabled = false; btn.textContent = 'Adjust my plan'; }
+      if(err && err.notEntitled){ showPayGate(function(){ App.submitCheckpoint(); }); return; }
+      planError(err);
+    });
   },
 
   startFresh: function(){
