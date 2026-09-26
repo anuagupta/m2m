@@ -1037,8 +1037,16 @@ auth.onAuthStateChanged(function(user){
   });
 });
 
-function nav(route, params){
+// Real "go back to wherever I came from" (not always the landing page):
+// every nav() records where it left from, and the back button pops that
+// stack instead of jumping to a hardcoded destination.
+var navHistory = [];
+function nav(route, params, skipHistory){
   if(route!=='landing' && !state.demo && !authUser){ showSignInGate(function(){ nav(route, params); }); return; }
+  if(!skipHistory && state.route){
+    navHistory.push({route: state.route, params: state.routeParams});
+    if(navHistory.length > 30) navHistory.shift();
+  }
   state.route=route; state.routeParams=params||{}; persist();
   var apply = function(){ render(); window.scrollTo(0,0); };
   var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1054,6 +1062,11 @@ function nav(route, params){
 
 var App = {
   toLanding: function(){ state.demo=false; nav('landing'); },
+  goBack: function(){
+    var prev = navHistory.pop();
+    if(prev) nav(prev.route, prev.params, true);
+    else App.toLanding();
+  },
   toCreate: function(el){ nav('create', {role: el && el.dataset.role || 'initial', forMockId: el && el.dataset.forMockId || null}); },
   // Landing page's pricing CTA: skips straight to the real payment gate
   // (picking up whichever plan they chose there) instead of making them
@@ -1563,7 +1576,6 @@ function viewLanding(){
     '<h1>You’re about to make yesterday’s mistakes <span class="accent-text">again</span>.</h1>'+
     '<p class="hero-sub">Right now, someone with your exact rank is already fixing it. Every day you skip analysing a mock, the gap widens — not because you’re less capable, but because you’re repeating the same lost marks while others aren’t. Log your mock in a minute, get the real reason you lost each mark, and start closing that gap tonight.</p>'+
     '<div class="hero-cta">'+
-      '<button class="btn btn-primary" data-action="toCreate">Analyse my mock</button>'+
       '<button class="btn btn-text" data-action="loadDemo">See a sample analysis →</button>'+
     '</div>'+
     '<div class="loop">'+ LOOP_STEPS.map(function(s){
@@ -1617,7 +1629,7 @@ function viewCreate(){
   var sub = role==='followup' ? 'Same walkthrough as your Day 1 mock, so the comparison stays apples-to-apples.' : 'Fill this in right after the mock, while it’s fresh. Takes about a minute.';
   var suggestedNumQ = (linked && linked.numQuestions) || NUM_Q;
   return topbar() + '<div class="shell page">'+
-    '<button class="page-back" data-action="'+(role==='followup'?'toCalendar':'toLanding')+'" data-id="'+(linked?linked.id:'')+'">← Back</button>'+
+    '<button class="page-back" data-action="goBack">← Back</button>'+
     '<div class="card" style="max-width:640px;">'+
       '<div class="form-title">'+title+'</div><div class="form-sub">'+sub+'</div>'+
       '<div class="field"><label for="f_name">Mock name</label><input type="text" id="f_name" value="'+esc(suggestedName)+'" placeholder="e.g. Full Syllabus Test 6"></div>'+
@@ -1692,7 +1704,7 @@ function viewAnalyze(){
   var done = mock.questions.filter(function(q){return q.result;}).length;
   var pct = total ? Math.round(done/total*100) : 0;
   return topbar() + '<div class="shell-wide page">'+
-    '<button class="page-back" data-action="toLanding">← Back</button>'+
+    '<button class="page-back" data-action="goBack">← Back</button>'+
     '<div class="analyze-head">'+
       '<div><h2 class="page-title">'+esc(mock.name)+'</h2>'+
       '<p class="page-sub" id="progressBadge">'+done+' of '+total+' completed</p></div>'+
@@ -1732,7 +1744,7 @@ function viewDiagnosis(){
     {ariaLabel:'Preparedness across six fronts for '+mock.name}
   );
   return topbar() + demoBanner() + '<div class="shell page">'+
-    (state.demo ? '' : '<button class="page-back" data-action="toLanding">← Back</button>') +
+    (state.demo ? '' : '<button class="page-back" data-action="goBack">← Back</button>') +
     '<h2 class="page-title">Diagnosis — '+esc(mock.name)+'</h2>'+
     '<p class="page-sub">'+esc(mock.marksScored)+' marks scored of '+esc(mock.targetMarks)+' target &middot; '+fmtDate(mock.date)+'</p>'+
     '<div class="card radar-section" style="margin-top:22px;">'+
@@ -1996,7 +2008,7 @@ function viewProfile(){
   }).join('') : '<div class="empty" style="padding:30px 20px;">No mocks yet. <button class="btn btn-text" data-action="toCreate">Analyse your first mock →</button></div>';
 
   return topbar() + '<div class="shell page">'+
-    '<button class="page-back" data-action="toLanding">← Back</button>'+
+    '<button class="page-back" data-action="goBack">← Back</button>'+
     '<h2 class="page-title">Your mocks</h2>'+
     '<p class="section-lead" style="margin-top:4px;">Your mocks and plans live on this device — export a backup if you want a copy elsewhere.</p>'+
     (authUser ? '<div class="card" style="margin-top:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">'+
