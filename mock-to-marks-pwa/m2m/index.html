@@ -958,7 +958,7 @@ var APPLE_SIGNIN_ENABLED = false;
 
 function signInGateHtml(){
   return '<div class="gate-bg" data-action="closeGate"><div class="gate-card">'+
-    '<h3>Sign in to continue</h3>'+
+    '<h3>Sign in for free</h3>'+
     '<p class="gate-sub">Sign in to save your mocks and pick up where you left off on any device. Your diagnosis is free — you only pay to unlock your recovery plan.</p>'+
     '<button class="btn btn-primary" data-action="signIn" style="width:100%;margin-top:20px;display:flex;align-items:center;justify-content:center;gap:10px;">'+GOOGLE_ICON+' Continue with Google</button>'+
     (APPLE_SIGNIN_ENABLED ? '<button class="btn btn-apple" data-action="signInApple" style="width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:10px;">'+APPLE_ICON+' Continue with Apple</button>' : '')+
@@ -2320,8 +2320,10 @@ if(window.claude && window.claude.hot){
 </script>
 <script src="/assets/pj-core.js" charset="utf-8"></script>
 <script>
-  // Shared ProDJEE session: sign-in required, greeting, Drive sync.
-  PJ.requireSignIn();
+  // Shared ProDJEE session: greeting, Drive sync. Sign-in itself is NOT
+  // forced here - the landing page is free to browse; nav()'s own gate
+  // (above) only asks for it when an actual route beyond landing is opened
+  // (New mock, Profile, etc.), same as this app has always worked.
   PJ.onChange(function(u){ if(u) window.__pjMigrateName(); });
   PJ.onRemoteData(function(keys){ if(keys.indexOf('mtm_state_v1')>=0) location.reload(); });
 </script>
