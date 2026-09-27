@@ -763,7 +763,8 @@
         <div class="spacer"></div>
         <button class="btn ghost block" data-act="tab" data-v="home">Done</button>
       </div>`, { immersive: true });
-    if (acc >= 80) setTimeout(() => confetti(70), 250);
+    if (r.i > prevRank.i) setTimeout(() => confetti(90), 250);
+    else if (acc >= 80) setTimeout(() => confetti(70), 250);
   }
 
   /* =============================== STATS ================================== */
