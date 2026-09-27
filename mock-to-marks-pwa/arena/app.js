@@ -30,6 +30,9 @@
     { id: "grinder", icon: "🏋️", name: "Grinder", desc: "Complete 10 sessions" }
   ];
   const VAULT_STEPS_DAYS = [1, 3, 7];
+  // Same origin on prodjee.in/vercel.app; falls back to the API's own
+  // deployment when Arena is opened from somewhere else (e.g. local testing).
+  const API_BASE = /(^|\.)prodjee\.in$|\.vercel\.app$/.test(location.hostname) ? "/api" : "https://m2m-two.vercel.app/api";
 
   /* ================================ STORAGE =============================== */
   const STORE_KEY = "prodjee.arena.v1";
@@ -67,6 +70,9 @@
   // gated - not just the Play tab, but the actual game start itself, since
   // that's the one choke point every way of starting a game goes through.
   let pendingSignedInAction = null;
+  // The question + reason picked in the first report step, held while the
+  // student optionally types a comment in the second step.
+  let reportDraft = null;
   if (window.PJ) {
     // One-time migration: a name typed into Arena's old "for reports" field
     // (now removed) becomes the shared name, so switching over doesn't
@@ -939,12 +945,35 @@
           </div>`);
         break;
       case "report-reason": {
-        const q = G && G.cur && G.cur.q; closeModal();
-        if (!q) break;
-        const subject = encodeURIComponent(`ProDJEE Arena report: ${v} — ${q.id}`);
-        const body = encodeURIComponent(`Question ID: ${q.id}\nExam: ${q.exam} · Subject: ${q.subject} · Chapter: ${q.chapter}\nIssue: ${v}\n\nQuestion text:\n${q.q}\n\n(Add any extra details below.)`);
-        location.href = `mailto:prodjeelabs@gmail.com?subject=${subject}&body=${body}`;
-        toast("Thanks for the report — opening your mail app.");
+        const q = G && G.cur && G.cur.q;
+        if (!q) { closeModal(); break; }
+        reportDraft = { q, reason: v };
+        modal(`<h2 style="margin:4px 0 14px">Report an issue</h2>
+          <p class="muted" style="margin-bottom:10px">Issue: <b>${esc(v)}</b></p>
+          <p class="muted" style="margin-bottom:8px">Optional: tell us briefly what's wrong.</p>
+          <textarea id="report-comment" maxlength="500" placeholder="e.g. Option B should be 2x, not x" style="width:100%;min-height:90px;padding:12px;border-radius:12px;background:rgba(0,0,0,.35);color:var(--text);border:1px solid var(--line);font:14px/1.4 var(--body)"></textarea>
+          <div class="grid cols-2" style="margin-top:14px">
+            <button class="btn ghost" data-act="close-modal">Cancel</button>
+            <button class="btn primary" data-act="report-submit">Send report</button>
+          </div>`);
+        break;
+      }
+      case "report-submit": {
+        const draft = reportDraft; reportDraft = null;
+        if (!draft) { closeModal(); break; }
+        const btn = el; btn.disabled = true; btn.textContent = "Sending…";
+        const comment = ($("#report-comment") && $("#report-comment").value || "").trim();
+        const { q, reason } = draft;
+        const send = (idToken) => fetch(`${API_BASE}/report-question`, {
+          method: "POST",
+          headers: Object.assign({ "Content-Type": "application/json" }, idToken ? { Authorization: "Bearer " + idToken } : {}),
+          body: JSON.stringify({ questionId: q.id, exam: q.exam, subject: q.subject, chapter: q.chapter, questionText: q.q, reason, comment, studentEmail: (window.PJ && PJ.user && PJ.user.email) || "" })
+        }).then((r) => r.json()).catch(() => ({ ok: false }));
+        const tokenP = window.PJ && PJ.user ? PJ.user.getIdToken() : Promise.resolve(null);
+        tokenP.then(send).then((r) => {
+          closeModal();
+          toast(r && r.ok ? "Thank you for reporting. The question is sent to administrators." : "Couldn't send the report — please try again in a bit.");
+        });
         break;
       }
       case "again": renderSetup(setup ? setup.mode : "mixed"); break;
