@@ -226,8 +226,6 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
   PJ.onRemoteData(function(){ route(); });
   PJ.onChange(function(){ route(); });
   route();
-
-  if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('/sw.js').catch(function(){}); }); }
 })();
 </script>
 </body>

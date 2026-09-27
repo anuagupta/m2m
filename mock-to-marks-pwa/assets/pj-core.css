@@ -99,3 +99,28 @@
 }
 .pj-static{position:relative;}
 body.immersive .pj-bar, body.immersive .pj-greet, body.immersive .pj-banner{display:none;}
+
+/* ---------- PWA install prompt ---------- */
+.pj-install-wrap{
+  position:fixed;right:16px;z-index:55;
+  bottom:calc(76px + env(safe-area-inset-bottom, 0px));
+  display:inline-flex;align-items:center;gap:2px;border-radius:99px;
+  box-shadow:0 8px 24px rgba(0,0,0,.45);
+  font-family:var(--pj-sans);
+}
+/* A class selector always beats the UA stylesheet's [hidden]{display:none},
+   so toggling .hidden on/off would silently stop doing anything after the
+   first time without this. */
+.pj-install-wrap[hidden]{display:none;}
+.pj-install-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:11px 18px;border-radius:99px 0 0 99px;border:none;
+  background:var(--pj-gold);color:var(--pj-bg);font-weight:700;font-size:13.5px;cursor:pointer;
+}
+.pj-install-close{
+  border:none;background:var(--pj-gold);color:var(--pj-bg);
+  border-radius:0 99px 99px 0;padding:11px 14px 11px 6px;font-size:15px;line-height:1;cursor:pointer;opacity:.8;
+}
+.pj-install-close:hover{opacity:1;}
+@media (min-width:900px){ .pj-install-wrap{bottom:18px;} }
+body.immersive .pj-install-wrap{display:none;}
