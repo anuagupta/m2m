@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>ProDJEE — brag</title>
+    <script src="assets/vendor/gsap.min.js"></script>
+    <script src="assets/music/audio-data.js"></script>
+    <style>
+      /* Self-hosted fonts (downloaded from Google Fonts, latin subset only).
+         Render is network-isolated per hyperframes-core's determinism
+         contract, so a remote stylesheet or CDN script tag is not just
+         fragile under a TLS-intercepting proxy, it is disallowed outright. */
+      @font-face {
+        font-family: "Fraunces";
+        font-style: normal;
+        font-weight: 500 900;
+        font-display: swap;
+        src: url("assets/vendor/fraunces.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Manrope";
+        font-style: normal;
+        font-weight: 400 800;
+        font-display: swap;
+        src: url("assets/vendor/manrope.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "JetBrains Mono";
+        font-style: normal;
+        font-weight: 500 700;
+        font-display: swap;
+        src: url("assets/vendor/jetbrains-mono.woff2") format("woff2");
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0a0b14;
+      }
+      :root {
+        --bg: #0a0b14;
+        --fg: #f2eff9;
+        --ink-soft: #b6b1cf;
+        --ink-faint: #8a86a6;
+        --gold: #ffc23d;
+        --gold-strong: #ffe07a;
+        --coral: #f04848;
+        --green: #4ff0a0;
+        --glass: rgba(28, 31, 54, 0.55);
+        --glass-2: rgba(36, 39, 63, 0.6);
+        --border: rgba(255, 255, 255, 0.15);
+        --font-display: "Fraunces", Georgia, serif;
+        --font-body: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+        /* Mapped so the installed catalog sub-compositions (grid-card-assemble,
+           headline-slam) pick up ProDJEE's own palette instead of their
+           generic defaults. */
+        --brand: var(--gold);
+        --accent: var(--coral);
+        --accent-2: var(--green);
+        --muted: var(--ink-faint);
+        --surface: var(--glass-2);
+        --border-token: var(--border);
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--font-body);
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+      .inner {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* ---------- persistent background: navy + drifting blobs ---------- */
+      #bg-blobs {
+        z-index: 0;
+      }
+      .blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(90px);
+        opacity: 0.4;
+        mix-blend-mode: screen;
+        will-change: transform, opacity;
+      }
+      .blob-gold {
+        width: 900px;
+        height: 900px;
+        top: -260px;
+        left: -220px;
+        background: radial-gradient(circle, var(--gold) 0%, transparent 68%);
+      }
+      .blob-green {
+        width: 780px;
+        height: 780px;
+        top: -120px;
+        right: -220px;
+        background: radial-gradient(circle, var(--green) 0%, transparent 68%);
+      }
+      .blob-coral {
+        width: 840px;
+        height: 840px;
+        bottom: -260px;
+        left: 460px;
+        background: radial-gradient(circle, var(--coral) 0%, transparent 68%);
+      }
+
+      /* ---------- scene 2: arena ---------- */
+      #scene-arena .inner {
+        z-index: 1;
+      }
+      .arena-card {
+        position: relative;
+        width: 1180px;
+        padding: 64px 72px;
+        border-radius: 32px;
+        background: var(--glass);
+        border: 1px solid var(--border);
+        backdrop-filter: blur(26px) saturate(160%);
+        opacity: 0;
+      }
+      .arena-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-mono);
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--green);
+        background: rgba(79, 240, 160, 0.16);
+        border-radius: 999px;
+        padding: 8px 20px;
+      }
+      .arena-body {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 48px;
+        margin-top: 34px;
+      }
+      .gp-block {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .gp-label {
+        font-family: var(--font-mono);
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+      }
+      .gp-number {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 156px;
+        line-height: 1;
+        color: var(--gold);
+        letter-spacing: -0.02em;
+        position: relative;
+      }
+      .streak-pill {
+        align-self: flex-start;
+        margin-top: 14px;
+        font-family: var(--font-mono);
+        font-weight: 700;
+        font-size: 26px;
+        color: var(--gold);
+        background: rgba(255, 194, 61, 0.16);
+        border-radius: 999px;
+        padding: 8px 20px;
+        opacity: 0;
+      }
+      .question-block {
+        flex: 1;
+        max-width: 480px;
+      }
+      .question-text {
+        font-family: var(--font-body);
+        font-size: 27px;
+        line-height: 1.5;
+        color: var(--ink-soft);
+      }
+      .arena-caption {
+        margin-top: 40px;
+        font-family: var(--font-mono);
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: var(--gold-strong);
+        opacity: 0;
+      }
+      .confetti-wrap {
+        position: absolute;
+        top: 40px;
+        left: 60px;
+        width: 10px;
+        height: 10px;
+        pointer-events: none;
+      }
+      .confetti-wrap .particle {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 10px;
+        height: 16px;
+        border-radius: 2px;
+        transform: translate(var(--hf-px, 0px), var(--hf-py, 0px)) rotate(var(--hf-pr, 0deg));
+        opacity: var(--hf-po, 0);
+      }
+
+      /* ---------- scene 3: diagnosis ---------- */
+      #scene-diagnosis-title .inner {
+        align-items: flex-start;
+        justify-content: center;
+        padding-top: 130px;
+        z-index: 2;
+      }
+      .diagnosis-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 76px;
+        letter-spacing: -0.01em;
+        color: var(--fg);
+        opacity: 0;
+        text-align: center;
+      }
+      .diagnosis-title em {
+        font-style: normal;
+        color: var(--gold);
+      }
+      #scene-diagnosis-cards {
+        z-index: 1;
+        position: absolute;
+        left: 50%;
+        top: 300px;
+        transform: translateX(-50%);
+        width: 1160px;
+        height: 700px;
+      }
+
+      /* ---------- scene 4: 14-day plan ---------- */
+      #scene-plan .inner {
+        flex-direction: column;
+        gap: 46px;
+        z-index: 1;
+      }
+      .plan-caption {
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: 46px;
+        color: var(--fg);
+        opacity: 0;
+        text-align: center;
+      }
+      .plan-row {
+        display: flex;
+        gap: 14px;
+      }
+      .plan-block {
+        width: 76px;
+        height: 96px;
+        border-radius: 14px;
+        background: var(--glass-2);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-mono);
+        font-weight: 700;
+        font-size: 26px;
+        color: var(--ink-soft);
+        opacity: 0;
+      }
+      .plan-block.final {
+        color: #2b1c05;
+        background: var(--gold);
+        border-color: var(--gold-strong);
+      }
+      .plan-sublabel {
+        position: absolute;
+        top: 690px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: var(--font-mono);
+        font-size: 22px;
+        color: var(--ink-faint);
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      /* ---------- scene 5: outro ---------- */
+      #scene-outro .inner {
+        flex-direction: column;
+        gap: 26px;
+        z-index: 1;
+      }
+      .wordmark {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 168px;
+        letter-spacing: -0.02em;
+        opacity: 0;
+      }
+      .wordmark .pro {
+        color: var(--fg);
+      }
+      .wordmark .djee {
+        color: var(--gold);
+      }
+      .outro-line-wrap {
+        position: relative;
+        height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .outro-tagline,
+      .outro-url {
+        position: absolute;
+        font-family: var(--font-body);
+        font-size: 34px;
+        color: var(--ink-soft);
+        opacity: 0;
+        white-space: nowrap;
+        text-align: center;
+      }
+      .outro-url {
+        font-family: var(--font-mono);
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        color: var(--gold);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="prodjee-brag"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="22.37"
+      data-fps="30"
+    >
+      <!-- persistent navy + blob background, runs the whole video -->
+      <div id="bg-blobs" class="clip" data-start="0" data-duration="22.37" data-track-index="0">
+        <div class="blob blob-gold" id="blob-gold" data-layout-allow-overflow="true"></div>
+        <div class="blob blob-green" id="blob-green" data-layout-allow-overflow="true"></div>
+        <div class="blob blob-coral" id="blob-coral" data-layout-allow-overflow="true"></div>
+      </div>
+
+      <!-- Scene 1: hook (headline-slam sub-composition) -->
+      <div
+        id="headline-slam"
+        data-composition-id="headline-slam"
+        data-composition-src="compositions/components/headline-slam.html"
+        data-start="0"
+        data-duration="3"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+        data-variable-values='{"text":"EVERY MARK COUNTS.","accent_word_index":-1,"accent":"green","shadow":true}'
+      ></div>
+
+      <!-- Scene 2: Arena reveal + GP payoff (3.00 - 8.74) -->
+      <section id="scene-arena" class="clip" data-start="3" data-duration="5.74" data-track-index="1">
+        <div class="inner">
+          <div class="arena-card" id="arena-card">
+            <span class="arena-tag">Arena · Free</span>
+            <div class="arena-body">
+              <div class="gp-block">
+                <span class="gp-label">Gyan Points</span>
+                <div class="gp-number" id="gp-number">200</div>
+                <span class="streak-pill" id="streak-pill">🔥 12-day streak</span>
+                <div class="confetti-wrap" id="confetti-wrap"></div>
+              </div>
+              <div class="question-block">
+                <p class="question-text">
+                  A block of mass 2 kg slides down a frictionless incline of angle 30°.
+                  Find its acceleration. (g = 10 m/s²)
+                </p>
+              </div>
+            </div>
+            <p class="arena-caption" id="arena-caption">2,891 real PYQs · verified against the official key.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scene 3: Mock-to-Marks diagnosis (8.74 - 15.29) -->
+      <section
+        id="scene-diagnosis-title"
+        class="clip"
+        data-start="8.74"
+        data-duration="6.55"
+        data-track-index="2"
+      >
+        <div class="inner">
+          <h2 class="diagnosis-title" id="diagnosis-title">Six reasons. <em>One diagnosis.</em></h2>
+        </div>
+      </section>
+      <!-- Plain (non-composition) wrapper so this root-level clip does not
+           receive automatic full-bleed layout; the sub-comp host inside it
+           is nested and keeps its own explicit CSS position/size. -->
+      <div id="scene-diagnosis-cards-wrap" class="clip" data-start="8.74" data-duration="6.55" data-track-index="1">
+        <div
+          id="scene-diagnosis-cards"
+          data-composition-id="grid-card-assemble"
+          data-composition-src="compositions/components/grid-card-assemble.html"
+          data-start="8.74"
+          data-duration="6.55"
+          data-width="1160"
+          data-height="700"
+          style="--bg: transparent"
+          data-variable-values='{"items":"Language: -8 marks,Approach: -6 marks,Formula recall: -5 marks,Calculation slips: -4 marks,Time: -3 marks","layout":"list","cues":"0.55,1.63,2.72,3.81,4.90","accent":"green","exit":"none"}'
+        ></div>
+      </div>
+
+      <!-- Scene 4: 14-day plan (15.29 - 18.41) -->
+      <section id="scene-plan" class="clip" data-start="15.29" data-duration="3.12" data-track-index="1">
+        <div class="inner">
+          <p class="plan-caption" id="plan-caption">A 14-day plan built on your actual gaps.</p>
+          <div class="plan-row" id="plan-row"></div>
+        </div>
+        <p class="plan-sublabel" id="plan-sublabel-early">Day 1 · Formula drill</p>
+        <p class="plan-sublabel" id="plan-sublabel-final">Day 14 · Full mock, timed</p>
+      </section>
+
+      <!-- Scene 5: outro / wordmark (18.41 - 22.37) -->
+      <section id="scene-outro" class="clip" data-start="18.41" data-duration="3.96" data-track-index="1">
+        <div class="inner">
+          <div class="wordmark" id="wordmark"><span class="pro">Pro</span><span class="djee">DJEE</span></div>
+          <div class="outro-line-wrap">
+            <p class="outro-tagline" id="outro-tagline">JEE/NEET prep that actually moves your marks.</p>
+            <p class="outro-url" id="outro-url">prodjee.in</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- audio ---------- -->
+      <audio
+        id="bg-music"
+        src="assets/music/happy-beats-business-moves-vol-12-by-ende-dot-app.mp3"
+        data-start="0"
+        data-duration="22.37"
+        data-track-index="10"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0.05},{"t":1.5,"v":0.16},{"t":3,"v":0.3},{"t":8.7,"v":0.34},{"t":15.29,"v":0.34},{"t":18.56,"v":0.4},{"t":20.5,"v":0.3},{"t":22.37,"v":0.16}]}]}'
+      ></audio>
+
+      <!-- Scene 1 hook: low tone under the slam (approximates the near-silent build) -->
+      <audio
+        id="sfx-hook"
+        src="assets/sfx/impact/impactSoft_medium_001.ogg"
+        data-start="0.15"
+        data-duration="0.18"
+        data-track-index="11"
+        data-volume="0.45"
+      ></audio>
+
+      <!-- Scene 2: counter ticks + GP payoff, beat-locked ~8.70s (cue 8.74s) -->
+      <audio
+        id="sfx-counter-tick"
+        src="assets/sfx/interface/select_008.ogg"
+        data-start="3.5"
+        data-duration="0.05"
+        data-track-index="11"
+        data-volume="0.35"
+      ></audio>
+      <audio
+        id="sfx-gp-payoff"
+        src="assets/sfx/casino/chips-collide-1.ogg"
+        data-start="8.70"
+        data-duration="0.26"
+        data-track-index="12"
+        data-volume="0.8"
+      ></audio>
+
+      <!-- Scene 3: diagnosis rows, on the beat grid -->
+      <audio id="sfx-row-1" src="assets/sfx/casino/card-place-1.ogg" data-start="9.29" data-duration="0.4" data-track-index="11" data-volume="0.55"></audio>
+      <audio id="sfx-row-2" src="assets/sfx/casino/card-place-1.ogg" data-start="10.37" data-duration="0.4" data-track-index="12" data-volume="0.55"></audio>
+      <audio id="sfx-row-3" src="assets/sfx/casino/card-place-1.ogg" data-start="11.46" data-duration="0.4" data-track-index="13" data-volume="0.55"></audio>
+      <audio id="sfx-row-4" src="assets/sfx/casino/card-place-1.ogg" data-start="12.55" data-duration="0.4" data-track-index="14" data-volume="0.55"></audio>
+      <audio id="sfx-row-5" src="assets/sfx/casino/card-place-1.ogg" data-start="13.64" data-duration="0.4" data-track-index="15" data-volume="0.55"></audio>
+
+      <!-- Scene 4: day-14 resolve, beat-locked 17.47s -->
+      <audio
+        id="sfx-day14"
+        src="assets/sfx/impact/impactSoft_medium_001.ogg"
+        data-start="17.47"
+        data-duration="0.18"
+        data-track-index="11"
+        data-volume="0.7"
+      ></audio>
+
+      <!-- Scene 5: wordmark slam, beat-locked 18.56s -->
+      <audio
+        id="sfx-wordmark"
+        src="assets/sfx/impact/impactBell_heavy_000.ogg"
+        data-start="18.56"
+        data-duration="1.4"
+        data-track-index="11"
+        data-volume="0.85"
+      ></audio>
+    </div>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var tl = gsap.timeline({ paused: true });
+
+        /* ============ background blobs: slow drift + subtle audio reactivity ============ */
+        tl.fromTo(
+          "#blob-gold",
+          { x: 0, y: 0, scale: 1 },
+          { x: 60, y: -40, scale: 1.08, duration: 22.37, ease: "sine.inOut" },
+          0,
+        );
+        tl.fromTo(
+          "#blob-green",
+          { x: 0, y: 0, scale: 1 },
+          { x: -50, y: 50, scale: 1.05, duration: 22.37, ease: "sine.inOut" },
+          0,
+        );
+        tl.fromTo(
+          "#blob-coral",
+          { x: 0, y: 0, scale: 1 },
+          { x: 40, y: -60, scale: 1.1, duration: 22.37, ease: "sine.inOut" },
+          0,
+        );
+
+        // Subtle audio-reactive glow: background blob opacity breathes with
+        // the music's bass band. Per hyperframes-creative's audio-reactive
+        // workflow — per-frame sampling via tl.call, no waveform/EQ visuals.
+        if (window.AUDIO_DATA && window.AUDIO_DATA.frames && window.AUDIO_DATA.frames.length) {
+          var AD = window.AUDIO_DATA;
+          var blobGold = document.getElementById("blob-gold");
+          var blobGreen = document.getElementById("blob-green");
+          var blobCoral = document.getElementById("blob-coral");
+          var totalF = Math.min(AD.totalFrames, Math.round(22.37 * AD.fps));
+          for (var f = 0; f < totalF; f++) {
+            (function (frame) {
+              var bass = (frame.bands && frame.bands[0]) || 0;
+              var op = 0.34 + bass * 0.14; // 0.34 - 0.48, subtle breathing only
+              tl.call(
+                function () {
+                  blobGold.style.opacity = op.toFixed(3);
+                  blobGreen.style.opacity = (op * 0.92).toFixed(3);
+                  blobCoral.style.opacity = (op * 0.96).toFixed(3);
+                },
+                [],
+                f / AD.fps,
+              );
+            })(AD.frames[f]);
+          }
+        }
+
+        /* ============ Scene 2: Arena (starts at global 3.00) ============ */
+        var S2 = 3.0;
+        tl.fromTo(
+          "#arena-card",
+          { opacity: 0, y: 26 },
+          { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+          S2 + 0.0,
+        );
+        tl.fromTo(
+          "#arena-caption",
+          { opacity: 0 },
+          { opacity: 1, duration: 0.5, ease: "power2.out" },
+          S2 + 0.3,
+        );
+        tl.fromTo(
+          "#streak-pill",
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
+          S2 + 0.3,
+        );
+
+        // GP counter ticking down 200 -> 160 over 4.8s, deterministic numeric
+        // tween via onUpdate (no Math.random / Date.now).
+        var gpEl = document.getElementById("gp-number");
+        var gpState = { val: 200 };
+        tl.to(
+          gpState,
+          {
+            val: 160,
+            duration: 4.8,
+            ease: "none",
+            onUpdate: function () {
+              gpEl.textContent = Math.round(gpState.val);
+            },
+          },
+          S2 + 0.5,
+        );
+
+        // Correct-answer payoff: GP snaps up, flashes green, beat-locked to
+        // land right around the 8.74s strong cue (SFX fires at 8.70s).
+        // beat-locked: 8.70s (target cue 8.74s, within tolerance)
+        tl.to(
+          gpState,
+          {
+            val: 195,
+            duration: 0.35,
+            ease: "power2.out",
+            onUpdate: function () {
+              gpEl.textContent = Math.round(gpState.val);
+            },
+          },
+          S2 + 5.35,
+        );
+        tl.fromTo(
+          gpEl,
+          { color: "#ffc23d" },
+          { color: "#4ff0a0", duration: 0.18, yoyo: true, repeat: 1, ease: "power1.inOut" },
+          S2 + 5.35,
+        );
+
+        // Confetti burst (adapted from the catalog "confetti" primitive:
+        // deterministic seeded particles via cos/sin of index, not
+        // Math.random).
+        (function buildConfetti() {
+          var wrap = document.getElementById("confetti-wrap");
+          var colors = ["var(--gold)", "var(--green)", "var(--coral)"];
+          var n = 14;
+          var particles = [];
+          for (var i = 0; i < n; i++) {
+            var p = document.createElement("span");
+            p.className = "particle";
+            p.style.setProperty("--c", colors[i % colors.length]);
+            wrap.appendChild(p);
+            particles.push(p);
+          }
+          tl.fromTo(
+            particles,
+            { "--hf-po": 0, "--hf-px": "0px", "--hf-py": "0px", "--hf-pr": "0deg" },
+            {
+              "--hf-po": 1,
+              "--hf-px": function (i) {
+                return Math.cos(i * 0.9) * 170 + "px";
+              },
+              "--hf-py": function (i) {
+                return -60 - Math.sin(i * 0.7) * 140 + "px";
+              },
+              "--hf-pr": function (i) {
+                return 160 + i * 41 + "deg";
+              },
+              duration: 0.7,
+              stagger: 0.012,
+              ease: "power2.out",
+            },
+            S2 + 5.35,
+          );
+          tl.to(particles, { "--hf-po": 0, duration: 0.3, ease: "power1.in" }, S2 + 5.6);
+        })();
+
+        /* ============ Scene 3: diagnosis title (starts at global 8.74) ============ */
+        var S3 = 8.74;
+        tl.fromTo(
+          "#diagnosis-title",
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+          S3 + 0.0,
+        );
+        // grid-card-assemble sub-composition handles its own 5-row reveal
+        // via its "cues" variable (0.55/1.63/2.72/3.81/4.90 local seconds,
+        // matching the 9.29/10.37/11.46/12.55/13.64s beat-grid).
+
+        /* ============ Scene 4: 14-day plan (starts at global 15.29) ============ */
+        var S4 = 15.29;
+        tl.fromTo(
+          "#plan-caption",
+          { opacity: 0, y: 16 },
+          { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
+          S4 + 0.0,
+        );
+
+        (function buildPlanRow() {
+          var row = document.getElementById("plan-row");
+          var n = 14;
+          var blocks = [];
+          for (var i = 0; i < n; i++) {
+            var b = document.createElement("div");
+            b.className = "plan-block" + (i === n - 1 ? " final" : "");
+            b.textContent = String(i + 1);
+            row.appendChild(b);
+            blocks.push(b);
+          }
+          // Accelerating cascade: early blocks spaced out, later blocks land
+          // closer together, final block (Day 14) resolving right on the
+          // 17.47s strong cue.
+          // beat-locked: 17.47s (Day 14 resolve)
+          var lastLocal = 2.18; // S4 + 2.18 = 17.47
+          var firstLocal = 0.3;
+          blocks.forEach(function (block, i) {
+            var t = i === 0 ? firstLocal : firstLocal + (lastLocal - firstLocal) * Math.pow(i / (n - 1), 0.6);
+            tl.fromTo(
+              block,
+              { opacity: 0, scale: 0.7 },
+              { opacity: 1, scale: 1, duration: 0.22, ease: "power2.out" },
+              S4 + t,
+            );
+          });
+          tl.fromTo(
+            blocks[n - 1],
+            { boxShadow: "0 0 0px rgba(255,194,61,0)" },
+            { boxShadow: "0 0 34px rgba(255,194,61,0.75)", duration: 0.3, ease: "power2.out" },
+            S4 + lastLocal,
+          );
+          tl.fromTo(
+            "#plan-sublabel-early",
+            { opacity: 0 },
+            { opacity: 1, duration: 0.25 },
+            S4 + 0.35,
+          );
+          tl.to("#plan-sublabel-early", { opacity: 0, duration: 0.25 }, S4 + 1.1);
+          tl.fromTo(
+            "#plan-sublabel-final",
+            { opacity: 0 },
+            { opacity: 1, duration: 0.25 },
+            S4 + lastLocal + 0.05,
+          );
+        })();
+
+        /* ============ Scene 5: outro (starts at global 18.41) ============ */
+        var S5 = 18.41;
+        // beat-locked: 18.56s (wordmark slam, 0.15s into the scene)
+        tl.fromTo(
+          "#wordmark",
+          { opacity: 0, scale: 1.28 },
+          { opacity: 1, scale: 1, duration: 0.32, ease: "back.out(1.7)" },
+          S5 + 0.15,
+        );
+        tl.fromTo(
+          "#outro-tagline",
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
+          S5 + 0.65,
+        );
+        // True hard cut: an instantaneous swap (gsap.set, not overlapping
+        // tweens) so the two strings are never simultaneously partially
+        // visible in the same spot — two opposing opacity fades of that
+        // length rendered as a garbled crossfade in review snapshots.
+        tl.set("#outro-tagline", { opacity: 0 }, S5 + 2.05);
+        tl.set("#outro-url", { opacity: 1 }, S5 + 2.05);
+
+        tl.seek(0);
+        window.__timelines = window.__timelines || {};
+        window.__timelines["prodjee-brag"] = tl;
+      })();
+    </script>
+  </body>
+</html>
