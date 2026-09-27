@@ -495,41 +495,6 @@ select,.field input[type=text],.field input[type=number],.field input[type=date]
 .page-back:hover{color:var(--ink);transform:translateX(-3px);}
 .helper{font-size:12.5px;color:var(--ink-faint);margin-top:20px;}
 .empty{text-align:center;padding:44px 20px;color:var(--ink-soft);border:1px dashed var(--border);border-radius:14px;background:var(--surface);}
-.pwa-install-wrap{
-  position:fixed;right:18px;bottom:18px;z-index:60;
-  display:inline-flex;align-items:center;gap:2px;
-  border-radius:99px;
-  box-shadow:0 8px 24px hsl(var(--shadow-color) / .4);
-}
-/* The [hidden] attribute alone loses to the class's own `display`
-   declaration above (a class selector always beats the UA stylesheet's
-   [hidden]{display:none}), so toggling .hidden on/off silently stopped
-   doing anything after the first time - this restores it. */
-.pwa-install-wrap[hidden]{display:none;}
-.pwa-install-btn{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:11px 18px;border-radius:99px 0 0 99px;border:none;
-  background:var(--primary);color:var(--on-primary);
-  font-family:var(--sans);font-weight:700;font-size:13.5px;
-  cursor:pointer;
-  transition:background .15s, transform .15s;
-}
-.pwa-install-btn:hover{background:var(--primary-strong);}
-.pwa-install-close{
-  border:none;background:var(--primary);color:var(--on-primary);
-  border-radius:0 99px 99px 0;padding:11px 14px 11px 6px;
-  font-size:15px;line-height:1;cursor:pointer;opacity:.85;
-}
-.pwa-install-close:hover{opacity:1;}
-@media (max-width:640px){
-  .pwa-install-btn{padding:10px 14px;font-size:13px;}
-  .pwa-install-close{padding:10px 12px 10px 4px;}
-}
-/* Reserved only while the install pill is actually showing (toggled in
-   JS), so it can never sit on top of the last field or button on a short
-   mobile screen, without leaving permanent dead space for everyone else
-   (most browsers never fire beforeinstallprompt at all). */
-body.pwa-install-visible .shell.page, body.pwa-install-visible .shell-wide.page{ padding-bottom: 64px; }
 @media (max-width:640px){
   .catrow{flex-direction:column;gap:8px;}
   .catrank{width:auto;}
@@ -586,10 +551,6 @@ body.pwa-install-visible .shell.page, body.pwa-install-visible .shell-wide.page{
     <button class="side-link" data-action="openProfile">My Mocks</button>
   </nav>
   <div id="app"></div>
-</div>
-<div id="pwaInstallWrap" class="pwa-install-wrap" hidden>
-  <button id="pwaInstallBtn" class="pwa-install-btn">⬇ Install app</button>
-  <button id="pwaInstallDismiss" class="pwa-install-close" aria-label="Dismiss install prompt" title="Not now">×</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -2278,57 +2239,9 @@ document.getElementById('app').addEventListener('error', function(e){
   }
 }, true);
 
-/* ---------------- PWA install + offline support ---------------- */
-var deferredInstallPrompt = null;
-var PWA_DISMISS_KEY = 'mtm_installDismissed';
-function hidePwaInstall(){
-  var wrap = document.getElementById('pwaInstallWrap');
-  if(wrap) wrap.hidden = true;
-  document.body.classList.remove('pwa-install-visible');
-}
-window.addEventListener('beforeinstallprompt', function(e){
-  e.preventDefault();
-  var dismissed = false;
-  try{ dismissed = localStorage.getItem(PWA_DISMISS_KEY) === '1'; }catch(err){}
-  if(dismissed) return;
-  deferredInstallPrompt = e;
-  var wrap = document.getElementById('pwaInstallWrap');
-  if(wrap){ wrap.hidden = false; document.body.classList.add('pwa-install-visible'); }
-});
-var pwaBtn = document.getElementById('pwaInstallBtn');
-if(pwaBtn){
-  pwaBtn.addEventListener('click', function(){
-    if(!deferredInstallPrompt) return;
-    deferredInstallPrompt.prompt();
-    deferredInstallPrompt.userChoice.finally(function(){
-      deferredInstallPrompt = null;
-      hidePwaInstall();
-    });
-  });
-}
-var pwaDismissBtn = document.getElementById('pwaInstallDismiss');
-if(pwaDismissBtn){
-  pwaDismissBtn.addEventListener('click', function(){
-    try{ localStorage.setItem(PWA_DISMISS_KEY, '1'); }catch(err){}
-    hidePwaInstall();
-  });
-}
-window.addEventListener('appinstalled', hidePwaInstall);
-if('serviceWorker' in navigator){
-  window.addEventListener('load', function(){
-    navigator.serviceWorker.register('/sw.js').catch(function(){ /* offline caching unavailable - app still works online */ });
-  });
-  // A stale cached bundle here isn't just cosmetic - it can mean a student sees
-  // an old readiness score or an ungated build. Reload once, automatically,
-  // the moment a newer service worker takes control, instead of waiting for a
-  // manual refresh.
-  var swReloaded = false;
-  navigator.serviceWorker.addEventListener('controllerchange', function(){
-    if(swReloaded) return;
-    swReloaded = true;
-    location.reload();
-  });
-}
+/* PWA install prompt + service worker registration now live in
+   assets/pj-core.js, shared by the hub, Arena and here - one copy instead
+   of a different (or missing) implementation per page. */
 
 /* ---------------- keyboard shortcuts: question analysis grid ---------------- */
 document.addEventListener('keydown', function(e){

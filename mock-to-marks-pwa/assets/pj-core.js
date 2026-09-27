@@ -426,7 +426,53 @@
     else if (act === 'profile') { e.preventDefault(); if (!user) { showSignInGate(); return; } location.href = '/#profile'; }
     else if (act === 'resume-drive') { e.preventDefault(); resumeDrive(); }
     else if (act === 'dismiss-banner') { e.preventDefault(); try { sessionStorage.setItem(bannerDismissKey(), '1'); } catch (e2) {} paintBanner(); }
+    else if (act === 'install-app') {
+      if (!deferredInstallPrompt) return;
+      var p = deferredInstallPrompt; deferredInstallPrompt = null;
+      p.prompt(); p.userChoice.finally(hideInstall);
+    }
+    else if (act === 'dismiss-install') { lsSet(INSTALL_DISMISS_KEY, '1'); hideInstall(); }
   });
+
+  /* ---------- PWA install prompt + offline service worker ----------
+     Previously each page rolled its own copy of this (m2m/index.html had
+     one, the hub registered the service worker but never showed a prompt,
+     Arena had neither) - so whether a student ever saw an install option
+     depended entirely on which page they happened to land on first. One
+     copy here means every page behaves the same. */
+  var INSTALL_DISMISS_KEY = 'pj.installDismissed';
+  var deferredInstallPrompt = null;
+  function isStandalone() {
+    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+  }
+  function installWrap() {
+    var w = document.getElementById('pjInstallWrap');
+    if (w) return w;
+    w = document.createElement('div');
+    w.id = 'pjInstallWrap'; w.className = 'pj-install-wrap'; w.hidden = true;
+    w.innerHTML = '<button type="button" class="pj-install-btn" data-pj-act="install-app">⬇ Install app</button>' +
+      '<button type="button" class="pj-install-close" data-pj-act="dismiss-install" aria-label="Dismiss install prompt" title="Not now">×</button>';
+    document.body.appendChild(w);
+    return w;
+  }
+  function hideInstall() { var w = document.getElementById('pjInstallWrap'); if (w) w.hidden = true; }
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    if (isStandalone() || lsGet(INSTALL_DISMISS_KEY) === '1') return;
+    installWrap().hidden = false;
+  });
+  window.addEventListener('appinstalled', function () { deferredInstallPrompt = null; hideInstall(); });
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(function () {}); });
+    // A stale cached bundle isn't just cosmetic - it can mean a student sees
+    // an old readiness score or an ungated build. Reload once, automatically,
+    // the moment a newer service worker takes control.
+    var swReloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (swReloaded) return; swReloaded = true; location.reload();
+    });
+  }
 
   var requireAuth = false, consentShown = false, signingIn = false;
   function startSession(u) {
