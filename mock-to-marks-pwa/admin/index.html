@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Question editor — ProDJEE Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/pj-core.css" />
+  <style>
+    body{background:var(--pj-bg);color:var(--pj-ink);font-family:var(--pj-sans);margin:0;min-height:100vh}
+    .wrap{max-width:760px;margin:0 auto;padding:20px 16px 80px}
+    h1{font-family:var(--pj-serif);font-size:22px;margin:18px 0 4px}
+    .muted{color:var(--pj-ink-soft);font-size:14px}
+    .card{background:var(--pj-glass);border:1px solid var(--pj-border);border-radius:16px;padding:18px;margin-top:16px}
+    label{display:block;font-size:13px;color:var(--pj-ink-soft);margin:14px 0 6px;font-weight:600}
+    label:first-child{margin-top:0}
+    input[type=text],input[type=number],textarea,select{
+      width:100%;box-sizing:border-box;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.35);
+      color:var(--pj-ink);border:1px solid var(--pj-border);font:14px/1.5 var(--pj-sans)}
+    textarea{min-height:80px;resize:vertical}
+    .row{display:flex;gap:10px}
+    .row>*{flex:1}
+    .opt-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}
+    .opt-row input[type=radio]{margin-top:14px;flex:none}
+    .opt-row textarea{min-height:44px}
+    button{font:inherit;cursor:pointer;border:none;border-radius:10px;padding:10px 16px;font-weight:700}
+    .btn-primary{background:var(--pj-gold);color:#221600}
+    .btn-ghost{background:var(--pj-glass-2);color:var(--pj-ink)}
+    .msg{margin-top:14px;padding:10px 12px;border-radius:10px;font-size:14px}
+    .msg.ok{background:color-mix(in srgb, var(--pj-green) 18%, transparent);color:var(--pj-green)}
+    .msg.err{background:color-mix(in srgb, var(--pj-coral) 18%, transparent);color:var(--pj-coral)}
+    .readonly-chip{display:inline-block;font-size:12px;color:var(--pj-ink-soft);background:var(--pj-glass-2);
+      border-radius:99px;padding:3px 10px;margin:0 6px 6px 0}
+    a{color:var(--pj-gold)}
+  </style>
+</head>
+<body>
+  <header class="pj-bar pj-static"><div class="pj-bar-inner">
+    <a class="pj-brand" href="/"><img src="/assets/logo-192.png" alt="ProDJEE logo"><b>Pro<span>DJEE</span></b></a>
+    <span class="muted" style="margin-left:auto">Admin · Question editor</span>
+    <button class="pj-avatar" data-pj-avatar data-pj-act="profile" aria-label="Account"></button>
+  </div></header>
+  <div class="pj-greet" data-pj-greet></div>
+  <div class="wrap">
+    <h1>Fix a reported question</h1>
+    <p class="muted">Paste the Question ID from the report email, load it, edit, save. Saving commits straight to the live question bank and redeploys automatically (usually 1-2 minutes).</p>
+
+    <div class="card" id="gate">
+      <p>Sign in with your admin Google account to continue.</p>
+    </div>
+
+    <div class="card" id="loader" style="display:none">
+      <label for="qid">Question ID</label>
+      <div class="row">
+        <input type="text" id="qid" placeholder="e.g. jm25-0123s2-01" />
+        <button class="btn-primary" id="loadBtn" style="flex:none">Load</button>
+      </div>
+      <div id="loadMsg"></div>
+    </div>
+
+    <form class="card" id="editor" style="display:none"></form>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="/assets/pj-core.js" charset="utf-8"></script>
+  <script>
+  (function () {
+    'use strict';
+    var API_BASE = /(^|\.)prodjee\.in$|\.vercel\.app$/.test(location.hostname) ? '/api' : 'https://m2m-two.vercel.app/api';
+    var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+    var gate = document.getElementById('gate'), loader = document.getElementById('loader'), editorForm = document.getElementById('editor');
+    var qidInput = document.getElementById('qid'), loadMsg = document.getElementById('loadMsg');
+    var current = null; // { file, question }
+
+    function authedFetch(path, payload) {
+      if (!window.PJ || !PJ.user) return Promise.reject(new Error('not signed in'));
+      return PJ.user.getIdToken().then(function (idToken) {
+        return fetch(API_BASE + path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + idToken },
+          body: JSON.stringify(payload)
+        }).then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); });
+      });
+    }
+
+    function renderEditor(file, q) {
+      current = { file: file, question: q };
+      var isMcq = q.type === 'mcq';
+      var opts = isMcq ? q.options : [];
+      var optionsHtml = opts.map(function (o, i) {
+        return '<div class="opt-row">' +
+          '<input type="radio" name="answer" value="' + i + '" ' + (q.answer === i ? 'checked' : '') + ' />' +
+          '<textarea data-opt="' + i + '">' + esc(o) + '</textarea></div>';
+      }).join('');
+      editorForm.innerHTML =
+        '<div>' +
+          '<span class="readonly-chip">ID: ' + esc(q.id) + '</span>' +
+          '<span class="readonly-chip">' + esc(q.exam) + '</span>' +
+          '<span class="readonly-chip">' + esc(q.type) + '</span>' +
+          '<span class="readonly-chip">' + esc(q.source || '') + '</span>' +
+        '</div>' +
+        '<label for="f_subject">Subject</label><input type="text" id="f_subject" value="' + esc(q.subject) + '" />' +
+        '<label for="f_chapter">Chapter</label><input type="text" id="f_chapter" value="' + esc(q.chapter) + '" />' +
+        '<label for="f_diff">Difficulty (1-3)</label><input type="number" id="f_diff" min="1" max="3" value="' + esc(q.difficulty || 1) + '" />' +
+        '<label for="f_q">Question text</label><textarea id="f_q" style="min-height:120px">' + esc(q.q) + '</textarea>' +
+        (isMcq
+          ? '<label>Options (select the correct one)</label><div id="f_options">' + optionsHtml + '</div>'
+          : '<label for="f_answer">Correct numeric answer</label><input type="number" step="any" id="f_answer" value="' + esc(q.answer) + '" />') +
+        '<label for="f_hint">Hint</label><textarea id="f_hint">' + esc(q.hint || '') + '</textarea>' +
+        '<label for="f_solution">Solution</label><textarea id="f_solution">' + esc(q.solution || '') + '</textarea>' +
+        '<label for="f_img">Figure path (img)</label><input type="text" id="f_img" value="' + esc(q.img || '') + '" />' +
+        '<label for="f_imgalt">Figure alt text</label><input type="text" id="f_imgalt" value="' + esc(q.imgAlt || '') + '" />' +
+        '<div style="margin-top:18px;display:flex;gap:10px">' +
+          '<button type="submit" class="btn-primary">Save &amp; deploy</button>' +
+          '<button type="button" class="btn-ghost" id="cancelBtn">Cancel</button>' +
+        '</div>' +
+        '<div id="saveMsg"></div>';
+      editorForm.style.display = '';
+      document.getElementById('cancelBtn').onclick = function () { editorForm.style.display = 'none'; editorForm.innerHTML = ''; current = null; };
+    }
+
+    document.getElementById('loadBtn').addEventListener('click', function () {
+      var id = qidInput.value.trim();
+      if (!id) return;
+      loadMsg.innerHTML = '<p class="muted">Loading…</p>';
+      editorForm.style.display = 'none';
+      authedFetch('/admin-get-question', { id: id }).then(function (r) {
+        if (r.status === 200 && r.body.ok) { loadMsg.innerHTML = ''; renderEditor(r.body.file, r.body.question); }
+        else loadMsg.innerHTML = '<div class="msg err">' + esc((r.body && r.body.error) || 'Could not load that question.') + '</div>';
+      }).catch(function () { loadMsg.innerHTML = '<div class="msg err">Network error - try again.</div>'; });
+    });
+
+    editorForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!current) return;
+      var q = current.question;
+      var edit = {
+        q: document.getElementById('f_q').value,
+        subject: document.getElementById('f_subject').value,
+        chapter: document.getElementById('f_chapter').value,
+        difficulty: +document.getElementById('f_diff').value,
+        hint: document.getElementById('f_hint').value,
+        solution: document.getElementById('f_solution').value,
+        img: document.getElementById('f_img').value,
+        imgAlt: document.getElementById('f_imgalt').value
+      };
+      if (q.type === 'mcq') {
+        edit.options = Array.prototype.map.call(editorForm.querySelectorAll('[data-opt]'), function (t) { return t.value; });
+        var checked = editorForm.querySelector('input[name=answer]:checked');
+        edit.answer = checked ? +checked.value : q.answer;
+      } else {
+        edit.answer = +document.getElementById('f_answer').value;
+      }
+      var saveMsg = document.getElementById('saveMsg');
+      saveMsg.innerHTML = '<p class="muted">Saving and committing…</p>';
+      authedFetch('/admin-save-question', { id: q.id, file: current.file, question: edit }).then(function (r) {
+        if (r.status === 200 && r.body.ok) {
+          saveMsg.innerHTML = '<div class="msg ok">Saved. Deploying now' + (r.body.commitUrl ? ' - <a href="' + esc(r.body.commitUrl) + '" target="_blank" rel="noopener">view commit</a>' : '') + '.</div>';
+        } else {
+          saveMsg.innerHTML = '<div class="msg err">' + esc((r.body && r.body.error) || 'Save failed.') + '</div>';
+        }
+      }).catch(function () { saveMsg.innerHTML = '<div class="msg err">Network error - try again.</div>'; });
+    });
+
+    if (window.PJ) {
+      PJ.onChange(function (u) {
+        if (u) { gate.style.display = 'none'; loader.style.display = ''; }
+        else { gate.style.display = ''; loader.style.display = 'none'; editorForm.style.display = 'none'; PJ.requireSignIn(); }
+      });
+    }
+  })();
+  </script>
+</body>
+</html>
