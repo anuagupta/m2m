@@ -1,5 +1,14 @@
 # Hyperframes Composition Brief: ProDJEE
 
+> **v2 note:** this brief describes the original 22.4s all-recreated cut. The
+> shipped composition is v2 (42.02s, 9 scenes): real Playwright screenshots of
+> the live app replace several recreated scenes, the real `assets/logo.png`
+> replaces the hand-drawn wordmark, and the music track changed to the more
+> energetic `vol-1`. See `../brag-plan.md` → "Revision v2" and its updated
+> Storyboard for the authoritative v2 creative record; treat the rest of this
+> file as background on the original approach and the still-current visual
+> identity/palette.
+
 ## Objective
 Create a short, cinematic launch-style brag video for ProDJEE (prodjee.in) — a JEE/NEET exam-prep product with two linked tools, Arena (gamified real-PYQ practice) and Mock-to-Marks (diagnoses exactly why a student is losing marks and builds a 14-day recovery plan).
 

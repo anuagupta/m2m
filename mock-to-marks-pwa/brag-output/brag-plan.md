@@ -1,5 +1,15 @@
 # Brag Plan: ProDJEE
 
+## Revision v2 (per user feedback)
+The first cut (22.4s, all-recreated UI, invented "Pro"/"DJEE" text wordmark, restrained vol-12 track) was reworked on request to be:
+- **Longer and more dynamic**: 22.4s → 42.0s, 5 scenes → 9 scenes.
+- **Real app footage**: added 4 real Playwright screenshots of the live app (Home hub, Arena dashboard, Mock-to-Marks diagnosis — the actual radar-chart readiness index, and the actual 14-day plan screen) with Ken Burns motion, replacing an invented "six reasons" list that undersold what the diagnosis screen actually looks like.
+- **More enthusiastic music**: swapped `happy-beats-...-vol-12` (restrained, 110 BPM) for `happy-beats-...-vol-1` (the catalog's most energetic track, 120 BPM), re-analyzed for real beat/strong-cue data, and raised the volume envelope (was capped ~0.4, now peaks at 0.5).
+- **Real logo**: the outro now shows the project's actual `assets/logo.png` (the "Pro/D+stethoscope/JEE+hardhat" mark — medicine + engineering pun) instead of a hand-drawn text wordmark with guessed colors.
+- **New stat-montage scene**: three quick number hits (2,891 / 6 / 14) added for extra dynamism between the recreated plan visualization and the outro.
+
+The recreated GP-counter-payoff and 14-day-block scenes were kept — they show the product *in motion* (a thing no static screenshot can do), now placed alongside the real screenshots rather than instead of them. Updated storyboard below reflects v2; scene numbers and timings are new cue-locked values from the vol-1 track's actual beat analysis (not estimates).
+
 ## What is this app?
 ProDJEE is two linked JEE/NEET exam-prep tools under one sign-in: Arena, which turns 2,891 verified real past-year questions into a scored, streak-based game, and Mock-to-Marks, which takes a student's mock-test score and tells them the exact root cause of every lost mark, then builds a 14-day recovery plan around it.
 
@@ -29,7 +39,7 @@ Both are real in-product flows, not landing-page sections — they are the cente
 - Interpretation: dramatic reveals over quick cuts (3-5s per scene), short declarative lines that land and hold, full-bleed dark navy scenes with the product's own gold/coral/green light as the only color accents, restrained but confident motion (slow scale-in reveals, one hard hit on the wordmark) — never jokey, never corporate-soft.
 
 ## Format: landscape — 1920x1080
-## Duration: 22.37s (beat-locked to the vol-12 cue grid; see Storyboard)
+## Duration: 42.02s (v2 — beat-locked to the vol-1 cue grid; see Storyboard)
 
 ## Visual identity (from the project)
 - Background: #0a0b14 (deep-space navy, `--pj-bg` / `--bg`)
@@ -42,60 +52,60 @@ Both are real in-product flows, not landing-page sections — they are the cente
 ## Share copy (draft)
 Stuck at the same JEE/NEET mock score? ProDJEE tells you exactly which of 6 reasons is costing you marks — then builds your 14-day fix. prodjee.in
 
-## Audio direction
-- Role: cinematic support with a building swell
-- Music: a cinematic/trailer-leaning bed from the bundled library — dark, low, rising rather than upbeat/bright; picked at composition time from `<skill-dir>/assets/music` for the closest match to "tense build → confident resolve"
-- Music treatment: starts near-silent under the hook line, swells through the reveal, sustains under the two product highlights with a restrained beat-matched lift on the GP-gain and diagnosis-reveal moments, peaks into the wordmark hit, short tail under the outro hold
-- Music cue guidance: to be detected at composition time (custom track selection) via `npx hyperframes beats`; target one strong cue at the wordmark slam (~17-18s) and one at the GP-counter payoff (~9-10s); sequential reveals (the six-reason stack) should snap to every other beat, not every beat, so each label holds long enough to read
-- Audio-reactive treatment: subtle — the background blobs' glow/opacity may breathe with the music's low end; no waveform bars, no literal visualizer
-- SFX posture: moderate, motion-matched, never comedic — a soft low tick under the GP countdown, a bright but brief chime + confetti pop on the correct answer, a card-arrival thud for each of the six diagnosis rows, one clean low impact under the wordmark slam
-- Audio-coupled moments: GP counter ticking down (tick SFX matched to the visual count), the six-reason stack arriving one row at a time (thud per row, spaced to the beat-grid, not every beat), the wordmark hard-hit landing on a music accent
-- Restraint rule: no comedic stingers, no bright pop/EDM energy — this stays low, dark, and confident throughout; the swell should never fully resolve into something upbeat, it resolves into calm confidence
+## Audio direction (v2)
+- Role: energetic, enthusiastic support — a real upgrade from v1's restrained cinematic bed, per explicit feedback
+- Music: `happy-beats-business-moves-vol-1-by-ende-dot-app.mp3` — the catalog's most energetic bundled track (120.19 BPM), re-analyzed directly (not just its 25s planning-window summary) to get real beat/strong-cue data out to 45s
+- Music treatment: quiet under the pre-beat hook (0-3s, matching the track's own quiet intro before the beat grid starts at 3.02s), then present and driving from the first screenshot onward; volume envelope now peaks at 0.5 (v1 capped at 0.4) with lifts at every major reveal
+- Music cue guidance: real `strongCues`/`beats` arrays pulled from the track's own analysis JSON (not estimated) — see per-scene beat-locks below; the track's detected strong-cue energy is concentrated in a 16-29s span, so the biggest visual beats (GP payoff, diagnosis reveal, plan reveal) were placed there deliberately
+- Audio-reactive treatment: subtle — background blobs breathe with the bass band, unchanged approach from v1, still no waveform/visualizer
+- SFX posture: still motion-matched and not comedic, but denser than v1 (9 scenes now have their own accent) — one reserved big bell hit stays on the final logo slam only
+- Restraint rule: unchanged — no comedic stingers; "more enthusiastic" means fuller and louder, not silly
 
-## Storyboard
+## Storyboard (v2 — 9 scenes, 42.02s)
 
 ### Scene 1 — Hook — 3.00s (0.00s–3.00s global)
-Full-bleed navy (#0a0b14), blobs barely visible/still. "EVERY MARK COUNTS." (Fraunces, heavy, full-bleed, ink white) slams in and holds. In the last half-second the line's ink starts to drain/dissolve at the edges, revealing motion starting behind it.
-Sequential/interaction: none
-Audio intent: tense, quiet, held breath
-Audio-coupled idea: the line's entrance lands exactly on a low music hit
-Music: cinematic bed, near-silent, low drone starting
-Transition mood: dramatic → Scene 2
+Unchanged from v1. Full-bleed navy, "EVERY MARK COUNTS." slams in on the headline-slam primitive, plays through the track's own quiet pre-beat intro.
+Transition mood: dramatic → Scene 2 (lands right as the music's beat grid starts, 3.02s)
 
-### Scene 2 — Reveal / Arena — 5.74s (3.00s–8.74s global)
-The dissolve completes into a live Arena question card: real PYQ text, the Gyan-Points counter visibly ticking down (200→~160 across the scene), a 🔥 streak pill. Student "answers" (simulated tap) — counter freezes, GP snaps upward with a green flash, confetti bursts, streak pill increments, all landing together right on the beat. Small label beneath: "2,891 real PYQs · verified against the official key."
-Sequential/interaction: yes — counter ticks down continuously, then the tap-answer-correct sequence fires as one beat (tap → GP jump → confetti → streak tick) at the very end of the scene, each sub-step distinct
-Audio intent: rising tension into a rewarding payoff
-Audio-coupled idea: soft tick per counter decrement, then a bright chime + confetti pop on the correct answer, landing on the strongest cue in the opening 10s — // beat-locked: 8.74s
-Music: cinematic bed building, first beat-locked accent on the GP payoff
-Transition mood: dramatic wipe → Scene 3
+### Scene 2 — Real screenshot: Home — 4.00s (3.00s–7.00s global)
+An actual Playwright screenshot of prodjee.in's signed-out home hub (hero line, Arena/Mock-to-Marks cards) — not a recreation. Slow Ken Burns zoom-in (scale 1.0→1.12). Label pill fades in: "prodjee.in".
+Audio-coupled idea: a soft reveal drop as the scene cuts in, right on the beat grid (3.0s)
+Transition mood: clean cut → Scene 3
 
-### Scene 3 — Mock-to-Marks diagnosis — 6.55s (8.74s–15.29s global)
-Hard cut to a mock score card, then the "six reasons you lose marks" stack resolves top to bottom: Language, Approach, Formula recall, Calculation slips, Time — each row arriving with a marks-lost tag, ranked highest-loss first. Headline over/under the stack: "Six reasons. One diagnosis." Holds on the full resolved stack for 1.65s before transitioning.
-Sequential/interaction: yes — 5 rows arrive one by one on beat-grid points 9.29s, 10.37s, 11.46s, 12.55s, 13.64s (every other beat of the 109.96 BPM grid, ~1.08s apart — fast enough to feel alive, slow enough to read each label), then the full stack holds to 15.29s
-Audio intent: focused, revealing, matter-of-fact confidence
-Audio-coupled idea: one soft card-thud per row arrival, on each beat-grid timestamp above — // beat-grid: row 1 at 9.29s, row 2 at 10.37s, row 3 at 11.46s, row 4 at 12.55s, row 5 at 13.64s
-Music: sustained cinematic bed, steady
-Transition mood: clean wipe → Scene 4
+### Scene 3 — Real screenshot: Arena dashboard — 4.00s (7.00s–11.00s global)
+Real screenshot of the actual Arena dashboard (GP total, daily-goal ring, streak dots, subject cards, badge strip). Ken Burns zoom+pan toward the "Play JEE Arena" CTA (scale 1.0→1.18, slight xPercent/yPercent drift). Label: "Arena — 2,891 real PYQs".
+Transition mood: hard cut → Scene 4 (into the live recreation of this exact product, in motion)
 
-### Scene 4 — 14-day plan — 3.12s (15.29s–18.41s global)
-The ranked stack compresses into a horizontal sequence of 14 day-blocks; the first few fill in with short labels (e.g. "Day 1 · Formula drill"), then fast-forward-fills to "Day 14" glowing gold, resolving right on the 17.47s strong cue. Line beneath: "A 14-day plan built on your actual gaps."
-Sequential/interaction: yes — day blocks fill left to right in an accelerating sequence, ending on Day 14 holding
-Audio intent: momentum, resolution approaching
-Audio-coupled idea: quick tick-tick-tick as day blocks fill, resolving into a held tone right on the beat — // beat-locked: 17.47s
-Music: swell rising toward peak
-Transition mood: dramatic → Scene 5
+### Scene 4 — Arena live: GP counter + payoff — 6.02s (11.00s–17.02s global)
+Recreated (not a screenshot) because this is the one thing a screenshot can't show: the product *working*. Real PYQ-style question, Gyan-Points counter ticking 200→158, then the correct-answer payoff — GP snaps to 193, green flash, 16-particle confetti burst.
+Audio-coupled idea: sparse counter tick mid-scene (14.0s); payoff tween lands at 16.97s, chime fires there — 0.05s ahead of the strongest cue in the track's whole build. // beat-locked: 17.02s
+Transition mood: hard cut, exactly on the beat → Scene 5
 
-### Scene 5 — Outro / wordmark — 3.96s (18.41s–22.37s global)
-Hard cut to full-bleed navy. "Pro" (ink white) + "DJEE" (gold) wordmark slams to full scale on the music's peak hit, small logo mark beside it — the slam lands on the 18.56s strong cue, 0.15s into the scene. Tagline beneath: "JEE/NEET prep that actually moves your marks." Hold, then a clean cut reveals "prodjee.in" and holds to the end (22.37s, itself a strong cue).
-Sequential/interaction: none (single hard slam-in, then a clean secondary reveal of the URL)
-Audio intent: payoff, confident close
-Audio-coupled idea: the wordmark's entrance lands on the music's peak/impact — // beat-locked: 18.56s
-Music: peak impact, then a short tail fading under the URL hold
-Transition mood: hard cut → end
+### Scene 5 — Real screenshot: Mock-to-Marks diagnosis — 6.00s (17.02s–23.02s global)
+Real screenshot of the actual diagnosis screen — the readiness-index radar chart and ranked priority list (Approach/Time management/etc. with score, questions-affected, marks-recoverable). This replaced v1's invented "six reasons" list, which undersold what the real screen actually looks like. Ken Burns zoom-in (scale 1.0→1.15) over the full 6s. Label: "Mock-to-Marks — see exactly where marks leak".
+Transition mood: clean cut, on the 23.02s strong cue → Scene 6
 
-**Total duration: 22.37s** (3.00 + 5.74 + 6.55 + 3.12 + 3.96)
+### Scene 6 — Real screenshot: 14-day plan — 5.00s (23.02s–28.02s global)
+Real screenshot of the actual day-by-day plan screen (drill cards, durations, "assigned because X was a recurring pattern"). Slow simulated-scroll Ken Burns (yPercent drift, constant scale 1.08). Label: "Your 14-day recovery plan".
+Transition mood: clean cut → Scene 7
 
-**Music mood for this video:** cinematic
-**Music cue source:** `happy-beats-business-moves-vol-12-by-ende-dot-app.mp3` bundled preset (109.96 BPM) — chosen over the more upbeat vol-1/9/10/11 tracks because the plan calls for "steady and clean," not bright/corporate energy.
-**Audio summary:** A low cinematic bed opens near-silent under the hook, builds through the Arena payoff (beat-locked 8.74s) and the diagnosis reveal (beat-grid 9.29s–13.64s), lifts through the 14-day resolve (beat-locked 17.47s), peaks on the wordmark slam (beat-locked 18.56s), then holds to a confident close at the 22.37s cue — restrained motion-matched SFX throughout, no bright or comedic accents.
+### Scene 7 — 14-day plan blocks (recreated) — 4.00s (28.02s–32.02s global)
+A stylized bridge from the literal screenshot to an abstract "progress" visualization: 14 day-blocks cascade in, accelerating, Day 14 resolving with a gold glow.
+Audio-coupled idea: cascade lands on the 30.52s beat-grid point (not a strong cue, but on-beat). // beat-grid: day-14 resolve at 30.52s
+Transition mood: clean cut → Scene 8
+
+### Scene 8 — Stat montage (new in v2) — 4.00s (32.02s–36.02s global)
+Three big numbers, each a hard cut on the beat grid, no crossfade: "2,891 real PYQs, verified against the official key" → "6 reasons students lose marks — pinpointed, ranked" → "14 days to close the gap". Added specifically for more dynamism per feedback.
+Audio-coupled idea: each number lands on a beat-grid point — 32.02s / 33.53s / 35.02s
+Transition mood: clean cut → Scene 9
+
+### Scene 9 — Outro: real logo — 6.00s (36.02s–42.02s global)
+The actual `assets/logo.png` (not a hand-drawn wordmark) slams in — the real "Pro/D+stethoscope/JEE+hardhat" mark, medicine + engineering pun, white/red/green as the logo itself defines them. Tagline settles beneath, then a true hard cut (gsap.set, not a crossfade — a v1 bug where two overlapping opacity tweens rendered as garbled overlapping text) swaps it for "prodjee.in", held to the end.
+Audio-coupled idea: slam lands essentially at the scene's first frame — 36.03s, a beat-grid point. This is the one reserved big-bell SFX hit in the whole video. // beat-locked: 36.03s
+Transition mood: hard cut → end, URL holds 3.7s
+
+**Total duration: 42.02s** (3.00 + 4.00 + 4.00 + 6.02 + 6.00 + 5.00 + 4.00 + 4.00 + 6.00)
+
+**Music mood for this video:** energetic / enthusiastic (upgraded from "cinematic-restrained" in v1)
+**Music cue source:** `happy-beats-business-moves-vol-1-by-ende-dot-app.mp3`, real analysis JSON (120.19 BPM) — chosen specifically because it's the catalog's most energetic bundled track, per the request for "more enthusiastic" music.
+**Audio summary:** Quiet under the hook (matching the track's own pre-beat intro), then present and driving from 3.0s on, with three real strong-cue-locked hits (17.02s GP payoff, 23.02s plan reveal, 36.03s logo slam) landing on the track's actual detected energy peaks, plus beat-grid-locked accents on the day-14 resolve and each stat-montage number.

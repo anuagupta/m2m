@@ -59,9 +59,8 @@
         --font-display: "Fraunces", Georgia, serif;
         --font-body: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
-        /* Mapped so the installed catalog sub-compositions (grid-card-assemble,
-           headline-slam) pick up ProDJEE's own palette instead of their
-           generic defaults. */
+        /* Mapped so the installed catalog sub-composition (headline-slam)
+           picks up ProDJEE's own palette instead of its generic defaults. */
         --brand: var(--gold);
         --accent: var(--coral);
         --accent-2: var(--green);
@@ -81,6 +80,7 @@
       .clip {
         position: absolute;
         inset: 0;
+        overflow: hidden;
       }
       .inner {
         position: absolute;
@@ -124,8 +124,49 @@
         background: radial-gradient(circle, var(--coral) 0%, transparent 68%);
       }
 
-      /* ---------- scene 2: arena ---------- */
-      #scene-arena .inner {
+      /* ---------- real-app screenshot scenes (Ken Burns) ---------- */
+      .shot-inner {
+        position: absolute;
+        inset: 0;
+        will-change: transform;
+      }
+      .shot-img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .shot-vignette {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(10, 11, 20, 0.15) 0%, rgba(10, 11, 20, 0) 22%, rgba(10, 11, 20, 0) 68%, rgba(10, 11, 20, 0.55) 100%);
+        pointer-events: none;
+      }
+      .shot-label {
+        position: absolute;
+        left: 64px;
+        bottom: 56px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-mono);
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: var(--gold-strong);
+        background: rgba(10, 11, 20, 0.55);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 10px 22px;
+        opacity: 0;
+        backdrop-filter: blur(10px);
+      }
+
+      /* ---------- Arena live: GP counter + payoff ---------- */
+      #scene-arena-live .inner {
         z-index: 1;
       }
       .arena-card {
@@ -231,38 +272,8 @@
         opacity: var(--hf-po, 0);
       }
 
-      /* ---------- scene 3: diagnosis ---------- */
-      #scene-diagnosis-title .inner {
-        align-items: flex-start;
-        justify-content: center;
-        padding-top: 130px;
-        z-index: 2;
-      }
-      .diagnosis-title {
-        font-family: var(--font-display);
-        font-weight: 700;
-        font-size: 76px;
-        letter-spacing: -0.01em;
-        color: var(--fg);
-        opacity: 0;
-        text-align: center;
-      }
-      .diagnosis-title em {
-        font-style: normal;
-        color: var(--gold);
-      }
-      #scene-diagnosis-cards {
-        z-index: 1;
-        position: absolute;
-        left: 50%;
-        top: 300px;
-        transform: translateX(-50%);
-        width: 1160px;
-        height: 700px;
-      }
-
-      /* ---------- scene 4: 14-day plan ---------- */
-      #scene-plan .inner {
+      /* ---------- 14-day plan block recreation ---------- */
+      #scene-plan-blocks .inner {
         flex-direction: column;
         gap: 46px;
         z-index: 1;
@@ -311,27 +322,48 @@
         white-space: nowrap;
       }
 
-      /* ---------- scene 5: outro ---------- */
-      #scene-outro .inner {
-        flex-direction: column;
-        gap: 26px;
+      /* ---------- stat montage ---------- */
+      #scene-stats .inner {
         z-index: 1;
       }
-      .wordmark {
+      .stat-block {
+        position: absolute;
+        inset: 0;
         display: flex;
-        align-items: baseline;
-        gap: 6px;
-        font-family: var(--font-display);
-        font-weight: 700;
-        font-size: 168px;
-        letter-spacing: -0.02em;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
         opacity: 0;
       }
-      .wordmark .pro {
-        color: var(--fg);
-      }
-      .wordmark .djee {
+      .stat-number {
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 260px;
+        line-height: 1;
+        letter-spacing: -0.02em;
         color: var(--gold);
+      }
+      .stat-label {
+        font-family: var(--font-body);
+        font-size: 34px;
+        color: var(--ink-soft);
+        text-align: center;
+        max-width: 900px;
+      }
+
+      /* ---------- outro: real logo + tagline + url ---------- */
+      #scene-outro .inner {
+        flex-direction: column;
+        gap: 32px;
+        z-index: 1;
+      }
+      .outro-logo {
+        width: 300px;
+        height: 300px;
+        border-radius: 56px;
+        box-shadow: 0 34px 90px rgba(0, 0, 0, 0.55);
+        opacity: 0;
       }
       .outro-line-wrap {
         position: relative;
@@ -365,17 +397,17 @@
       data-start="0"
       data-width="1920"
       data-height="1080"
-      data-duration="22.37"
+      data-duration="42.02"
       data-fps="30"
     >
       <!-- persistent navy + blob background, runs the whole video -->
-      <div id="bg-blobs" class="clip" data-start="0" data-duration="22.37" data-track-index="0">
+      <div id="bg-blobs" class="clip" data-start="0" data-duration="42.02" data-track-index="0">
         <div class="blob blob-gold" id="blob-gold" data-layout-allow-overflow="true"></div>
         <div class="blob blob-green" id="blob-green" data-layout-allow-overflow="true"></div>
         <div class="blob blob-coral" id="blob-coral" data-layout-allow-overflow="true"></div>
       </div>
 
-      <!-- Scene 1: hook (headline-slam sub-composition) -->
+      <!-- Scene 1: hook — 0.00-3.00 (headline-slam sub-composition) -->
       <div
         id="headline-slam"
         data-composition-id="headline-slam"
@@ -388,8 +420,26 @@
         data-variable-values='{"text":"EVERY MARK COUNTS.","accent_word_index":-1,"accent":"green","shadow":true}'
       ></div>
 
-      <!-- Scene 2: Arena reveal + GP payoff (3.00 - 8.74) -->
-      <section id="scene-arena" class="clip" data-start="3" data-duration="5.74" data-track-index="1">
+      <!-- Scene 2: real Home screenshot — 3.00-7.00 -->
+      <section id="scene-home" class="clip" data-start="3" data-duration="4" data-track-index="1">
+        <div class="shot-inner" id="shot-home-inner" data-layout-allow-overflow="true">
+          <img class="shot-img" src="assets/screenshots/home.png" alt="ProDJEE home" />
+        </div>
+        <div class="shot-vignette"></div>
+        <span class="shot-label" id="label-home">prodjee.in</span>
+      </section>
+
+      <!-- Scene 3: real Arena dashboard screenshot — 7.00-11.00 -->
+      <section id="scene-arena-shot" class="clip" data-start="7" data-duration="4" data-track-index="1">
+        <div class="shot-inner" id="shot-arena-inner" data-layout-allow-overflow="true">
+          <img class="shot-img" src="assets/screenshots/arena.png" alt="Arena dashboard" />
+        </div>
+        <div class="shot-vignette"></div>
+        <span class="shot-label" id="label-arena">Arena — 2,891 real PYQs</span>
+      </section>
+
+      <!-- Scene 4: Arena live — GP counter + payoff — 11.00-17.02 -->
+      <section id="scene-arena-live" class="clip" data-start="11" data-duration="6.02" data-track-index="1">
         <div class="inner">
           <div class="arena-card" id="arena-card">
             <span class="arena-tag">Arena · Free</span>
@@ -407,54 +457,61 @@
                 </p>
               </div>
             </div>
-            <p class="arena-caption" id="arena-caption">2,891 real PYQs · verified against the official key.</p>
+            <p class="arena-caption" id="arena-caption">Every question checked against the official key.</p>
           </div>
         </div>
       </section>
 
-      <!-- Scene 3: Mock-to-Marks diagnosis (8.74 - 15.29) -->
-      <section
-        id="scene-diagnosis-title"
-        class="clip"
-        data-start="8.74"
-        data-duration="6.55"
-        data-track-index="2"
-      >
-        <div class="inner">
-          <h2 class="diagnosis-title" id="diagnosis-title">Six reasons. <em>One diagnosis.</em></h2>
+      <!-- Scene 5: real Mock-to-Marks diagnosis screenshot — 17.02-23.02 -->
+      <section id="scene-diagnosis-shot" class="clip" data-start="17.02" data-duration="6" data-track-index="1">
+        <div class="shot-inner" id="shot-diagnosis-inner" data-layout-allow-overflow="true">
+          <img class="shot-img" src="assets/screenshots/m2m-diagnosis.png" alt="Mock-to-Marks diagnosis" />
         </div>
+        <div class="shot-vignette"></div>
+        <span class="shot-label" id="label-diagnosis">Mock-to-Marks — see exactly where marks leak</span>
       </section>
-      <!-- Plain (non-composition) wrapper so this root-level clip does not
-           receive automatic full-bleed layout; the sub-comp host inside it
-           is nested and keeps its own explicit CSS position/size. -->
-      <div id="scene-diagnosis-cards-wrap" class="clip" data-start="8.74" data-duration="6.55" data-track-index="1">
-        <div
-          id="scene-diagnosis-cards"
-          data-composition-id="grid-card-assemble"
-          data-composition-src="compositions/components/grid-card-assemble.html"
-          data-start="8.74"
-          data-duration="6.55"
-          data-width="1160"
-          data-height="700"
-          style="--bg: transparent"
-          data-variable-values='{"items":"Language: -8 marks,Approach: -6 marks,Formula recall: -5 marks,Calculation slips: -4 marks,Time: -3 marks","layout":"list","cues":"0.55,1.63,2.72,3.81,4.90","accent":"green","exit":"none"}'
-        ></div>
-      </div>
 
-      <!-- Scene 4: 14-day plan (15.29 - 18.41) -->
-      <section id="scene-plan" class="clip" data-start="15.29" data-duration="3.12" data-track-index="1">
+      <!-- Scene 6: real 14-day plan screenshot — 23.02-28.02 -->
+      <section id="scene-plan-shot" class="clip" data-start="23.02" data-duration="5" data-track-index="1">
+        <div class="shot-inner" id="shot-plan-inner" data-layout-allow-overflow="true">
+          <img class="shot-img" src="assets/screenshots/m2m-plan.png" alt="14-day recovery plan" />
+        </div>
+        <div class="shot-vignette"></div>
+        <span class="shot-label" id="label-plan">Your 14-day recovery plan</span>
+      </section>
+
+      <!-- Scene 7: 14-day plan block recreation — 28.02-32.02 -->
+      <section id="scene-plan-blocks" class="clip" data-start="28.02" data-duration="4" data-track-index="1">
         <div class="inner">
-          <p class="plan-caption" id="plan-caption">A 14-day plan built on your actual gaps.</p>
+          <p class="plan-caption" id="plan-caption">Built on your actual gaps — not a generic syllabus.</p>
           <div class="plan-row" id="plan-row"></div>
         </div>
-        <p class="plan-sublabel" id="plan-sublabel-early">Day 1 · Formula drill</p>
+        <p class="plan-sublabel" id="plan-sublabel-early">Day 1 · Approach-building drill</p>
         <p class="plan-sublabel" id="plan-sublabel-final">Day 14 · Full mock, timed</p>
       </section>
 
-      <!-- Scene 5: outro / wordmark (18.41 - 22.37) -->
-      <section id="scene-outro" class="clip" data-start="18.41" data-duration="3.96" data-track-index="1">
+      <!-- Scene 8: stat montage — 32.02-36.02 -->
+      <section id="scene-stats" class="clip" data-start="32.02" data-duration="4" data-track-index="1">
         <div class="inner">
-          <div class="wordmark" id="wordmark"><span class="pro">Pro</span><span class="djee">DJEE</span></div>
+          <div class="stat-block" id="stat-1">
+            <div class="stat-number">2,891</div>
+            <div class="stat-label">real PYQs, verified against the official key</div>
+          </div>
+          <div class="stat-block" id="stat-2">
+            <div class="stat-number">6</div>
+            <div class="stat-label">reasons students lose marks — pinpointed, ranked</div>
+          </div>
+          <div class="stat-block" id="stat-3">
+            <div class="stat-number">14</div>
+            <div class="stat-label">days to close the gap</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scene 9: outro — real logo + tagline + url — 36.02-42.02 -->
+      <section id="scene-outro" class="clip" data-start="36.02" data-duration="6" data-track-index="1">
+        <div class="inner">
+          <img class="outro-logo" id="outro-logo" src="assets/vendor/prodjee-logo.png" alt="ProDJEE" />
           <div class="outro-line-wrap">
             <p class="outro-tagline" id="outro-tagline">JEE/NEET prep that actually moves your marks.</p>
             <p class="outro-url" id="outro-url">prodjee.in</p>
@@ -465,108 +522,70 @@
       <!-- ---------- audio ---------- -->
       <audio
         id="bg-music"
-        src="assets/music/happy-beats-business-moves-vol-12-by-ende-dot-app.mp3"
+        src="assets/music/happy-beats-business-moves-vol-1-by-ende-dot-app.mp3"
         data-start="0"
-        data-duration="22.37"
+        data-duration="42.02"
         data-track-index="10"
-        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0.05},{"t":1.5,"v":0.16},{"t":3,"v":0.3},{"t":8.7,"v":0.34},{"t":15.29,"v":0.34},{"t":18.56,"v":0.4},{"t":20.5,"v":0.3},{"t":22.37,"v":0.16}]}]}'
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0.06},{"t":2.8,"v":0.06},{"t":3.0,"v":0.38},{"t":11.0,"v":0.42},{"t":16.97,"v":0.48},{"t":17.02,"v":0.46},{"t":23.02,"v":0.48},{"t":28.02,"v":0.44},{"t":32.02,"v":0.42},{"t":36.03,"v":0.5},{"t":39.5,"v":0.4},{"t":42.02,"v":0.22}]}]}'
       ></audio>
 
-      <!-- Scene 1 hook: low tone under the slam (approximates the near-silent build) -->
-      <audio
-        id="sfx-hook"
-        src="assets/sfx/impact/impactSoft_medium_001.ogg"
-        data-start="0.15"
-        data-duration="0.18"
-        data-track-index="11"
-        data-volume="0.45"
-      ></audio>
+      <!-- Scene 1 hook: low tone under the slam -->
+      <audio id="sfx-hook" src="assets/sfx/impact/impactSoft_medium_001.ogg" data-start="0.15" data-duration="0.18" data-track-index="11" data-volume="0.45"></audio>
 
-      <!-- Scene 2: counter ticks + GP payoff, beat-locked ~8.70s (cue 8.74s) -->
-      <audio
-        id="sfx-counter-tick"
-        src="assets/sfx/interface/select_008.ogg"
-        data-start="3.5"
-        data-duration="0.05"
-        data-track-index="11"
-        data-volume="0.35"
-      ></audio>
-      <audio
-        id="sfx-gp-payoff"
-        src="assets/sfx/casino/chips-collide-1.ogg"
-        data-start="8.70"
-        data-duration="0.26"
-        data-track-index="12"
-        data-volume="0.8"
-      ></audio>
+      <!-- Scene 2/3: screenshot reveal accents -->
+      <audio id="sfx-home-reveal" src="assets/sfx/interface/drop_001.ogg" data-start="3.0" data-duration="0.11" data-track-index="11" data-volume="0.5"></audio>
+      <audio id="sfx-arena-reveal" src="assets/sfx/interface/drop_002.ogg" data-start="7.0" data-duration="0.18" data-track-index="11" data-volume="0.5"></audio>
 
-      <!-- Scene 3: diagnosis rows, on the beat grid -->
-      <audio id="sfx-row-1" src="assets/sfx/casino/card-place-1.ogg" data-start="9.29" data-duration="0.4" data-track-index="11" data-volume="0.55"></audio>
-      <audio id="sfx-row-2" src="assets/sfx/casino/card-place-1.ogg" data-start="10.37" data-duration="0.4" data-track-index="12" data-volume="0.55"></audio>
-      <audio id="sfx-row-3" src="assets/sfx/casino/card-place-1.ogg" data-start="11.46" data-duration="0.4" data-track-index="13" data-volume="0.55"></audio>
-      <audio id="sfx-row-4" src="assets/sfx/casino/card-place-1.ogg" data-start="12.55" data-duration="0.4" data-track-index="14" data-volume="0.55"></audio>
-      <audio id="sfx-row-5" src="assets/sfx/casino/card-place-1.ogg" data-start="13.64" data-duration="0.4" data-track-index="15" data-volume="0.55"></audio>
+      <!-- Scene 4: counter tick + GP payoff, beat-locked to 17.02s -->
+      <audio id="sfx-counter-tick" src="assets/sfx/interface/select_008.ogg" data-start="14.0" data-duration="0.05" data-track-index="11" data-volume="0.3"></audio>
+      <audio id="sfx-gp-payoff" src="assets/sfx/casino/chips-collide-1.ogg" data-start="16.97" data-duration="0.26" data-track-index="12" data-volume="0.85"></audio>
 
-      <!-- Scene 4: day-14 resolve, beat-locked 17.47s -->
-      <audio
-        id="sfx-day14"
-        src="assets/sfx/impact/impactSoft_medium_001.ogg"
-        data-start="17.47"
-        data-duration="0.18"
-        data-track-index="11"
-        data-volume="0.7"
-      ></audio>
+      <!-- Scene 5: diagnosis reveal, layers onto the same 17.02s hit -->
+      <audio id="sfx-diagnosis-reveal" src="assets/sfx/casino/card-place-1.ogg" data-start="17.02" data-duration="0.4" data-track-index="13" data-volume="0.6"></audio>
 
-      <!-- Scene 5: wordmark slam, beat-locked 18.56s -->
-      <audio
-        id="sfx-wordmark"
-        src="assets/sfx/impact/impactBell_heavy_000.ogg"
-        data-start="18.56"
-        data-duration="1.4"
-        data-track-index="11"
-        data-volume="0.85"
-      ></audio>
+      <!-- Scene 6: plan reveal, beat-locked 23.02s -->
+      <audio id="sfx-plan-reveal" src="assets/sfx/casino/card-fan-1.ogg" data-start="23.02" data-duration="0.5" data-track-index="11" data-volume="0.6"></audio>
+
+      <!-- Scene 7: day-14 resolve, on the beat grid at 30.52s -->
+      <audio id="sfx-day14" src="assets/sfx/impact/impactSoft_medium_001.ogg" data-start="30.52" data-duration="0.18" data-track-index="11" data-volume="0.7"></audio>
+
+      <!-- Scene 8: stat montage ticks, on the beat grid -->
+      <audio id="sfx-stat-1" src="assets/sfx/interface/select_008.ogg" data-start="32.02" data-duration="0.05" data-track-index="11" data-volume="0.5"></audio>
+      <audio id="sfx-stat-2" src="assets/sfx/interface/select_008.ogg" data-start="33.53" data-duration="0.05" data-track-index="12" data-volume="0.5"></audio>
+      <audio id="sfx-stat-3" src="assets/sfx/interface/select_008.ogg" data-start="35.02" data-duration="0.05" data-track-index="13" data-volume="0.5"></audio>
+
+      <!-- Scene 9: logo slam, beat-locked 36.03s — the one reserved big bell hit -->
+      <audio id="sfx-outro-slam" src="assets/sfx/impact/impactBell_heavy_000.ogg" data-start="36.03" data-duration="1.4" data-track-index="11" data-volume="0.9"></audio>
     </div>
 
     <script>
       (function () {
         "use strict";
 
+        var TOTAL = 42.02;
         var tl = gsap.timeline({ paused: true });
 
         /* ============ background blobs: slow drift + subtle audio reactivity ============ */
-        tl.fromTo(
-          "#blob-gold",
-          { x: 0, y: 0, scale: 1 },
-          { x: 60, y: -40, scale: 1.08, duration: 22.37, ease: "sine.inOut" },
-          0,
-        );
-        tl.fromTo(
-          "#blob-green",
-          { x: 0, y: 0, scale: 1 },
-          { x: -50, y: 50, scale: 1.05, duration: 22.37, ease: "sine.inOut" },
-          0,
-        );
-        tl.fromTo(
-          "#blob-coral",
-          { x: 0, y: 0, scale: 1 },
-          { x: 40, y: -60, scale: 1.1, duration: 22.37, ease: "sine.inOut" },
-          0,
-        );
+        tl.fromTo("#blob-gold", { x: 0, y: 0, scale: 1 }, { x: 90, y: -60, scale: 1.1, duration: TOTAL, ease: "sine.inOut" }, 0);
+        tl.fromTo("#blob-green", { x: 0, y: 0, scale: 1 }, { x: -70, y: 70, scale: 1.06, duration: TOTAL, ease: "sine.inOut" }, 0);
+        tl.fromTo("#blob-coral", { x: 0, y: 0, scale: 1 }, { x: 60, y: -80, scale: 1.12, duration: TOTAL, ease: "sine.inOut" }, 0);
 
         // Subtle audio-reactive glow: background blob opacity breathes with
         // the music's bass band. Per hyperframes-creative's audio-reactive
         // workflow — per-frame sampling via tl.call, no waveform/EQ visuals.
+        // Only matters while the blobs are actually visible (the opaque
+        // screenshot scenes paint over them), but sampling the whole video
+        // keeps the loop simple and correct under any future edit.
         if (window.AUDIO_DATA && window.AUDIO_DATA.frames && window.AUDIO_DATA.frames.length) {
           var AD = window.AUDIO_DATA;
           var blobGold = document.getElementById("blob-gold");
           var blobGreen = document.getElementById("blob-green");
           var blobCoral = document.getElementById("blob-coral");
-          var totalF = Math.min(AD.totalFrames, Math.round(22.37 * AD.fps));
+          var totalF = Math.min(AD.totalFrames, Math.round(TOTAL * AD.fps));
           for (var f = 0; f < totalF; f++) {
             (function (frame) {
               var bass = (frame.bands && frame.bands[0]) || 0;
-              var op = 0.34 + bass * 0.14; // 0.34 - 0.48, subtle breathing only
+              var op = 0.34 + bass * 0.16; // 0.34 - 0.50, subtle breathing only
               tl.call(
                 function () {
                   blobGold.style.opacity = op.toFixed(3);
@@ -580,73 +599,56 @@
           }
         }
 
-        /* ============ Scene 2: Arena (starts at global 3.00) ============ */
-        var S2 = 3.0;
-        tl.fromTo(
-          "#arena-card",
-          { opacity: 0, y: 26 },
-          { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
-          S2 + 0.0,
-        );
-        tl.fromTo(
-          "#arena-caption",
-          { opacity: 0 },
-          { opacity: 1, duration: 0.5, ease: "power2.out" },
-          S2 + 0.3,
-        );
-        tl.fromTo(
-          "#streak-pill",
-          { opacity: 0, y: 10 },
-          { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
-          S2 + 0.3,
-        );
+        /* ============ Scene 2: Home screenshot Ken Burns (3.00-7.00) ============ */
+        tl.fromTo("#shot-home-inner", { scale: 1.0 }, { scale: 1.12, duration: 4, ease: "none" }, 3.0);
+        tl.fromTo("#label-home", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 3.35);
 
-        // GP counter ticking down 200 -> 160 over 4.8s, deterministic numeric
-        // tween via onUpdate (no Math.random / Date.now).
+        /* ============ Scene 3: Arena screenshot Ken Burns (7.00-11.00) ============ */
+        tl.fromTo(
+          "#shot-arena-inner",
+          { scale: 1.0, xPercent: 0, yPercent: 0 },
+          { scale: 1.18, xPercent: -3, yPercent: -2, duration: 4, ease: "none" },
+          7.0,
+        );
+        tl.fromTo("#label-arena", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 7.35);
+
+        /* ============ Scene 4: Arena live (starts at global 11.00) ============ */
+        var S4 = 11.0;
+        tl.fromTo("#arena-card", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, S4 + 0.0);
+        tl.fromTo("#arena-caption", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, S4 + 0.3);
+        tl.fromTo("#streak-pill", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, S4 + 0.3);
+
+        // GP counter ticking down 200 -> 158 over the scene, deterministic
+        // numeric tween via onUpdate (no Math.random / Date.now).
         var gpEl = document.getElementById("gp-number");
         var gpState = { val: 200 };
         tl.to(
           gpState,
-          {
-            val: 160,
-            duration: 4.8,
-            ease: "none",
-            onUpdate: function () {
-              gpEl.textContent = Math.round(gpState.val);
-            },
-          },
-          S2 + 0.5,
+          { val: 158, duration: 5.2, ease: "none", onUpdate: function () { gpEl.textContent = Math.round(gpState.val); } },
+          S4 + 0.4,
         );
 
-        // Correct-answer payoff: GP snaps up, flashes green, beat-locked to
-        // land right around the 8.74s strong cue (SFX fires at 8.70s).
-        // beat-locked: 8.70s (target cue 8.74s, within tolerance)
+        // Correct-answer payoff: GP snaps up, flashes green. Tween lands at
+        // 16.97s, 0.05s ahead of the SFX/cut — the strongest cue in the
+        // track's whole build (17.02s, intensity 1.0). // beat-locked: 17.02s
         tl.to(
           gpState,
-          {
-            val: 195,
-            duration: 0.35,
-            ease: "power2.out",
-            onUpdate: function () {
-              gpEl.textContent = Math.round(gpState.val);
-            },
-          },
-          S2 + 5.35,
+          { val: 193, duration: 0.35, ease: "power2.out", onUpdate: function () { gpEl.textContent = Math.round(gpState.val); } },
+          S4 + 5.62,
         );
         tl.fromTo(
           gpEl,
           { color: "#ffc23d" },
           { color: "#4ff0a0", duration: 0.18, yoyo: true, repeat: 1, ease: "power1.inOut" },
-          S2 + 5.35,
+          S4 + 5.62,
         );
 
-        // Confetti burst (adapted from the catalog "confetti" primitive:
-        // deterministic seeded particles via cos/sin of index, not
-        // Math.random).
+        // Confetti burst (deterministic seeded particles via cos/sin of
+        // index, adapted from the catalog "confetti" primitive).
         (function buildConfetti() {
           var wrap = document.getElementById("confetti-wrap");
           var colors = ["var(--gold)", "var(--green)", "var(--coral)"];
-          var n = 14;
+          var n = 16;
           var particles = [];
           for (var i = 0; i < n; i++) {
             var p = document.createElement("span");
@@ -660,44 +662,33 @@
             { "--hf-po": 0, "--hf-px": "0px", "--hf-py": "0px", "--hf-pr": "0deg" },
             {
               "--hf-po": 1,
-              "--hf-px": function (i) {
-                return Math.cos(i * 0.9) * 170 + "px";
-              },
-              "--hf-py": function (i) {
-                return -60 - Math.sin(i * 0.7) * 140 + "px";
-              },
-              "--hf-pr": function (i) {
-                return 160 + i * 41 + "deg";
-              },
-              duration: 0.7,
-              stagger: 0.012,
+              "--hf-px": function (i) { return Math.cos(i * 0.9) * 180 + "px"; },
+              "--hf-py": function (i) { return -60 - Math.sin(i * 0.7) * 150 + "px"; },
+              "--hf-pr": function (i) { return 160 + i * 37 + "deg"; },
+              duration: 0.75,
+              stagger: 0.011,
               ease: "power2.out",
             },
-            S2 + 5.35,
+            S4 + 5.62,
           );
-          tl.to(particles, { "--hf-po": 0, duration: 0.3, ease: "power1.in" }, S2 + 5.6);
         })();
 
-        /* ============ Scene 3: diagnosis title (starts at global 8.74) ============ */
-        var S3 = 8.74;
-        tl.fromTo(
-          "#diagnosis-title",
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
-          S3 + 0.0,
-        );
-        // grid-card-assemble sub-composition handles its own 5-row reveal
-        // via its "cues" variable (0.55/1.63/2.72/3.81/4.90 local seconds,
-        // matching the 9.29/10.37/11.46/12.55/13.64s beat-grid).
+        /* ============ Scene 5: diagnosis screenshot Ken Burns (17.02-23.02) ============ */
+        tl.fromTo("#shot-diagnosis-inner", { scale: 1.0 }, { scale: 1.15, duration: 6, ease: "none" }, 17.02);
+        tl.fromTo("#label-diagnosis", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 17.4);
 
-        /* ============ Scene 4: 14-day plan (starts at global 15.29) ============ */
-        var S4 = 15.29;
+        /* ============ Scene 6: plan screenshot Ken Burns (23.02-28.02) ============ */
         tl.fromTo(
-          "#plan-caption",
-          { opacity: 0, y: 16 },
-          { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
-          S4 + 0.0,
+          "#shot-plan-inner",
+          { scale: 1.08, yPercent: 0 },
+          { scale: 1.08, yPercent: -5, duration: 5, ease: "none" },
+          23.02,
         );
+        tl.fromTo("#label-plan", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 23.37);
+
+        /* ============ Scene 7: 14-day plan blocks (starts at global 28.02) ============ */
+        var S7 = 28.02;
+        tl.fromTo("#plan-caption", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, S7 + 0.0);
 
         (function buildPlanRow() {
           var row = document.getElementById("plan-row");
@@ -710,63 +701,46 @@
             row.appendChild(b);
             blocks.push(b);
           }
-          // Accelerating cascade: early blocks spaced out, later blocks land
-          // closer together, final block (Day 14) resolving right on the
-          // 17.47s strong cue.
-          // beat-locked: 17.47s (Day 14 resolve)
-          var lastLocal = 2.18; // S4 + 2.18 = 17.47
+          // Accelerating cascade landing on the 30.52s beat-grid point.
+          // beat-grid: day-14 resolve at 30.52s
+          var lastLocal = 2.5; // S7 + 2.5 = 30.52
           var firstLocal = 0.3;
           blocks.forEach(function (block, i) {
             var t = i === 0 ? firstLocal : firstLocal + (lastLocal - firstLocal) * Math.pow(i / (n - 1), 0.6);
-            tl.fromTo(
-              block,
-              { opacity: 0, scale: 0.7 },
-              { opacity: 1, scale: 1, duration: 0.22, ease: "power2.out" },
-              S4 + t,
-            );
+            tl.fromTo(block, { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.22, ease: "power2.out" }, S7 + t);
           });
           tl.fromTo(
             blocks[n - 1],
             { boxShadow: "0 0 0px rgba(255,194,61,0)" },
             { boxShadow: "0 0 34px rgba(255,194,61,0.75)", duration: 0.3, ease: "power2.out" },
-            S4 + lastLocal,
+            S7 + lastLocal,
           );
-          tl.fromTo(
-            "#plan-sublabel-early",
-            { opacity: 0 },
-            { opacity: 1, duration: 0.25 },
-            S4 + 0.35,
-          );
-          tl.to("#plan-sublabel-early", { opacity: 0, duration: 0.25 }, S4 + 1.1);
-          tl.fromTo(
-            "#plan-sublabel-final",
-            { opacity: 0 },
-            { opacity: 1, duration: 0.25 },
-            S4 + lastLocal + 0.05,
-          );
+          tl.fromTo("#plan-sublabel-early", { opacity: 0 }, { opacity: 1, duration: 0.25 }, S7 + 0.35);
+          tl.to("#plan-sublabel-early", { opacity: 0, duration: 0.25 }, S7 + 1.3);
+          tl.fromTo("#plan-sublabel-final", { opacity: 0 }, { opacity: 1, duration: 0.25 }, S7 + lastLocal + 0.05);
         })();
 
-        /* ============ Scene 5: outro (starts at global 18.41) ============ */
-        var S5 = 18.41;
-        // beat-locked: 18.56s (wordmark slam, 0.15s into the scene)
-        tl.fromTo(
-          "#wordmark",
-          { opacity: 0, scale: 1.28 },
-          { opacity: 1, scale: 1, duration: 0.32, ease: "back.out(1.7)" },
-          S5 + 0.15,
-        );
-        tl.fromTo(
-          "#outro-tagline",
-          { opacity: 0, y: 10 },
-          { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
-          S5 + 0.65,
-        );
-        // True hard cut: an instantaneous swap (gsap.set, not overlapping
-        // tweens) so the two strings are never simultaneously partially
-        // visible in the same spot — two opposing opacity fades of that
-        // length rendered as a garbled crossfade in review snapshots.
-        tl.set("#outro-tagline", { opacity: 0 }, S5 + 2.05);
-        tl.set("#outro-url", { opacity: 1 }, S5 + 2.05);
+        /* ============ Scene 8: stat montage (starts at global 32.02) ============ */
+        var S8 = 32.02;
+        // True hard cuts between stats (gsap.set, not overlapping tweens) —
+        // an earlier overlapping-opacity swap rendered as garbled text when
+        // two different strings were briefly both partially visible.
+        tl.set("#stat-2", { opacity: 0 }, S8 + 0.0);
+        tl.set("#stat-3", { opacity: 0 }, S8 + 0.0);
+        tl.fromTo("#stat-1", { opacity: 0, scale: 0.92 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(1.6)" }, S8 + 0.0);
+        tl.set("#stat-1", { opacity: 0 }, S8 + 1.51);
+        tl.fromTo("#stat-2", { opacity: 0, scale: 0.92 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(1.6)" }, S8 + 1.51);
+        tl.set("#stat-2", { opacity: 0 }, S8 + 3.0);
+        tl.fromTo("#stat-3", { opacity: 0, scale: 0.92 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(1.6)" }, S8 + 3.0);
+
+        /* ============ Scene 9: outro (starts at global 36.02) ============ */
+        var S9 = 36.02;
+        // beat-locked: 36.03s (logo slam, essentially the scene's first frame)
+        tl.fromTo("#outro-logo", { opacity: 0, scale: 1.26 }, { opacity: 1, scale: 1, duration: 0.34, ease: "back.out(1.7)" }, S9 + 0.01);
+        tl.fromTo("#outro-tagline", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, S9 + 0.55);
+        // True hard cut: instantaneous swap, not overlapping tweens.
+        tl.set("#outro-tagline", { opacity: 0 }, S9 + 2.3);
+        tl.set("#outro-url", { opacity: 1 }, S9 + 2.3);
 
         tl.seek(0);
         window.__timelines = window.__timelines || {};
