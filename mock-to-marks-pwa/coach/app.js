@@ -2,10 +2,18 @@
   'use strict';
   var PROFILE_KEY='prodjee.student.v1', SYLLABUS_KEY='prodjee.syllabus.v1', ARENA_KEY='prodjee.arena.v1';
   var profile=read(PROFILE_KEY,{exam:'',year:2027,targetScore:0});
-  var syllabus=read(SYLLABUS_KEY,{}), arena=read(ARENA_KEY,{});
+  var syllabus=read(SYLLABUS_KEY,{}), arena=read(ARENA_KEY,{}), legacyAnalysis=read('mtm_state_v1',{});
   var $=function(s){return document.querySelector(s);}, esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
   function read(k,f){try{return Object.assign(Array.isArray(f)?[]:{},f,JSON.parse(localStorage.getItem(k)||'null')||{});}catch(e){return f;}}
   function save(k,v){localStorage.setItem(k,JSON.stringify(v));if(window.PJ&&PJ.queueSync)PJ.queueSync();}
+  function migrateLegacyProfile(){
+    if(profile.exam==='JEE'||profile.exam==='NEET')return;
+    var latest=(legacyAnalysis.mocks||[]).slice().sort(function(a,b){return (+b.createdAt||0)-(+a.createdAt||0);})[0];
+    var target=(legacyAnalysis.profile&&legacyAnalysis.profile.examTarget)||'';
+    profile.exam=(arena.exam==='JEE'||arena.exam==='NEET')?arena.exam:(latest&&(latest.exam==='NEET'?'NEET':'JEE'))||(/NEET/i.test(target)?'NEET':/JEE/i.test(target)?'JEE':'');
+    var year=String(target).match(/20\d{2}/);if(year)profile.year=+year[0];
+    if(profile.exam)save(PROFILE_KEY,profile);
+  }
   function toast(t){var e=$('#toast');e.textContent=t;e.style.display='block';setTimeout(function(){e.style.display='none';},2200);}
   function subjects(){return Object.keys((PJ_SUBJECT_CHAPTERS&&PJ_SUBJECT_CHAPTERS[profile.exam])||{});}
   function allChapters(){var out=[];subjects().forEach(function(s){PJ_SUBJECT_CHAPTERS[profile.exam][s].forEach(function(c){out.push({subject:s,chapter:c,key:profile.exam+'|'+s+'|'+c});});});return out;}
@@ -35,5 +43,7 @@
   function loadNews(){fetch('/api/exam-updates?exam='+profile.exam).then(function(r){return r.ok?r.json():Promise.reject();}).then(function(data){if(!data.updates||!data.updates.length)return;$('#newsList').innerHTML=data.updates.map(function(n){return '<div class="row"><a href="'+esc(n.url)+'" target="_blank" rel="noopener"><b>'+esc(n.title)+'</b><small>Official NTA notice</small></a><span>↗</span></div>';}).join('');}).catch(function(){/* Keep official portal fallbacks visible. */});}
   function bind(){fillTestChapters();fillSyllabus();score();advice();$('#testSubject').onchange=fillTestChapters;['correct','wrong','positive','negative'].forEach(function(id){$('#'+id).oninput=score;});$('#targetScore').onchange=function(){profile.targetScore=+this.value||0;save(PROFILE_KEY,profile);advice();toast('Target saved');};$('#syllSubject').onchange=fillSyllabus;$('#syllFilter').onchange=fillSyllabus;$('#chapterList').onchange=function(e){if(e.target.dataset.syll){syllabus[e.target.dataset.syll]=e.target.value;save(SYLLABUS_KEY,syllabus);toast('Chapter updated');}};$('#startCustom').onclick=function(){var s=$('#testSubject').value,c=$('#testChapter').value,n=$('#testLength').value,d=$('#testDifficulty').value;location.href='/arena/?mode=chapter&exam='+encodeURIComponent(profile.exam)+'&subject='+encodeURIComponent(s)+'&chapters='+encodeURIComponent(c)+'&length='+n+'&difficulty='+d;};}
   document.querySelectorAll('[data-exam]').forEach(function(b){b.onclick=function(){profile.exam=b.dataset.exam;profile.year=+$('#targetYear').value;save(PROFILE_KEY,profile);var a=read(ARENA_KEY,{});a.exam=profile.exam;save(ARENA_KEY,a);$('#onboard').close();render();};});
+  migrateLegacyProfile();
+  if(window.PJ)PJ.onRemoteData(function(keys){if(keys.some(function(k){return [PROFILE_KEY,SYLLABUS_KEY,ARENA_KEY,'mtm_state_v1'].indexOf(k)>=0;}))location.reload();});
   $('#changeExam').onclick=function(){$('#onboard').showModal();};render();
 })();
