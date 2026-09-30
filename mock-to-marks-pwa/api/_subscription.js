@@ -1,10 +1,10 @@
-// Shared plan pricing/duration for the two subscription tiers, so
+// Shared plan pricing/duration for every subscription tier, so
 // create-order, verify-payment and the webhook can't drift apart on what
-// a "monthly" or "yearly" order actually buys.
+// an order actually buys.
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const PLAN_PRICE_PAISE = { monthly: 4900, yearly: 49900 }; // ₹49/mo, ₹499/yr
-const PLAN_DURATION_MS = { monthly: 30 * DAY_MS, yearly: 365 * DAY_MS };
+const PLAN_PRICE_PAISE = { monthly: 4900, semiannual: 27900, yearly: 49900 };
+const PLAN_DURATION_MS = { monthly: 30 * DAY_MS, semiannual: 182 * DAY_MS, yearly: 365 * DAY_MS };
 
 // A renewal (or a plan bought again after lapsing) extends from whichever
 // is later: now, or the account's current expiry if it hasn't lapsed yet -

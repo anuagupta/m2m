@@ -20,4 +20,7 @@ const checkPayment = html.indexOf("if(!isEntitled()){ showPayGate(function(){ Ap
 if (chooseLength < 0 || checkPayment < 0 || chooseLength > checkPayment) {
   throw new Error('Plan length must be chosen before the payment gate is shown');
 }
+if (!html.includes('value="semiannual"') || !html.includes('₹279/6 months')) {
+  throw new Error('The six-month ₹279 subscription is missing from a pricing surface');
+}
 console.log(`Validated ${inlineScripts.length} Mock-to-Marks inline scripts and exam-specific analysis controls.`);

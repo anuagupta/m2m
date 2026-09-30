@@ -10,7 +10,7 @@ module.exports = async (req, res) => {
   if (!uid) { res.status(401).json({ ok: false, error: 'sign in required' }); return; }
 
   const body = req.body || {};
-  const plan = body.plan === 'yearly' ? 'yearly' : body.plan === 'monthly' ? 'monthly' : null;
+  const plan = Object.prototype.hasOwnProperty.call(PLAN_PRICE_PAISE, body.plan) ? body.plan : null;
   if (!plan) { res.status(400).json({ ok: false, error: 'choose a plan' }); return; }
   const amount = PLAN_PRICE_PAISE[plan];
 
@@ -39,8 +39,8 @@ module.exports = async (req, res) => {
     // the person redeeming it is the same person who paid - otherwise anyone
     // handed a completed payment's orderId/paymentId/signature (e.g. shared
     // by a friend) could redeem it for their own account too. The plan is
-    // recorded here too, server-side, so a client can't request a monthly
-    // order but claim a yearly entitlement at verify time.
+    // recorded here too, server-side, so a client can't request one tier
+    // but claim a longer entitlement at verify time.
     await admin.firestore().collection('orders').doc(order.id).set({
       uid: uid,
       plan: plan,

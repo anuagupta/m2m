@@ -925,7 +925,7 @@ function demoMock(){
    Two independent gates: sign-in (Google, via Firebase Auth) gates every
    route except landing; payment gates plan generation specifically. Free
    tier = sign in, analyse unlimited mocks, see your diagnosis. Paid tier
-   (₹49/month or ₹499/year, per Google account) = the 7-/14-day plan itself.
+   (₹49/month, ₹279/6 months or ₹499/year, per Google account) = the 7-/14-day plan itself.
    Firestore rules deny client writes to /users/{uid} entirely - "entitled"
    can only be set by verify-payment.js after checking Razorpay's signature
    server-side, so this can't be spoofed from devtools the way a shared
@@ -971,6 +971,7 @@ function signInGateHtml(){
 }
 function payGateHtml(preselectPlan){
   var monthly = preselectPlan==='monthly';
+  var semiannual = preselectPlan==='semiannual';
   return '<div class="gate-bg" data-action="closeGate"><div class="gate-card">'+
     '<h3>Unlock your recovery plan</h3>'+
     '<p class="gate-sub">Your diagnosis is free. Subscribe to unlock the full recovery plan — plus unlimited future mocks and plans.</p>'+
@@ -980,7 +981,8 @@ function payGateHtml(preselectPlan){
     '</ul>'+
     '<div class="chiprow" id="planChoice" style="justify-content:center;">'+
       '<label class="chip"><input type="radio" name="planChoice" value="monthly"'+(monthly?' checked':'')+'><span>₹49/month</span></label>'+
-      '<label class="chip"><input type="radio" name="planChoice" value="yearly"'+(monthly?'':' checked')+'><span>₹499/year — save ₹89</span></label>'+
+      '<label class="chip"><input type="radio" name="planChoice" value="semiannual"'+(semiannual?' checked':'')+'><span>₹279/6 months — save ₹15</span></label>'+
+      '<label class="chip"><input type="radio" name="planChoice" value="yearly"'+(!monthly&&!semiannual?' checked':'')+'><span>₹499/year — best value</span></label>'+
     '</div>'+
     '<button class="btn btn-primary" data-action="startPayment" style="width:100%;margin-top:16px;">Build My Improvement Plan</button>'+
     '<div class="gate-error" id="gateError" hidden></div>'+
@@ -1366,7 +1368,7 @@ var App = {
     var errEl = document.getElementById('gateError');
     var picked = document.querySelector('#planChoice input[name="planChoice"]:checked');
     var plan = picked ? picked.value : 'yearly';
-    var label = plan==='monthly' ? '₹49/month' : '₹499/year';
+    var label = plan==='monthly' ? '₹49/month' : plan==='semiannual' ? '₹279/6 months' : '₹499/year';
     if(errEl) errEl.hidden = true;
     if(btn){ btn.disabled = true; btn.textContent = 'Preparing payment…'; }
     authUser.getIdToken().then(function(idToken){
@@ -1652,7 +1654,8 @@ function viewLanding(){
           '<div class="section-lead" style="font-weight:700;margin-bottom:8px;">Choose your plan</div>'+
           '<div class="chiprow" id="landingPlanChoice" style="justify-content:center;">'+
             '<label class="chip"><input type="radio" name="landingPlanChoice" value="monthly"><span>₹49/month</span></label>'+
-            '<label class="chip"><input type="radio" name="landingPlanChoice" value="yearly" checked><span>₹499/year — save ₹89</span></label>'+
+            '<label class="chip"><input type="radio" name="landingPlanChoice" value="semiannual"><span>₹279/6 months — save ₹15</span></label>'+
+            '<label class="chip"><input type="radio" name="landingPlanChoice" value="yearly" checked><span>₹499/year — best value</span></label>'+
           '</div>'+
         '</div>'+
         '<button class="btn btn-primary" data-action="buildImprovementPlan" style="margin-top:20px;">Build My Improvement Plan</button>'
