@@ -2,7 +2,7 @@
   "name": "prodjee-api",
   "private": true,
   "scripts": {
-    "test": "node scripts/validate-question-bank.js"
+    "test": "node scripts/validate-question-bank.js && node scripts/validate-m2m.js && node scripts/validate-subscriptions.js"
   },
   "dependencies": {
     "firebase-admin": "^12.6.0"

@@ -127,16 +127,15 @@
     Object.keys(S.vault || {}).forEach((id) => {
       const q = byId[id]; if (q && q.exam === exam && available.has(q.chapter)) weak.add(q.chapter);
     });
-    if (exam === "JEE") {
-      try {
-        const m2m = JSON.parse(localStorage.getItem(M2M_STORE_KEY) || "null");
-        (m2m && Array.isArray(m2m.mocks) ? m2m.mocks : []).forEach((mock) => {
-          (Array.isArray(mock.questions) ? mock.questions : []).forEach((q) => {
-            if (q && q.chapter && q.result && q.result !== "correct" && available.has(q.chapter)) weak.add(q.chapter);
-          });
+    try {
+      const m2m = JSON.parse(localStorage.getItem(M2M_STORE_KEY) || "null");
+      (m2m && Array.isArray(m2m.mocks) ? m2m.mocks : []).forEach((mock) => {
+        if ((mock.exam || "JEE") !== exam) return;
+        (Array.isArray(mock.questions) ? mock.questions : []).forEach((q) => {
+          if (q && q.chapter && q.result && q.result !== "correct" && available.has(q.chapter)) weak.add(q.chapter);
         });
-      } catch (e) { /* malformed or unavailable mock data: Arena still works */ }
-    }
+      });
+    } catch (e) { /* malformed or unavailable mock data: Arena still works */ }
     return weak;
   }
   const rankFor = (gp) => {
