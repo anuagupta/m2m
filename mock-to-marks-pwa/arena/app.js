@@ -989,6 +989,7 @@
             <button class="btn ghost block" data-act="report-reason" data-v="Incomplete Diagram">Incomplete Diagram</button>
             <button class="btn ghost block" data-act="report-reason" data-v="Incomplete Question">Incomplete Question</button>
             <button class="btn ghost block" data-act="report-reason" data-v="Wrong Answer">Wrong Answer</button>
+            <button class="btn ghost block" data-act="report-reason" data-v="Abusive or inappropriate content">Abusive / inappropriate content</button>
             <button class="btn ghost block" data-act="close-modal">Cancel</button>
           </div>`);
         break;

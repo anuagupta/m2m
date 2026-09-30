@@ -1,5 +1,6 @@
 const verifyAuth = require('./_verifyAuth');
 const cors = require('./_cors');
+const admin = require('./_firebaseAdmin');
 
 // Sends a question report straight to the admin inbox via Resend's HTTP API,
 // so it lands in prodjeelabs@gmail.com without depending on the student's
@@ -19,12 +20,26 @@ module.exports = async (req, res) => {
   const chapter = String(body.chapter || '').slice(0, 80);
   const questionText = String(body.questionText || '').slice(0, 2000);
   const comment = String(body.comment || '').trim().slice(0, 1000);
-  const studentEmail = String(body.studentEmail || '').slice(0, 200);
+  let studentEmail = '';
+  try { studentEmail = String((await admin.auth().getUser(uid)).email || '').slice(0, 200); } catch (e) { /* uid remains authoritative */ }
+
+  // Persist first: an email provider outage must never lose a student's
+  // report. The admin queue is the source of truth; email is notification.
+  let reportRef;
+  try {
+    reportRef = await admin.firestore().collection('questionReports').add({
+      questionId, exam, subject, chapter, reason, comment, questionText,
+      reporterUid: uid, reporterEmail: studentEmail || null,
+      status: 'open', createdAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (e) {
+    res.status(502).json({ ok: false, error: 'could not save report' }); return;
+  }
 
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) { res.status(500).json({ ok: false, error: 'reporting is not configured' }); return; }
 
   const lines = [
+    `Report ID: ${reportRef.id}`,
     `Question ID: ${questionId}`,
     `Exam: ${exam} | Subject: ${subject} | Chapter: ${chapter}`,
     `Issue: ${reason}`,
@@ -35,7 +50,9 @@ module.exports = async (req, res) => {
   ];
   if (comment) lines.push('', 'Student comment:', comment);
 
+  let notified = false;
   try {
+    if (!apiKey) throw new Error('email not configured');
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey },
@@ -43,13 +60,11 @@ module.exports = async (req, res) => {
         from: process.env.REPORT_FROM_EMAIL || 'ProDJEE Arena <onboarding@resend.dev>',
         to: ['prodjeelabs@gmail.com'],
         subject: `Arena report: ${reason} — ${questionId}`,
-        text: lines.join('\n')
+        text: lines.concat(['', `Open correction queue: https://prodjee.in/admin/?report=${reportRef.id}&question=${encodeURIComponent(questionId)}`]).join('\n')
       })
     });
-    if (!r.ok) { res.status(502).json({ ok: false, error: 'send failed' }); return; }
-  } catch (e) {
-    res.status(502).json({ ok: false, error: 'send failed' });
-    return;
-  }
-  res.status(200).json({ ok: true });
+    notified = r.ok;
+  } catch (e) { /* report remains safely queued */ }
+  await reportRef.update({ emailNotified: notified }).catch(() => {});
+  res.status(200).json({ ok: true, reportId: reportRef.id, notified });
 };

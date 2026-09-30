@@ -32,6 +32,12 @@
     .msg.err{background:color-mix(in srgb, var(--pj-coral) 18%, transparent);color:var(--pj-coral)}
     .readonly-chip{display:inline-block;font-size:12px;color:var(--pj-ink-soft);background:var(--pj-glass-2);
       border-radius:99px;padding:3px 10px;margin:0 6px 6px 0}
+    .report{border-top:1px solid var(--pj-border);padding:14px 0}
+    .report:first-of-type{border-top:0;padding-top:4px}
+    .report-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .report-actions{display:flex;gap:8px;margin-top:10px}
+    .status{font-size:11px;text-transform:uppercase;letter-spacing:.06em;border-radius:99px;padding:3px 8px;background:var(--pj-glass-2)}
+    .status.open{color:var(--pj-gold)}
     a{color:var(--pj-gold)}
   </style>
 </head>
@@ -59,6 +65,14 @@
       <div id="loadMsg"></div>
     </div>
 
+    <section class="card" id="queue" style="display:none" aria-labelledby="queueTitle">
+      <div class="row" style="align-items:center">
+        <div><h2 id="queueTitle" style="font-size:18px;margin:0">Reported questions</h2><p class="muted" style="margin:4px 0 0">Saved reports, newest first.</p></div>
+        <button class="btn-ghost" id="refreshReports" style="flex:none">Refresh</button>
+      </div>
+      <div id="reportList"><p class="muted">Loading reports…</p></div>
+    </section>
+
     <form class="card" id="editor" style="display:none"></form>
   </div>
 
@@ -70,9 +84,10 @@
     'use strict';
     var API_BASE = /(^|\.)prodjee\.in$|\.vercel\.app$/.test(location.hostname) ? '/api' : 'https://m2m-two.vercel.app/api';
     var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
-    var gate = document.getElementById('gate'), loader = document.getElementById('loader'), editorForm = document.getElementById('editor');
+    var gate = document.getElementById('gate'), loader = document.getElementById('loader'), queue = document.getElementById('queue'), editorForm = document.getElementById('editor');
     var qidInput = document.getElementById('qid'), loadMsg = document.getElementById('loadMsg');
     var current = null; // { file, question }
+    var activeReportId = null;
 
     function authedFetch(path, payload) {
       if (!window.PJ || !PJ.user) return Promise.reject(new Error('not signed in'));
@@ -121,15 +136,56 @@
       document.getElementById('cancelBtn').onclick = function () { editorForm.style.display = 'none'; editorForm.innerHTML = ''; current = null; };
     }
 
-    document.getElementById('loadBtn').addEventListener('click', function () {
-      var id = qidInput.value.trim();
+    function loadQuestion(id, reportId) {
       if (!id) return;
+      activeReportId = reportId || null;
+      qidInput.value = id;
       loadMsg.innerHTML = '<p class="muted">Loading…</p>';
       editorForm.style.display = 'none';
-      authedFetch('/admin-get-question', { id: id }).then(function (r) {
+      return authedFetch('/admin-get-question', { id: id }).then(function (r) {
         if (r.status === 200 && r.body.ok) { loadMsg.innerHTML = ''; renderEditor(r.body.file, r.body.question); }
         else loadMsg.innerHTML = '<div class="msg err">' + esc((r.body && r.body.error) || 'Could not load that question.') + '</div>';
       }).catch(function () { loadMsg.innerHTML = '<div class="msg err">Network error - try again.</div>'; });
+    }
+
+    function setReportStatus(id, status, resolution) {
+      return authedFetch('/admin-resolve-report', { reportId: id, status: status, resolution: resolution || '' }).then(function (r) {
+        if (r.status !== 200 || !r.body.ok) throw new Error((r.body && r.body.error) || 'Could not update report.');
+        return loadReports();
+      });
+    }
+
+    function loadReports() {
+      var list = document.getElementById('reportList');
+      list.innerHTML = '<p class="muted">Loading reports…</p>';
+      return authedFetch('/admin-list-reports', {}).then(function (r) {
+        if (r.status !== 200 || !r.body.ok) throw new Error((r.body && r.body.error) || 'Could not load reports.');
+        var reports = r.body.reports || [];
+        if (!reports.length) { list.innerHTML = '<p class="muted">No reports yet.</p>'; return; }
+        reports.sort(function (a, b) { return (a.status === 'open' ? -1 : 1) - (b.status === 'open' ? -1 : 1); });
+        list.innerHTML = reports.map(function (x) {
+          return '<article class="report" data-report="' + esc(x.id) + '">' +
+            '<div class="report-head"><span class="status ' + esc(x.status || 'open') + '">' + esc(x.status || 'open') + '</span><b>' + esc(x.reason || 'Reported question') + '</b><span class="muted">' + esc(x.questionId || '') + '</span></div>' +
+            '<p style="margin:8px 0">' + esc(x.comment || x.questionText || 'No additional comment.') + '</p>' +
+            '<div class="muted">' + esc([x.exam, x.subject, x.chapter, x.reporterEmail].filter(Boolean).join(' · ')) + '</div>' +
+            (x.status === 'open' ? '<div class="report-actions"><button class="btn-primary" data-open="' + esc(x.questionId) + '">Open &amp; correct</button><button class="btn-ghost" data-dismiss>Dismiss</button></div>' : '') +
+          '</article>';
+        }).join('');
+      }).catch(function (e) { list.innerHTML = '<div class="msg err">' + esc(e.message) + '</div>'; });
+    }
+
+    document.getElementById('loadBtn').addEventListener('click', function () {
+      loadQuestion(qidInput.value.trim(), null);
+    });
+
+    document.getElementById('refreshReports').addEventListener('click', loadReports);
+    document.getElementById('reportList').addEventListener('click', function (e) {
+      var article = e.target.closest('[data-report]');
+      if (!article) return;
+      if (e.target.hasAttribute('data-open')) loadQuestion(e.target.getAttribute('data-open'), article.getAttribute('data-report'));
+      if (e.target.hasAttribute('data-dismiss') && window.confirm('Dismiss this report without changing the question?')) {
+        setReportStatus(article.getAttribute('data-report'), 'dismissed', 'Reviewed and dismissed by admin.');
+      }
     });
 
     editorForm.addEventListener('submit', function (e) {
@@ -158,6 +214,7 @@
       authedFetch('/admin-save-question', { id: q.id, file: current.file, question: edit }).then(function (r) {
         if (r.status === 200 && r.body.ok) {
           saveMsg.innerHTML = '<div class="msg ok">Saved. Deploying now' + (r.body.commitUrl ? ' - <a href="' + esc(r.body.commitUrl) + '" target="_blank" rel="noopener">view commit</a>' : '') + '.</div>';
+          if (activeReportId) setReportStatus(activeReportId, 'resolved', 'Question corrected and deployed.');
         } else {
           saveMsg.innerHTML = '<div class="msg err">' + esc((r.body && r.body.error) || 'Save failed.') + '</div>';
         }
@@ -166,8 +223,12 @@
 
     if (window.PJ) {
       PJ.onChange(function (u) {
-        if (u) { gate.style.display = 'none'; loader.style.display = ''; }
-        else { gate.style.display = ''; loader.style.display = 'none'; editorForm.style.display = 'none'; PJ.requireSignIn(); }
+        if (u) {
+          gate.style.display = 'none'; loader.style.display = ''; queue.style.display = ''; loadReports();
+          var p = new URLSearchParams(location.search), questionId = p.get('question');
+          if (questionId) loadQuestion(questionId, p.get('report'));
+        }
+        else { gate.style.display = ''; loader.style.display = 'none'; queue.style.display = 'none'; editorForm.style.display = 'none'; PJ.requireSignIn(); }
       });
     }
   })();
