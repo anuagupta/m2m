@@ -102,7 +102,7 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
 <header class="pj-bar"><div class="pj-bar-inner">
   <a class="pj-brand" href="/"><img src="/assets/logo-192.png" alt="ProDJEE logo"><b>Pro<span>DJEE</span></b></a>
   <nav class="pj-links" aria-label="Sections">
-    <a href="/" class="on">Home</a><a href="/arena/">Arena</a><a href="/coach/">Coach</a><a href="/m2m/">Analysis</a>
+    <a href="/" class="on">Home</a><a href="/arena/">Arena</a><a href="/m2m/">Analysis</a><a href="/news/" class="pj-news-link">News<span class="pj-news-dot"></span></a><a href="/coach/">Coach</a>
   </nav>
   <button class="pj-avatar" data-pj-avatar data-pj-act="profile" aria-label="Account"></button>
 </div></header>
@@ -121,7 +121,8 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
   function arenaStats(){
     try{ var s = JSON.parse(localStorage.getItem('prodjee.arena.v1')||'null'); if(!s) return null;
-      return { gp:s.totalGP||0, streak:(s.streak&&s.streak.count)||0, correct:(s.counters&&s.counters.correct)||0, sessions:(s.counters&&s.counters.sessions)||0 };
+      var gp=typeof s.totalGP==='number'?s.totalGP:Object.keys(s.totalGP||{}).reduce(function(sum,k){return sum+(Number(s.totalGP[k])||0);},0);
+      return { gp:gp, streak:(s.streak&&s.streak.count)||0, correct:(s.counters&&s.counters.correct)||0, sessions:(s.counters&&s.counters.sessions)||0 };
     }catch(e){ return null; }
   }
   function m2mStats(){
@@ -138,6 +139,7 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
       .catch(function(){ entitlement = {entitled:false}; route(); });
   }
   function n(x){ return Math.round(x).toLocaleString('en-IN'); }
+  function studentProfile(){ try{return JSON.parse(localStorage.getItem('prodjee.student.v1')||'null')||{};}catch(e){return {};} }
 
   function renderHome(){
     var u = PJ.user, a = arenaStats(), m = m2mStats();
@@ -164,7 +166,7 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
     var u = PJ.user;
     if(!u){ renderHome(); return; }
     if(entitlement===null) loadEntitlement();
-    var a = arenaStats() || {gp:0,streak:0,correct:0,sessions:0}, m = m2mStats() || {mocks:0,plans:0};
+    var a = arenaStats() || {gp:0,streak:0,correct:0,sessions:0}, m = m2mStats() || {mocks:0,plans:0}, sp=studentProfile();
     var ds = PJ.driveStatus(), last = PJ.lastSync;
     var driveRow = ds==='on'
       ? '<div class="row"><div class="t"><b>Google Drive backup <span class="pill ok">On</span></b><small>'+(last?'Last synced '+new Date(last).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}):'Not synced yet')+'. Stored in a private app folder only ProDJEE can see.</small></div><button class="pj-btn pj-btn-ghost pj-btn-sm" id="syncNow">Sync now</button></div>'
@@ -182,7 +184,7 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
               '<button class="pj-btn pj-btn-ghost pj-btn-sm" id="editNameBtn" title="Change your display name" style="padding:2px 8px;">Edit</button></div>'+
             '<span>'+esc(u.email||'')+'</span>'+
           '</div>'+
-        '</div></div>'+
+        '</div><div class="row" style="margin-top:14px"><div class="t"><b>Preparing for</b><small>Personalises Coach, News, subjects and chapters.</small></div><select id="profileExam" style="width:auto;min-width:110px;padding:8px;border-radius:9px;background:var(--pj-panel);color:var(--pj-ink);border:1px solid var(--pj-border)"><option value="JEE"'+((sp.exam||'JEE')==='JEE'?' selected':'')+'>JEE</option><option value="NEET"'+(sp.exam==='NEET'?' selected':'')+'>NEET</option></select></div></div>'+
         '<div class="panel"><h3>Arena</h3><div class="kv">'+
           '<div><b>'+n(a.gp)+'</b><small>Gyan Points</small></div><div><b>🔥 '+a.streak+'</b><small>Day streak</small></div>'+
           '<div><b>'+n(a.correct)+'</b><small>Correct answers</small></div><div><b>'+n(a.sessions)+'</b><small>Sessions</small></div></div></div>'+
@@ -207,6 +209,11 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
       var save = function(){ PJ.setName(inp.value); renderProfile(); };
       document.getElementById('saveNameBtn').onclick = save;
       inp.addEventListener('keydown', function(e){ if(e.key==='Enter') save(); });
+    };
+    document.getElementById('profileExam').onchange=function(){
+      var exam=this.value==='NEET'?'NEET':'JEE';sp.exam=exam;sp.year=sp.year||2027;localStorage.setItem('prodjee.student.v1',JSON.stringify(sp));
+      try{var ar=JSON.parse(localStorage.getItem('prodjee.arena.v1')||'{}');ar.exam=exam;localStorage.setItem('prodjee.arena.v1',JSON.stringify(ar));}catch(e){}
+      PJ.toast('Exam changed to '+exam+' ✅');
     };
     var sn = document.getElementById('syncNow');
     if(sn) sn.onclick = function(){ sn.disabled = true; sn.textContent = 'Syncing…'; PJ.syncNow().then(function(ok){ PJ.toast(ok?'Synced with Google Drive ✅':'Sync didn’t finish. Try again.'); renderProfile(); }); };

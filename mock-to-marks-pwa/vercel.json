@@ -2,7 +2,8 @@
   "redirects": [
     { "source": "/arena", "destination": "/arena/", "permanent": true },
     { "source": "/m2m", "destination": "/m2m/", "permanent": true },
-    { "source": "/coach", "destination": "/coach/", "permanent": true }
+    { "source": "/coach", "destination": "/coach/", "permanent": true },
+    { "source": "/news", "destination": "/news/", "permanent": true }
   ],
   "headers": [
     {
@@ -54,6 +55,10 @@
     },
     {
       "source": "/coach/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }]
+    },
+    {
+      "source": "/news/(.*)",
       "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }]
     },
     {
