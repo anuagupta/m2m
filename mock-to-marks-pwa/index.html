@@ -102,7 +102,7 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
 <header class="pj-bar"><div class="pj-bar-inner">
   <a class="pj-brand" href="/"><img src="/assets/logo-192.png" alt="ProDJEE logo"><b>Pro<span>DJEE</span></b></a>
   <nav class="pj-links" aria-label="Sections">
-    <a href="/" class="on">Home</a><a href="/arena/">Arena</a><a href="/m2m/">Mock-to-Marks</a>
+    <a href="/" class="on">Home</a><a href="/arena/">Arena</a><a href="/coach/">Coach</a><a href="/m2m/">Analysis</a>
   </nav>
   <button class="pj-avatar" data-pj-avatar data-pj-act="profile" aria-label="Account"></button>
 </div></header>
@@ -148,6 +148,7 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
         (u ? '' : '<div class="signed-out-cta"><button class="pj-btn pj-btn-primary" data-pj-act="sign-in">Continue with Google</button><span style="color:var(--pj-ink-faint);font-size:13px">Free to start. Your data stays with you.</span></div>')+
       '</section>'+
       '<div class="cards">'+
+        '<a class="tile arena" href="/coach/"><span class="tag">New · Personalised</span><h2>My Coach</h2><p>Get today’s weak-chapter mission, verified JEE/NEET updates, custom tests, spaced revision, score targets and a complete syllabus tracker.</p><ul><li>🧭 One-time JEE/NEET setup</li><li>🗞 Official exam updates</li><li>✅ Daily roadmap and revision</li></ul><span class="go">Open My Coach →</span></a>'+
         '<a class="tile arena" href="/arena/"><span class="tag">Free</span><h2>Arena</h2>'+
           '<p>2,891 real JEE Main & NEET PYQs, each checked against the official key, plus a practice bank. Earn Gyan Points, keep your streak, clear your Mistake Vault.</p>'+
           (u && a ? '<div class="statrow"><span>'+n(a.gp)+' GP</span><span>🔥 '+a.streak+'-day streak</span><span>'+n(a.correct)+' correct</span></div>' : '<ul><li>🎯 Chapter-wise PYQ runs</li><li>⚡ Hints, full solutions, timers</li><li>📈 Weak-chapter tracking</li></ul>')+
