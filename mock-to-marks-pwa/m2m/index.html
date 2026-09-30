@@ -366,14 +366,6 @@ a{color:var(--primary);}
 .block-check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border);flex:none;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:transform .1s;}
 .block-check.checked{animation:checkPop .25s ease;background:var(--good);border-color:var(--good);color:#fff;}
 @keyframes checkPop{0%{transform:scale(.5);opacity:0;}60%{transform:scale(1.15);opacity:1;}100%{transform:scale(1);}}
-#splashOverlay{
-  position:fixed;inset:0;z-index:9999;background:var(--bg);
-  display:flex;align-items:center;justify-content:center;cursor:pointer;
-}
-#splashOverlay video{width:100%;height:100%;object-fit:cover;display:block;}
-#splashOverlay.splash-out{animation:splashFadeOut .26s ease-out forwards;pointer-events:none;}
-@keyframes splashFadeOut{to{opacity:0;}}
-@media (prefers-reduced-motion:reduce){#splashOverlay{display:none;}}
 .confetti-burst{position:fixed;inset:0;z-index:200;pointer-events:none;}
 .confetti-piece{
   position:fixed;width:7px;height:10px;margin:-5px 0 0 -3.5px;
@@ -503,38 +495,6 @@ select,.field input[type=text],.field input[type=number],.field input[type=date]
 </style>
 
 <div class="bg-blobs" aria-hidden="true"><span class="blob blob-gold"></span><span class="blob blob-green"></span><span class="blob blob-coral"></span></div>
-<div id="splashOverlay"><video id="splashVideo" src="/intro.mp4" playsinline preload="auto"></video></div>
-<script>(function(){
-  var splash = document.getElementById("splashOverlay");
-  if(!splash) return;
-  var seen = false;
-  try{ seen = localStorage.getItem("mtm_splashSeen") === "1"; }catch(e){}
-  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if(seen || reduced){ splash.remove(); return; }
-  try{ localStorage.setItem("mtm_splashSeen", "1"); }catch(e){}
-  var dismissed = false;
-  var dismiss = function(){ if(dismissed) return; dismissed = true; splash.classList.add("splash-out"); setTimeout(function(){ splash.remove(); }, 260); };
-  var video = document.getElementById("splashVideo");
-  if(video){
-    var start = function(){
-      var rate = (video.duration && isFinite(video.duration) && video.duration > 0) ? (video.duration / 5) : 1;
-      video.playbackRate = Math.min(Math.max(rate, 1), 16);
-      var playPromise = video.play();
-      if(playPromise && playPromise.catch){
-        playPromise.catch(function(){
-          video.muted = true;
-          var retry = video.play();
-          if(retry && retry.catch) retry.catch(dismiss);
-        });
-      }
-    };
-    if(video.readyState >= 1) start();
-    else video.addEventListener("loadedmetadata", start, { once: true });
-  }
-  splash.addEventListener("click", dismiss);
-  setTimeout(dismiss, 5000);
-})();</script>
-
 <header class="pj-bar pj-static"><div class="pj-bar-inner">
   <a class="pj-brand" href="/"><img src="/assets/logo-192.png" alt="ProDJEE logo"><b>Pro<span>DJEE</span></b></a>
   <nav class="pj-links" aria-label="Sections"><a href="/">Home</a><a href="/arena/">Arena</a><a href="/m2m/" class="on">Analysis</a><a href="/news/" class="pj-news-link">News<span class="pj-news-dot"></span></a><a href="/coach/">Coach</a></nav>
