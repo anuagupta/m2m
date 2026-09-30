@@ -19,12 +19,12 @@
   (function(){ var q = location.search; if (/[?&]route=/.test(q)) location.replace('/m2m/' + q + location.hash); })();
 </script>
 <meta charset="UTF-8">
-<title>ProDJEE — JEE/NEET practice that actually moves your marks</title>
+<title>ProDJEE — Gamified Learning &amp; AI Score Improvement</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="ProDJEE: Arena turns real JEE Main & NEET PYQs into a game; Mock-to-Marks shows exactly why you're losing marks in mocks and builds a 14-day recovery plan.">
+<meta name="description" content="Gamified JEE and NEET practice with adaptive questions, AI-guided performance analysis, and personalised exercises designed to improve your score.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="ProDJEE — Arena + Mock-to-Marks">
-<meta property="og:description" content="Real JEE Main & NEET PYQs as a game, plus a mock-test diagnosis that tells you exactly where your marks are leaking.">
+<meta property="og:title" content="ProDJEE — Gamified Learning &amp; AI Score Improvement">
+<meta property="og:description" content="Adaptive JEE and NEET practice, AI-guided analysis, and personalised exercises that turn weak chapters into stronger scores.">
 <meta property="og:image" content="https://prodjee.in/icon-512.png">
 <meta property="og:url" content="https://prodjee.in/">
 <meta name="twitter:card" content="summary">
@@ -102,7 +102,7 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
 <header class="pj-bar"><div class="pj-bar-inner">
   <a class="pj-brand" href="/"><img src="/assets/logo-192.png" alt="ProDJEE logo"><b>Pro<span>DJEE</span></b></a>
   <nav class="pj-links" aria-label="Sections">
-    <a href="/" class="on">Home</a><a href="/arena/">Arena</a><a href="/m2m/">Mock-to-Marks</a>
+    <a href="/" class="on">Home</a><a href="/arena/">Arena</a><a href="/coach/">Coach</a><a href="/m2m/">Analysis</a>
   </nav>
   <button class="pj-avatar" data-pj-avatar data-pj-act="profile" aria-label="Account"></button>
 </div></header>
@@ -148,6 +148,7 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
         (u ? '' : '<div class="signed-out-cta"><button class="pj-btn pj-btn-primary" data-pj-act="sign-in">Continue with Google</button><span style="color:var(--pj-ink-faint);font-size:13px">Free to start. Your data stays with you.</span></div>')+
       '</section>'+
       '<div class="cards">'+
+        '<a class="tile arena" href="/coach/"><span class="tag">New · Personalised</span><h2>My Coach</h2><p>Get today’s weak-chapter mission, verified JEE/NEET updates, custom tests, spaced revision, score targets and a complete syllabus tracker.</p><ul><li>🧭 One-time JEE/NEET setup</li><li>🗞 Official exam updates</li><li>✅ Daily roadmap and revision</li></ul><span class="go">Open My Coach →</span></a>'+
         '<a class="tile arena" href="/arena/"><span class="tag">Free</span><h2>Arena</h2>'+
           '<p>2,891 real JEE Main & NEET PYQs, each checked against the official key, plus a practice bank. Earn Gyan Points, keep your streak, clear your Mistake Vault.</p>'+
           (u && a ? '<div class="statrow"><span>'+n(a.gp)+' GP</span><span>🔥 '+a.streak+'-day streak</span><span>'+n(a.correct)+' correct</span></div>' : '<ul><li>🎯 Chapter-wise PYQ runs</li><li>⚡ Hints, full solutions, timers</li><li>📈 Weak-chapter tracking</li></ul>')+

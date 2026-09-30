@@ -24,7 +24,11 @@
   var DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
   var DRIVE_FILE = 'prodjee-data.json';
   var CONSENT_VERSION = '2026-09-26b'; // bumped: consent mechanism changed from two checkboxes to a single Continue + Terms link
-  var TRACKED = ['mtm_state_v1', 'prodjee.arena.v1', 'pj.consent', 'pj.nameOverride'];
+  // Keep legacy keys unchanged and append Coach keys. This lets existing
+  // device/Drive records merge exactly as before while the new profile and
+  // syllabus tracker gain the same backup, export, account-switch and delete
+  // protections as Arena and analysis data.
+  var TRACKED = ['mtm_state_v1', 'prodjee.arena.v1', 'prodjee.student.v1', 'prodjee.syllabus.v1', 'pj.consent', 'pj.nameOverride'];
 
   var LS = window.localStorage;
   var rawSet = Storage.prototype.setItem, rawRemove = Storage.prototype.removeItem, rawGet = Storage.prototype.getItem;

@@ -1,4 +1,4 @@
-// ProDJEE — offline app shell for the hub, Arena and Mock-to-Marks.
+// ProDJEE — offline app shell for gamified learning and AI score improvement.
 // Everything same-origin is network-first, cache only as an offline
 // fallback. Static JS/CSS used to be cache-first (serve the cached copy
 // immediately, refresh in the background for *next* load) - that meant a
@@ -6,9 +6,9 @@
 // already-installed user's screen until their *second* load after a
 // deploy, even on a hard refresh, since the browser's hard-refresh cache
 // bypass doesn't touch the service worker's own Cache Storage.
-var CACHE_NAME = 'prodjee-cache-v16';
+var CACHE_NAME = 'prodjee-cache-v18';
 var ASSETS = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png',
-  '/assets/pj-core.css', '/assets/pj-core.js', '/assets/subject-chapters.js', '/assets/logo-192.png', '/m2m/', '/arena/'];
+  '/assets/pj-core.css', '/assets/pj-core.js', '/assets/subject-chapters.js', '/assets/logo-192.png', '/m2m/', '/arena/', '/coach/', '/coach/app.js'];
 
 self.addEventListener('install', function (event) {
   event.waitUntil(caches.open(CACHE_NAME).then(function (cache) { return cache.addAll(ASSETS); }).catch(function () {}));

@@ -409,12 +409,14 @@
       body = `<p class="muted" style="margin-top:0">Questions across all ${S.exam} subjects, matched to your level in each chapter. Every ${RULES.bonusEvery}th question is a <b class="gold-text">BONUS</b>.</p>`;
     }
     const pool = poolFor(setup);
+    const difficultyNote = setup.difficulty && setup.difficulty !== "any" ? `<span class="pill gold">${esc(setup.difficulty)} · bank rating filter</span>` : "";
     show(`
       <div class="narrow">
         <button class="back" data-act="tab" data-v="${tab}">${I.back} Back</button>
         <div class="glass" style="margin-top:12px;padding:22px">
           <div class="eyebrow">${S.exam} · Setup</div>
           <h1 style="margin:4px 0 16px">${titles[mode]}</h1>
+          ${difficultyNote}
           ${body}
           <div class="eyebrow">Session length</div>
           <div class="chips" style="margin:8px 0 6px">${[10, 20, 30].map((n) => `<button class="chip gold ${setup.length === n ? "on" : ""}" data-act="len" data-v="${n}">${n} questions</button>`).join("")}</div>
@@ -430,6 +432,9 @@
     let p = bank(cfg.exam, cfg.mode !== "vault" && S.pyqOnly);
     if (cfg.mode === "chapter") p = p.filter((q) => q.subject === cfg.subject && cfg.chapters.has(q.chapter));
     if (cfg.mode === "vault") { const ids = new Set(vaultIds(cfg.exam)); p = p.filter((q) => ids.has(q.id)); }
+    if (cfg.difficulty === "easy") p = p.filter((q) => difficulty(q) <= 3);
+    if (cfg.difficulty === "moderate") p = p.filter((q) => difficulty(q) >= 4 && difficulty(q) <= 7);
+    if (cfg.difficulty === "difficult") p = p.filter((q) => difficulty(q) >= 8);
     return p;
   }
 
@@ -1048,6 +1053,20 @@
   window.addEventListener("pagehide", () => { if (G && G.records.length) commitSession(); });
 
   /* ================================= BOOT ================================= */
-  renderHome();
-  welcomeBack();
+  const launch = new URLSearchParams(location.search);
+  const launchExam = launch.get("exam");
+  if (launchExam === "JEE" || launchExam === "NEET") { S.exam = launchExam; save(); }
+  if (launch.get("mission") === "1") {
+    setup = { mode: "mixed", exam: S.exam, subject: SUBJECTS[S.exam][0], chapters: new Set(), length: 10 };
+    startGame();
+  } else if (launch.get("mode") === "vault") {
+    renderSetup("vault");
+  } else if (launch.get("mode") === "chapter") {
+    const subject = SUBJECTS[S.exam].includes(launch.get("subject")) ? launch.get("subject") : SUBJECTS[S.exam][0];
+    const requested = launch.get("chapters");
+    const chapters = requested && requested !== "all" ? new Set([requested]) : new Set(chaptersOf(S.exam, subject, S.pyqOnly));
+    setup = { mode: "chapter", exam: S.exam, subject, chapters, length: [10,20,30].includes(+launch.get("length")) ? +launch.get("length") : 10, difficulty: launch.get("difficulty") || "any" };
+    renderSetup("chapter");
+  } else renderHome();
+  if (!["mission", "mode"].some((key) => launch.has(key))) welcomeBack();
 })();
