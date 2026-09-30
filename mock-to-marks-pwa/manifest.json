@@ -1,7 +1,7 @@
 {
-  "name": "ProDJEE — Arena + Mock-to-Marks",
+  "name": "ProDJEE — Gamified Learning + AI Score Improvement",
   "short_name": "ProDJEE",
-  "description": "Real JEE Main PYQs as a game, plus mock-test diagnosis and a 14-day recovery plan.",
+  "description": "Gamified adaptive JEE and NEET practice, AI-guided performance analysis, and personalised exercises to improve your score.",
   "id": "/",
   "start_url": "/",
   "scope": "/",

@@ -12,24 +12,24 @@
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
-<title>Mock-to-Marks — ProDJEE</title>
+<title>ProDJEE — AI Score Analysis &amp; Improvement Exercises</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Log your last mock test, see exactly why you're losing marks — language, approach, formula recall, calculation slips, or time management — and get a focused 7- or 14-day recovery plan built around your actual gaps.">
+<meta name="description" content="AI-guided performance analysis that finds why you lose marks and creates personalised 7- or 14-day exercises to improve your JEE or NEET score.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Mock-to-Marks — ProDJEE">
-<meta property="og:description" content="Log your last mock test, see exactly why you're losing marks, and get a focused 7- or 14-day recovery plan built around your actual gaps.">
+<meta property="og:title" content="ProDJEE — AI Score Analysis &amp; Improvement Exercises">
+<meta property="og:description" content="Find the reasons behind lost marks and turn them into personalised, AI-guided exercises for a stronger JEE or NEET score.">
 <meta property="og:image" content="https://prodjee.in/icon-512.png">
 <meta property="og:url" content="https://prodjee.in/m2m/">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Mock-to-Marks — ProDJEE">
-<meta name="twitter:description" content="Log your last mock test, see exactly why you're losing marks, and get a focused 7- or 14-day recovery plan built around your actual gaps.">
+<meta name="twitter:title" content="ProDJEE — AI Score Analysis &amp; Improvement Exercises">
+<meta name="twitter:description" content="AI-guided analysis and personalised exercises that target weak areas and improve your JEE or NEET score.">
 <meta name="twitter:image" content="https://prodjee.in/icon-512.png">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0a0b14">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Mock-to-Marks">
+<meta name="apple-mobile-web-app-title" content="ProDJEE">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="icon" href="/icon-192.png">
 <link rel="stylesheet" href="/assets/pj-core.css">
@@ -925,7 +925,7 @@ function demoMock(){
    Two independent gates: sign-in (Google, via Firebase Auth) gates every
    route except landing; payment gates plan generation specifically. Free
    tier = sign in, analyse unlimited mocks, see your diagnosis. Paid tier
-   (₹49/month, ₹279/6 months or ₹499/year, per Google account) = the 7-/14-day plan itself.
+   (₹49/month, ₹279 / six months or ₹499/year, per Google account) = the 7-/14-day plan itself.
    Firestore rules deny client writes to /users/{uid} entirely - "entitled"
    can only be set by verify-payment.js after checking Razorpay's signature
    server-side, so this can't be spoofed from devtools the way a shared
@@ -981,7 +981,7 @@ function payGateHtml(preselectPlan){
     '</ul>'+
     '<div class="chiprow" id="planChoice" style="justify-content:center;">'+
       '<label class="chip"><input type="radio" name="planChoice" value="monthly"'+(monthly?' checked':'')+'><span>₹49/month</span></label>'+
-      '<label class="chip"><input type="radio" name="planChoice" value="semiannual"'+(semiannual?' checked':'')+'><span>₹279/6 months — save ₹15</span></label>'+
+      '<label class="chip"><input type="radio" name="planChoice" value="semiannual"'+(semiannual?' checked':'')+'><span>₹279 / six months</span></label>'+
       '<label class="chip"><input type="radio" name="planChoice" value="yearly"'+(!monthly&&!semiannual?' checked':'')+'><span>₹499/year — best value</span></label>'+
     '</div>'+
     '<button class="btn btn-primary" data-action="startPayment" style="width:100%;margin-top:16px;">Build My Improvement Plan</button>'+
@@ -1368,7 +1368,7 @@ var App = {
     var errEl = document.getElementById('gateError');
     var picked = document.querySelector('#planChoice input[name="planChoice"]:checked');
     var plan = picked ? picked.value : 'yearly';
-    var label = plan==='monthly' ? '₹49/month' : plan==='semiannual' ? '₹279/6 months' : '₹499/year';
+    var label = plan==='monthly' ? '₹49/month' : plan==='semiannual' ? '₹279 / six months' : '₹499/year';
     if(errEl) errEl.hidden = true;
     if(btn){ btn.disabled = true; btn.textContent = 'Preparing payment…'; }
     authUser.getIdToken().then(function(idToken){
@@ -1654,7 +1654,7 @@ function viewLanding(){
           '<div class="section-lead" style="font-weight:700;margin-bottom:8px;">Choose your plan</div>'+
           '<div class="chiprow" id="landingPlanChoice" style="justify-content:center;">'+
             '<label class="chip"><input type="radio" name="landingPlanChoice" value="monthly"><span>₹49/month</span></label>'+
-            '<label class="chip"><input type="radio" name="landingPlanChoice" value="semiannual"><span>₹279/6 months — save ₹15</span></label>'+
+            '<label class="chip"><input type="radio" name="landingPlanChoice" value="semiannual"><span>₹279 / six months</span></label>'+
             '<label class="chip"><input type="radio" name="landingPlanChoice" value="yearly" checked><span>₹499/year — best value</span></label>'+
           '</div>'+
         '</div>'+
