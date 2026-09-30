@@ -36,6 +36,7 @@
 
   /* ================================ STORAGE =============================== */
   const STORE_KEY = "prodjee.arena.v1";
+  const M2M_STORE_KEY = "mtm_state_v1";
   const fresh = () => ({
     name: "", exam: "JEE", sound: true, dailyGoal: 1000, pyqOnly: false, lastLength: 10,
     totalGP: { JEE: 0, NEET: 0 }, ratings: {}, stats: {}, seen: {}, vault: {}, vaultCleared: 0,
@@ -93,6 +94,8 @@
   const dayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   const daysAgo = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return d; };
   const chKey = (q) => `${q.exam}|${q.subject}|${q.chapter}`;
+  const difficulty = (q) => Math.max(0, Math.min(10, Number(q.difficulty)));
+  const difficultyBand = (q) => difficulty(q) <= 3 ? "Easy" : difficulty(q) <= 7 ? "Moderate" : "Difficult";
   const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const pct = (c, a) => (a ? Math.round((100 * c) / a) : 0);
   const kindOf = (q) => q.kind || (q.source && !/^Sample/.test(q.source) ? "pyq" : "sample");
@@ -109,6 +112,33 @@
   const byId = Object.fromEntries(window.QBANK.map((q) => [q.id, q]));
   const bank = (exam, pyq = false) => window.QBANK.filter((q) => q.exam === exam && (!pyq || isPYQ(q)));
   const chaptersOf = (exam, subject, pyq) => [...new Set(bank(exam, pyq).filter((q) => q.subject === subject).map((q) => q.chapter))].sort();
+  // Mixed Arena is a recovery mode: once we have evidence of a weak chapter,
+  // every question comes from that weak set. Evidence comes from Arena misses
+  // (the vault and chapter accuracy) and non-correct questions tagged while
+  // analysing a mock. With no evidence yet, the full syllabus is used so a
+  // new student can establish a baseline.
+  function weakChapters(exam, pool) {
+    const available = new Set(pool.map((q) => q.chapter));
+    const weak = new Set();
+    Object.entries(S.stats || {}).forEach(([key, v]) => {
+      const parts = key.split("|");
+      if (parts[0] === exam && v && v.att > 0 && v.cor / v.att < 0.6 && available.has(parts.slice(2).join("|"))) weak.add(parts.slice(2).join("|"));
+    });
+    Object.keys(S.vault || {}).forEach((id) => {
+      const q = byId[id]; if (q && q.exam === exam && available.has(q.chapter)) weak.add(q.chapter);
+    });
+    if (exam === "JEE") {
+      try {
+        const m2m = JSON.parse(localStorage.getItem(M2M_STORE_KEY) || "null");
+        (m2m && Array.isArray(m2m.mocks) ? m2m.mocks : []).forEach((mock) => {
+          (Array.isArray(mock.questions) ? mock.questions : []).forEach((q) => {
+            if (q && q.chapter && q.result && q.result !== "correct" && available.has(q.chapter)) weak.add(q.chapter);
+          });
+        });
+      } catch (e) { /* malformed or unavailable mock data: Arena still works */ }
+    }
+    return weak;
+  }
   const rankFor = (gp) => {
     let i = 0; RANKS.forEach((r, k) => { if (gp >= r.gp) i = k; });
     const next = RANKS[i + 1];
@@ -405,8 +435,11 @@
   }
 
   /* ============================ ADAPTIVE ENGINE =========================== */
-  const qRating = (q) => 800 + 200 * (q.difficulty || 3);
-  const sRating = (q) => S.ratings[chKey(q)] || 1200;
+  // The bank's public scale is 0..10. Internally it maps to the same bounded
+  // Elo range used for students, so a correct answer raises the target
+  // gradually and a miss lowers it before the very next selection.
+  const qRating = (q) => 600 + 180 * difficulty(q);
+  const sRating = (q) => S.ratings[chKey(q)] || 1500;
   function updateRating(q, score) {
     const s = sRating(q), e = 1 / (1 + Math.pow(10, (qRating(q) - s) / 400));
     S.ratings[chKey(q)] = Math.max(600, Math.min(2400, Math.round(s + 40 * (score - e))));
@@ -438,6 +471,16 @@
     const isBonus = (G.idx + 1) % RULES.bonusEvery === 0;
     let cands = G.pool.filter((q) => !G.used.has(q.id));
     if (!cands.length) return null;
+    if (G.mode === "mixed") {
+      const weak = weakChapters(G.exam, cands);
+      const recovery = cands.filter((q) => weak.has(q.chapter));
+      // Do not silently drift into a strong chapter just to fill a requested
+      // session length. A shorter, genuinely targeted run is more useful.
+      if (weak.size) {
+        if (!recovery.length) return null;
+        cands = recovery;
+      }
+    }
     if (targetChapter) { const inCh = cands.filter((q) => q.chapter === targetChapter); if (inCh.length) cands = inCh; }
     if (isBonus) { const mcq = cands.filter((q) => q.type === "mcq"); if (mcq.length) cands = mcq; }
     const now = Date.now(); let best = null, bestScore = Infinity;
@@ -573,7 +616,7 @@
             <span class="pill">${SUBJ_ICON[q.subject] ? SUBJ_ICON[q.subject].replace("<svg", '<svg width="13" height="13"') : ""} ${esc(q.subject)}</span>
             <span class="pill">${esc(q.chapter)}</span>
             <span class="pill ${q.type === "num" ? "gold" : ""}">${q.type === "num" ? "Numerical" : "Single correct"}</span>
-            <span class="pill" title="Difficulty ${q.difficulty}/5">${"●".repeat(q.difficulty)}${"○".repeat(5 - q.difficulty)}</span>
+            <span class="pill" title="Difficulty ${difficulty(q)} out of 10">${difficultyBand(q)} · ${difficulty(q)}/10</span>
           </div>
           <p class="q-text">${esc(q.q)}</p>
           ${fig(q.img, q.imgAlt)}

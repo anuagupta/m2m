@@ -158,7 +158,7 @@
       '<p>On the Google screen we’ll ask for your <b>name, email, profile photo</b> and permission to <b>store ProDJEE’s own backup file in your Google Drive</b>. We can’t see any of your other Drive files.</p>' +
       '<button class="pj-btn pj-btn-primary" style="width:100%;margin-top:8px" data-pj-act="sign-in">' + GOOGLE_ICON + ' Continue with Google</button>' +
       '<div class="pj-err" id="pj-gate-err" hidden></div>' +
-      '<p class="pj-fine">By continuing you agree to our <a href="/terms.html" target="_blank">Terms</a>, <a href="/privacy.html" target="_blank">Privacy Policy</a> and <a href="/disclaimer.html" target="_blank">Disclaimer</a>.</p>',
+      '<p class="pj-fine">By continuing you agree to our <a href="/terms.html" target="_blank" rel="noopener">Terms</a>, <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and <a href="/disclaimer.html" target="_blank" rel="noopener">Disclaimer</a>.</p>',
       'pj-gate');
   }
   function hideGate() { var g = document.getElementById('pj-gate'); if (g) g.remove(); }
@@ -332,7 +332,7 @@
         '<h2>Quick check before you start</h2>' +
         '<p>Hi ' + esc(firstName()) + '! One thing before you dive in.</p>' +
         '<button class="pj-btn pj-btn-primary" style="width:100%;margin-top:6px" id="pj-cok">Continue</button>' +
-        '<p class="pj-fine">By tapping Continue, you confirm you’ve read and agree to our <a href="/terms.html" target="_blank">Terms of Use</a> (which cover who may use ProDJEE), <a href="/privacy.html" target="_blank">Privacy Policy</a> and <a href="/disclaimer.html" target="_blank">Disclaimer</a>.</p>' +
+        '<p class="pj-fine">By tapping Continue, you confirm you’ve read and agree to our <a href="/terms.html" target="_blank" rel="noopener">Terms of Use</a> (which cover who may use ProDJEE), <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and <a href="/disclaimer.html" target="_blank" rel="noopener">Disclaimer</a>.</p>' +
         '<button class="pj-btn pj-btn-ghost" style="width:100%;margin-top:8px" id="pj-cno">Sign out</button>',
         'pj-consent');
       s.querySelector('#pj-cok').onclick = function () {

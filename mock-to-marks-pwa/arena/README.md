@@ -29,7 +29,7 @@ After a question is answered, the solution can be viewed free of charge.
 - **Figures:** a question image, image options (shown in a 2×2 grid) and a solution image, with tap-to-zoom on each. Figures are shown on a white card so black-on-white scans stay legible in the dark UI.
 - **JEE / NEET** sections. JEE has single-correct MCQs and numerical-value questions (±0.01 tolerance).
 - **Modes:** Mixed Arena (adaptive, full syllabus), Chapter Practice (pick subject and chapters), Mistake Vault.
-- **Adaptive difficulty:** Elo-style rating for each student per chapter. Question rating = 800 + 200 × difficulty. Questions are picked slightly above the student's current level.
+- **Adaptive difficulty:** every question is rated 0–10 (Easy 0–3, Moderate 4–7, Difficult 8–10). An Elo-style rating is maintained for each student per chapter; correct answers raise the next target gradually and misses lower it. Mixed Arena draws only from chapters identified as weak by Arena mistakes/accuracy or by non-correct questions tagged in Mock-to-Marks, falling back to the full syllabus only until a baseline exists.
 - **Mistake Vault:** wrong, skipped and solution-viewed questions come back after 1 → 3 → 7 days (spaced revision) until the student gets them right at every step.
 - **Analysis:** at the end of every session (chapter-wise correct/attempted), a lifetime report card on every app open, and a Performance page (7-day GP, subject and chapter accuracy, weak/strong chapters).
 - **Motivation:** daily GP goal ring, day streak, 7 ranks (Aspirant → AIR-1), 12 badges, and sound effects with a mute toggle.
@@ -61,7 +61,7 @@ Schema for each entry in `questions.js` (maths inside `$…$` is typeset):
   subject: "Physics",             // JEE: Physics/Chemistry/Mathematics · NEET: Physics/Chemistry/Biology
   chapter: "Rotational Motion",   // drives analysis + adaptive rating; keep names consistent
   type: "mcq",                    // "mcq" (4 options) | "num" (numerical value)
-  difficulty: 3,                  // 1..5
+  difficulty: 5,                  // integer 0..10
   q: "Question text",
   img: "figures/jee23-jan29-s1-p05.png", // optional question figure (PNG/SVG/JPG in figures/)
   imgAlt: "Describe the figure",  // accessibility + zoom caption

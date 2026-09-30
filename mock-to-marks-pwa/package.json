@@ -1,6 +1,9 @@
 {
-  "name": "mock-to-marks-api",
+  "name": "prodjee-api",
   "private": true,
+  "scripts": {
+    "test": "node scripts/validate-question-bank.js"
+  },
   "dependencies": {
     "firebase-admin": "^12.6.0"
   }

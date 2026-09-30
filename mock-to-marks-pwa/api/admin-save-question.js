@@ -24,6 +24,9 @@ module.exports = async (req, res) => {
   EDITABLE_FIELDS.forEach((key) => { if (Object.prototype.hasOwnProperty.call(edits, key)) updated[key] = edits[key]; });
 
   if (!updated.q || typeof updated.q !== 'string' || !updated.q.trim()) { res.status(400).json({ ok: false, error: 'question text is required' }); return; }
+  if (!Number.isInteger(updated.difficulty) || updated.difficulty < 0 || updated.difficulty > 10) {
+    res.status(400).json({ ok: false, error: 'difficulty must be an integer from 0 to 10' }); return;
+  }
   if (updated.type === 'mcq') {
     if (!Array.isArray(updated.options) || updated.options.length < 2 || updated.options.some((o) => typeof o !== 'string' || !o.trim())) {
       res.status(400).json({ ok: false, error: 'mcq needs at least 2 non-empty options' }); return;
