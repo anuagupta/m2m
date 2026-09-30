@@ -6,9 +6,9 @@
 // already-installed user's screen until their *second* load after a
 // deploy, even on a hard refresh, since the browser's hard-refresh cache
 // bypass doesn't touch the service worker's own Cache Storage.
-var CACHE_NAME = 'prodjee-cache-v13';
+var CACHE_NAME = 'prodjee-cache-v14';
 var ASSETS = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png',
-  '/assets/pj-core.css', '/assets/pj-core.js', '/assets/logo-192.png', '/m2m/', '/arena/'];
+  '/assets/pj-core.css', '/assets/pj-core.js', '/assets/subject-chapters.js', '/assets/logo-192.png', '/m2m/', '/arena/'];
 
 self.addEventListener('install', function (event) {
   event.waitUntil(caches.open(CACHE_NAME).then(function (cache) { return cache.addAll(ASSETS); }).catch(function () {}));
