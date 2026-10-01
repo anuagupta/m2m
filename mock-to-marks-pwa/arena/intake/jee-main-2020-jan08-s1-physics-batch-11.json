@@ -1,0 +1,28 @@
+[
+  {
+    "id": "jm20-0108s1-15",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Physics",
+    "chapter": "Ray Optics",
+    "type": "mcq",
+    "difficulty": 3,
+    "q": "At a particular wavelength, a medium has relative permittivity 3 and relative permeability 4/3. What is its critical angle at an interface with vacuum?",
+    "options": ["30°", "45°", "60°", "15°"],
+    "answer": 0,
+    "hint": "First calculate the refractive index from the relative permittivity and permeability.",
+    "solution": "The refractive index is $n=\\sqrt{\\varepsilon_r\\mu_r}=\\sqrt{3\\times4/3}=2$. For the medium-to-vacuum critical angle, $\\sin i_c=1/n=1/2$, hence $i_c=30°$.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-P15",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://cdn1.byjus.com/wp-content/uploads/2020/01/JEE-Main-2020-8th-Jan-Shift-1-Physics.pdf",
+      "https://learn.careers360.com/engineering/jee-main-2020-question-paper-with-solution-jan-8th-first-shift/"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
