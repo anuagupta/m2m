@@ -156,16 +156,19 @@
   /* ---------- sign-in gate ---------- */
   function showSignInGate(message) {
     scrim(
+      '<button type="button" class="pj-gate-close" data-pj-act="dismiss-sign-in" aria-label="Close sign-in" title="Not now">×</button>' +
       '<img class="pj-logo" src="/assets/logo-192.png" alt="ProDJEE logo">' +
       '<h2>Sign in for free</h2>' +
       '<p>' + esc(message || 'One Google sign-in unlocks Arena and Mock-to-Marks. Your study data stays on this phone and in a private app folder in your own Google Drive.') + '</p>' +
       '<p>On the Google screen we’ll ask for your <b>name, email, profile photo</b> and permission to <b>store ProDJEE’s own backup file in your Google Drive</b>. We can’t see any of your other Drive files.</p>' +
       '<button class="pj-btn pj-btn-primary" style="width:100%;margin-top:8px" data-pj-act="sign-in">' + GOOGLE_ICON + ' Continue with Google</button>' +
+      '<button type="button" class="pj-btn pj-btn-ghost" style="width:100%;margin-top:10px" data-pj-act="dismiss-sign-in">Not now</button>' +
       '<div class="pj-err" id="pj-gate-err" hidden></div>' +
       '<p class="pj-fine">By continuing you agree to our <a href="/terms.html" target="_blank" rel="noopener">Terms</a>, <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and <a href="/disclaimer.html" target="_blank" rel="noopener">Disclaimer</a>.</p>',
       'pj-gate');
   }
   function hideGate() { var g = document.getElementById('pj-gate'); if (g) g.remove(); }
+  function dismissSignInGate() { requireAuth = false; hideGate(); }
 
   function signIn() {
     signingIn = true;
@@ -420,9 +423,11 @@
   /* ---------- events ---------- */
   function emit() { paint(); listeners.forEach(function (f) { try { f(user); } catch (e) {} }); }
   document.addEventListener('click', function (e) {
+    if (e.target && e.target.id === 'pj-gate') { dismissSignInGate(); return; }
     var el = e.target.closest && e.target.closest('[data-pj-act]'); if (!el) return;
     var act = el.getAttribute('data-pj-act');
     if (act === 'sign-in') { e.preventDefault(); signIn().catch(function () {}); }
+    else if (act === 'dismiss-sign-in') { e.preventDefault(); dismissSignInGate(); }
     else if (act === 'enable-drive') {
       e.preventDefault();
       requestDriveToken(true).then(function (ok) { toast(ok ? 'Drive backup is on ✅' : 'Drive permission wasn’t granted. Data stays on this device.'); paint(); if (ok) syncNow(); }).catch(function () { toast('Couldn’t reach Google. Try again.'); });
@@ -436,6 +441,9 @@
       p.prompt(); p.userChoice.finally(hideInstall);
     }
     else if (act === 'dismiss-install') { lsSet(INSTALL_DISMISS_KEY, '1'); hideInstall(); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && document.getElementById('pj-gate')) dismissSignInGate();
   });
 
   /* ---------- PWA install prompt + offline service worker ----------
