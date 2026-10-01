@@ -1,0 +1,23 @@
+[
+  {
+    "id": "jm20-0108s1-25",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Physics",
+    "chapter": "Ray Optics",
+    "type": "num",
+    "difficulty": 1,
+    "q": "A plano-convex lens in air has a curved surface of radius 30 cm and is made of material with refractive index 1.5. Find its focal length in centimetres.",
+    "answer": 60,
+    "hint": "Apply the lens-maker formula with one surface plane.",
+    "solution": "For a thin plano-convex lens in air, 1/f = (n - 1)(1/R - 1/∞) = (1.5 - 1)/30 = 1/60 cm⁻¹. Therefore f = 60 cm.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "answerKeyUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-P25",
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
