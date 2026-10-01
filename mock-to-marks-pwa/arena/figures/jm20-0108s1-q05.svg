@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="330" viewBox="0 0 440 330" role="img" aria-labelledby="title desc">
+  <title id="title">Gravitational field against radius for two solid spheres</title>
+  <desc id="desc">Sphere 1 reaches field 2 at radius 1 metre; sphere 2 reaches field 3 at radius 2 metres. Both fields then decrease with radius.</desc>
+  <rect width="440" height="330" fill="#ffffff"/>
+  <g stroke="#111827" stroke-width="2" fill="none">
+    <path d="M72 270H405M72 270V35"/>
+    <path d="M405 270l-10-6v12z" fill="#111827"/>
+    <path d="M72 35l-6 10h12z" fill="#111827"/>
+    <path d="M72 270L132 152C145 174 170 206 250 235C300 252 345 260 390 265" stroke="#2563eb" stroke-width="3"/>
+    <path d="M72 270L192 93C209 127 236 171 283 209C322 240 356 252 395 260" stroke="#dc2626" stroke-width="3"/>
+    <path d="M132 270V152H72M192 270V93H72" stroke="#6b7280" stroke-dasharray="5 5" stroke-width="1.5"/>
+  </g>
+  <g fill="#111827" font-family="Arial, sans-serif" font-size="16">
+    <text x="397" y="294">r (m)</text><text x="20" y="30">E</text>
+    <text x="126" y="292">1</text><text x="187" y="292">2</text>
+    <text x="50" y="158">2</text><text x="50" y="99">3</text>
+    <text x="145" y="145" fill="#2563eb">sphere 1</text>
+    <text x="207" y="87" fill="#dc2626">sphere 2</text>
+  </g>
+</svg>

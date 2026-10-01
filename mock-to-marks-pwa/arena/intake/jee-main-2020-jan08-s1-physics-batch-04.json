@@ -1,0 +1,30 @@
+[
+  {
+    "id": "jm20-0108s1-05",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Physics",
+    "chapter": "Gravitation",
+    "type": "mcq",
+    "difficulty": 3,
+    "q": "Two solid spheres have radii R₁ = 1 m and R₂ = 2 m and masses M₁ and M₂, respectively. Their gravitational-field-versus-radius graphs reach surface values E₁ = 2 and E₂ = 3 in the same units. What is M₁/M₂?",
+    "img": "figures/jm20-0108s1-q05.svg",
+    "imgAlt": "Field-radius graph: sphere 1 peaks at E=2 when r=1 m; sphere 2 peaks at E=3 when r=2 m",
+    "options": ["$\\dfrac{1}{6}$", "$\\dfrac{1}{3}$", "$\\dfrac{1}{2}$", "$\\dfrac{2}{3}$"],
+    "answer": 0,
+    "hint": "At a sphere's surface, the gravitational field is GM/R².",
+    "solution": "At each surface, E = GM/R², so M is proportional to ER². Therefore M₁/M₂ = (E₁R₁²)/(E₂R₂²) = (2 × 1²)/(3 × 2²) = 1/6.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-P05",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://cdn1.byjus.com/wp-content/uploads/2020/01/JEE-Main-2020-8th-Jan-Shift-1-Physics.pdf",
+      "https://cracku.in/nta-jee-main-8-jan-2020-shift-1-physics-question-paper-solved"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "redrawn"
+  }
+]
