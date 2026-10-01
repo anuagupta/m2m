@@ -28,8 +28,9 @@ After human review, append it to the bank:
 
 `node arena/tools/import-verified.js intake.json --apply`
 
-The importer rejects duplicate IDs, unofficial hosts, invalid answers, years
-outside 2023–2026, and chapters not present in the Mock Test Analysis dropdown.
+The importer rejects duplicate IDs, unofficial hosts, invalid answers, JEE
+years outside 2025–2026, NEET years outside 2020–2026, and chapters not present
+in the Mock Test Analysis dropdown.
 Always run `npm test` after importing.
 
 ## Difficulty rubric (0–10)

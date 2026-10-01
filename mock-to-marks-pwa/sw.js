@@ -6,7 +6,7 @@
 // already-installed user's screen until their *second* load after a
 // deploy, even on a hard refresh, since the browser's hard-refresh cache
 // bypass doesn't touch the service worker's own Cache Storage.
-var CACHE_NAME = 'prodjee-cache-v21';
+var CACHE_NAME = 'prodjee-cache-v22';
 var ASSETS = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png',
   '/assets/pj-core.css', '/assets/pj-core.js', '/assets/subject-chapters.js', '/assets/logo-192.png', '/m2m/', '/arena/', '/coach/', '/coach/app.js', '/news/'];
 

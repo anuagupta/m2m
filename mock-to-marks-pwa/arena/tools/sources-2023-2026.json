@@ -1,12 +1,15 @@
 {
   "policy": "Only official NTA question/response sheets paired with the official final answer key are importable. An answer key without question text and option IDs remains pending.",
-  "window": [2023, 2024, 2025, 2026],
+  "scope": { "JEE": [2025, 2026], "NEET": [2020, 2021, 2022, 2023, 2024, 2025, 2026] },
   "sources": [
     { "exam": "JEE", "year": 2023, "documents": "https://jeemain.nta.nic.in/documents/", "status": "pending_official_question_sheets" },
     { "exam": "JEE", "year": 2024, "documents": "https://jeemain.nta.nic.in/documents/", "status": "partially_present_in_bank" },
     { "exam": "JEE", "year": 2025, "documents": "https://jeemain.nta.nic.in/documents/", "status": "present_in_bank" },
     { "exam": "JEE", "year": 2026, "documents": "https://jeemain.nta.nic.in/documents/", "status": "present_in_bank" },
-    { "exam": "NEET", "year": 2023, "documents": "https://neet.nta.nic.in/documents/", "status": "pending_official_question_sheets" },
+    { "exam": "NEET", "year": 2020, "documents": "https://neet.nta.nic.in/document-category/archive/page/7/", "questionPaper": "https://www.nta.ac.in/Download/ExamPaper/Paper_20201106060341.pdf", "finalKey": "https://nta.ac.in/Download/Notice/Notice_20201016104324.pdf", "status": "batch_01_imported" },
+    { "exam": "NEET", "year": 2021, "documents": "https://neet.nta.nic.in/archive/", "status": "pending_verified_extraction" },
+    { "exam": "NEET", "year": 2022, "documents": "https://neet.nta.nic.in/archive/", "status": "pending_verified_extraction" },
+    { "exam": "NEET", "year": 2023, "documents": "https://neet.nta.nic.in/documents/", "status": "pending_verified_extraction" },
     { "exam": "NEET", "year": 2024, "documents": "https://neet.nta.nic.in/documents/", "status": "pending_official_question_sheets" },
     { "exam": "NEET", "year": 2025, "documents": "https://neet.nta.nic.in/documents/", "status": "pending_official_question_sheets" },
     { "exam": "NEET", "year": 2026, "documents": "https://neet.nta.nic.in/documents/", "status": "pending_official_question_sheets" }

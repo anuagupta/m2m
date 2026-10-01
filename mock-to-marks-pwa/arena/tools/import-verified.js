@@ -24,7 +24,8 @@ const clean = rows.map((raw, i) => {
   ['id', 'exam', 'year', 'examDate', 'subject', 'chapter', 'type', 'q', 'answer', 'hint', 'solution', 'sourceUrl', 'answerKeyUrl', 'officialQuestionId'].forEach((key) => {
     if (raw[key] === undefined || raw[key] === null || raw[key] === '') throw new Error(`${label}: missing ${key}`);
   });
-  if (!['JEE', 'NEET'].includes(raw.exam) || raw.year < 2023 || raw.year > 2026) throw new Error(`${label}: exam/year is outside this intake`);
+  const inScope = (raw.exam === 'JEE' && raw.year >= 2025 && raw.year <= 2026) || (raw.exam === 'NEET' && raw.year >= 2020 && raw.year <= 2026);
+  if (!inScope) throw new Error(`${label}: exam/year is outside this intake`);
   if (existing.has(raw.id)) throw new Error(`${label}: duplicate question id`);
   existing.add(raw.id);
   const chapters = ctx.window.PJ_SUBJECT_CHAPTERS[raw.exam] && ctx.window.PJ_SUBJECT_CHAPTERS[raw.exam][raw.subject];
