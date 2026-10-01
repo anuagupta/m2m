@@ -1,0 +1,28 @@
+[
+  {
+    "id": "jm20-0108s1-11",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Physics",
+    "chapter": "Capacitance",
+    "type": "mcq",
+    "difficulty": 2,
+    "q": "Two capacitors C₁ and C₂ have an equivalent capacitance of 10 μF when connected in parallel. When each is separately connected to the same 1 V source, the energy stored in C₂ is four times that stored in C₁. What is their equivalent capacitance in series?",
+    "options": ["8.4 μF", "4.2 μF", "3.2 μF", "1.6 μF"],
+    "answer": 3,
+    "hint": "At the same voltage, stored energy is proportional to capacitance.",
+    "solution": "From C₁ + C₂ = 10 μF and U = CV²/2, the energy condition gives C₂ = 4C₁. Thus C₁ = 2 μF and C₂ = 8 μF. In series, C_eq = C₁C₂/(C₁ + C₂) = 16/10 = 1.6 μF.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-P11",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://byjus.com/jee/jee-main-2020-question-paper-physics-jan-8-shift-1/",
+      "https://cracku.in/12-effective-capacitance-of-parallel-combination-of-t-x-nta-jee-main-8-jan-2020-shift-1"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
