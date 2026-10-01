@@ -1,0 +1,28 @@
+[
+  {
+    "id": "jm20-0108s1-16",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Physics",
+    "chapter": "Ray Optics",
+    "type": "mcq",
+    "difficulty": 2,
+    "q": "An astronomical telescope in normal adjustment has tube length 60 cm and magnifying power 5. What is the focal length of its eyepiece?",
+    "options": ["10 cm", "20 cm", "30 cm", "40 cm"],
+    "answer": 0,
+    "hint": "For normal adjustment, M=f_o/f_e and L=f_o+f_e.",
+    "solution": "Since f_o/f_e=5, f_o=5f_e. The tube length is f_o+f_e=60 cm, so 6f_e=60 cm and f_e=10 cm.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-P16",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://cracku.in/17-the-magnifying-power-of-a-telescope-with-tube-leng-x-nta-jee-main-8-jan-2020-shift-1",
+      "https://learn.careers360.com/engineering/jee-main-2020-question-paper-with-solution-jan-8th-first-shift/"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
