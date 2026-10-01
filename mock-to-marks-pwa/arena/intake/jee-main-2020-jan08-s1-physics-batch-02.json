@@ -1,0 +1,30 @@
+[
+  {
+    "id": "jm20-0108s1-03",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Physics",
+    "chapter": "Centre of Mass",
+    "type": "mcq",
+    "difficulty": 3,
+    "q": "A uniform flag-shaped lamina has successive vertices (0, 0), (1, 0), (1, 2), (2, 2), (2, 3), and (0, 3), with all coordinates in metres. What are the coordinates of its centre of mass?",
+    "img": "figures/jm20-0108s1-q03.svg",
+    "imgAlt": "L-shaped lamina with vertices (0,0), (1,0), (1,2), (2,2), (2,3), and (0,3)",
+    "options": ["(0.75 m, 1.75 m)", "(0.75 m, 0.75 m)", "(1.00 m, 1.75 m)", "(1.25 m, 1.50 m)"],
+    "answer": 0,
+    "hint": "Treat the lamina as a 1 m × 3 m rectangle plus a 1 m × 1 m rectangle.",
+    "solution": "Split the lamina into a 1 m × 3 m rectangle of area 3 m² centred at (0.5, 1.5) and a 1 m × 1 m rectangle of area 1 m² centred at (1.5, 2.5). Thus x_cm = [3(0.5) + 1(1.5)]/4 = 0.75 m and y_cm = [3(1.5) + 1(2.5)]/4 = 1.75 m.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-P03",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://byjus.com/jee/jee-main-2020-question-paper-physics-jan-8-shift-1/",
+      "https://cracku.in/nta-jee-main-8-jan-2020-shift-1-question-paper-solved?page=5"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "redrawn"
+  }
+]
