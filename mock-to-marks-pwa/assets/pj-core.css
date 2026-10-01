@@ -90,6 +90,7 @@
 .pj-menu-toggle svg{width:22px;height:22px;display:block;}
 @media (max-width:560px){
   .pj-bar-inner{position:relative;}
+  .pj-bar-inner > .pj-avatar{margin-left:auto;}
   .pj-menu-toggle{display:flex;align-items:center;justify-content:center;}
   .pj-links{
     display:none;position:absolute;top:100%;left:0;right:0;z-index:5;

@@ -150,7 +150,6 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
         (u ? '' : '<div class="signed-out-cta"><button class="pj-btn pj-btn-primary" data-pj-act="sign-in">Continue with Google</button><span style="color:var(--pj-ink-faint);font-size:13px">Free to start. Your data stays with you.</span></div>')+
       '</section>'+
       '<div class="cards">'+
-        '<a class="tile arena" href="/coach/"><span class="tag">New · Personalised</span><h2>My Coach</h2><p>Get today’s weak-chapter mission, verified JEE/NEET updates, custom tests, spaced revision, score targets and a complete syllabus tracker.</p><ul><li>🧭 One-time JEE/NEET setup</li><li>🗞 Official exam updates</li><li>✅ Daily roadmap and revision</li></ul><span class="go">Open My Coach →</span></a>'+
         '<a class="tile arena" href="/arena/"><span class="tag">Free</span><h2>Arena</h2>'+
           '<p>4,345 JEE Main &amp; NEET questions currently available, including verified PYQs and the practice bank. Earn Gyan Points, keep your streak, clear your Mistake Vault.</p>'+
           (u && a ? '<div class="statrow"><span>'+n(a.gp)+' GP</span><span>🔥 '+a.streak+'-day streak</span><span>'+n(a.correct)+' correct</span></div>' : '<ul><li>🎯 Chapter-wise PYQ runs</li><li>⚡ Hints, full solutions, timers</li><li>📈 Weak-chapter tracking</li></ul>')+
@@ -159,6 +158,7 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
           '<p>Log your last mock and see why you lost marks — concept, formula recall, calculation slips or time. Get a focused 7- or 14-day recovery plan.</p>'+
           (u && m && m.mocks ? '<div class="statrow"><span>'+m.mocks+' mock'+(m.mocks>1?'s':'')+' logged</span><span>'+m.plans+' plan'+(m.plans===1?'':'s')+'</span></div>' : '<ul><li>🔍 Question-by-question diagnosis</li><li>🧭 Root cause per mistake</li><li>🗓️ 14-day plan built on your gaps</li></ul>')+
           '<span class="go">Open Mock-to-Marks →</span></a>'+
+        '<a class="tile arena" href="/coach/"><span class="tag">New · Personalised</span><h2>My Coach</h2><p>Get today’s weak-chapter mission, verified JEE/NEET updates, custom tests, spaced revision, score targets and a complete syllabus tracker.</p><ul><li>🧭 One-time JEE/NEET setup</li><li>🗞 Official exam updates</li><li>✅ Daily roadmap and revision</li></ul><span class="go">Open My Coach →</span></a>'+
       '</div>';
   }
 

@@ -12,8 +12,12 @@ const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'u
 const shown = Number((home.match(/<p>([\d,]+) JEE Main &amp; NEET questions currently available/) || [])[1]?.replace(/,/g, ''));
 const failures = [];
 if (shown !== count) failures.push(`Homepage says ${shown}; bank contains ${count}.`);
+const arenaTile = home.indexOf('href="/arena/"'), analysisTile = home.indexOf('href="/m2m/"'), coachTile = home.indexOf('href="/coach/"');
+if (!(arenaTile < analysisTile && analysisTile < coachTile)) failures.push('Homepage tile order must be Arena, Analysis, Coach.');
 if (!core.includes('beforeinstallprompt') || !core.includes('Add to Home Screen') || !core.includes('three-dot menu')) failures.push('Platform install guidance is incomplete.');
 if (!core.includes("navigator.standalone === true") || !core.includes("display-mode: standalone")) failures.push('Installed-app detection is missing.');
+const css = fs.readFileSync(path.join(root, 'assets', 'pj-core.css'), 'utf8');
+if (!css.includes('.pj-bar-inner > .pj-avatar{margin-left:auto;}')) failures.push('Mobile profile button is not anchored to the top-right.');
 if (manifest.display !== 'standalone' || manifest.start_url !== '/' || !manifest.icons || !manifest.icons.some((x) => x.sizes === '192x192') || !manifest.icons.some((x) => x.sizes === '512x512')) failures.push('Manifest does not meet the expected Chrome PWA shape.');
 if (failures.length) { console.error(failures.join('\n')); process.exit(1); }
 console.log(`Validated homepage total (${count}) and Android/iPhone installation paths.`);
