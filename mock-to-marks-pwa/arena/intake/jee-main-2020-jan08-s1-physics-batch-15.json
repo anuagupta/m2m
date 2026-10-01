@@ -1,0 +1,30 @@
+[
+  {
+    "id": "jm20-0108s1-19",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Physics",
+    "chapter": "Semiconductors",
+    "type": "mcq",
+    "difficulty": 3,
+    "q": "What is the Boolean relation for output Y of the shown diode-transistor circuit? Treat a closed input switch as logic 1 and an open switch as logic 0.",
+    "img": "figures/jm20-0108s1-q19.svg",
+    "imgAlt": "A 5 V source feeds switches A and B through separate diodes to a common pull-down node that drives an NPN transistor; output Y is taken from the collector with a +5 V pull-up.",
+    "options": ["A + B", "A · B", "Ā + B̄", "Ā · B̄"],
+    "answer": 3,
+    "hint": "The diode network performs OR, and the common-emitter transistor inverts its input.",
+    "solution": "The common diode node is high whenever A or B is high, so it represents A + B. A high base input switches the transistor on and pulls the collector output low; hence the transistor acts as NOT. Therefore Y = overline(A + B) = Ā · B̄.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-P19",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://pyqbox.com/jee/main/physics/semiconductors/boolean-relation-at-the-output-stage-y-for-the-a50b2665/",
+      "https://byjus.com/jee/jee-main-2020-question-paper-physics-jan-8-shift-1/"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "redrawn"
+  }
+]
