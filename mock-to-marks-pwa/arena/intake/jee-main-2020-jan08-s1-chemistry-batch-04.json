@@ -1,0 +1,33 @@
+[
+  {
+    "id": "jm20-0108s1-c04",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Chemistry",
+    "chapter": "States of Matter",
+    "type": "mcq",
+    "difficulty": 1,
+    "q": "Which intermolecular forces predominate in liquid ethyl acetate?",
+    "options": [
+      "Hydrogen bonding and London dispersion forces",
+      "London dispersion forces, dipole–dipole forces and hydrogen bonding",
+      "Dipole–dipole forces and hydrogen bonding",
+      "London dispersion forces and dipole–dipole forces"
+    ],
+    "answer": 3,
+    "hint": "Identify whether ethyl acetate is polar and whether it contains an O–H, N–H or F–H bond.",
+    "solution": "Every molecule exhibits London dispersion forces. The polar ester group gives ethyl acetate a permanent molecular dipole, so dipole–dipole forces also act. Pure ethyl acetate has no hydrogen attached to O, N or F and therefore cannot hydrogen-bond with itself. Hence the predominant forces are London dispersion and dipole–dipole forces.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-C04",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://byjus.com/jee/jee-main-2020-question-paper-chemistry-jan-8-shift-1/",
+      "https://pyqbox.com/jee/main/chemistry/chemical-bonding-and-molecular-structure/the-predominant-intermolecular-forces-present-in-ethyl-f5cde004/"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
