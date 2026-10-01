@@ -1,0 +1,33 @@
+[
+  {
+    "id": "jm20-0108s1-c03",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Chemistry",
+    "chapter": "Surface Chemistry",
+    "type": "mcq",
+    "difficulty": 3,
+    "q": "According to the Hardy–Schulze rule, which is the correct order of flocculation values for the listed electrolytes when coagulating positively charged ferric hydroxide sol?",
+    "options": [
+      "K₃[Fe(CN)₆] > AlCl₃ > K₂CrO₄ > KBr > KNO₃",
+      "AlCl₃ > K₃[Fe(CN)₆] > K₂CrO₄ > KBr = KNO₃",
+      "K₃[Fe(CN)₆] < K₂CrO₄ < AlCl₃ < KBr < KNO₃",
+      "K₃[Fe(CN)₆] < K₂CrO₄ < KBr = KNO₃ = AlCl₃"
+    ],
+    "answer": 3,
+    "hint": "For a positive sol, compare the valencies of the anions; flocculation value is inverse to coagulating power.",
+    "solution": "Ferric hydroxide sol is positively charged, so the active coagulating ions are anions. Their valencies are 3− for [Fe(CN)₆]³⁻, 2− for CrO₄²⁻, and 1− for Br⁻, NO₃⁻ and Cl⁻. Higher counter-ion valency means greater coagulating power and therefore a lower flocculation value. Hence K₃[Fe(CN)₆] < K₂CrO₄ < KBr = KNO₃ = AlCl₃.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-C03",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://cracku.in/38-as-per-hardy-schulze-formulation-the-flocculation--x-nta-jee-main-8-jan-2020-shift-1",
+      "https://byjus.com/jee/jee-main-2020-question-paper-chemistry-jan-8-shift-1/"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
