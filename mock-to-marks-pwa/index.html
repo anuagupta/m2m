@@ -19,18 +19,21 @@
   (function(){ var q = location.search; if (/[?&]route=/.test(q)) location.replace('/m2m/' + q + location.hash); })();
 </script>
 <meta charset="UTF-8">
-<title>ProDJEE — Gamified JEE/NEET Learning, AI Mock Analysis &amp; Personalised Plans</title>
+<title>ProDJEE — Play. Analyse. Improve.</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Improve your JEE or NEET score with gamified adaptive practice, AI-enabled mock-test analysis, weak-chapter exercises and personalised 7- or 14-day study plans.">
+<meta name="description" content="Gamified JEE &amp; NEET practice meets ScoreGPS. Find exactly why you lose marks and get a personalised 7- or 14-day plan to improve.">
 <meta name="application-name" content="ProDJEE">
 <link rel="canonical" href="https://prodjee.in/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ProDJEE">
-<meta property="og:title" content="ProDJEE — Gamified JEE/NEET Learning &amp; AI Mock Analysis">
-<meta property="og:description" content="Gamified adaptive practice, AI-enabled mock-test analysis and personalised plans that turn weak chapters into stronger scores.">
+<meta property="og:title" content="ProDJEE — Play. Analyse. Improve.">
+<meta property="og:description" content="Gamified JEE &amp; NEET practice meets ScoreGPS. Find exactly why you lose marks and get a personalised 7- or 14-day plan to improve.">
 <meta property="og:image" content="https://prodjee.in/icon-512.png">
 <meta property="og:url" content="https://prodjee.in/">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ProDJEE — Play. Analyse. Improve.">
+<meta name="twitter:description" content="Gamified JEE &amp; NEET practice meets ScoreGPS. Find exactly why you lose marks and get a personalised 7- or 14-day plan to improve.">
+<meta name="twitter:image" content="https://prodjee.in/icon-512.png">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0a0b14">
 <meta name="mobile-web-app-capable" content="yes">
@@ -42,20 +45,34 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
-  "name": "ProDJEE",
-  "url": "https://prodjee.in/",
-  "applicationCategory": "EducationalApplication",
-  "operatingSystem": "Web, Android, iOS",
-  "description": "A JEE and NEET learning app with gamified adaptive practice, AI-enabled mock-test analysis, weak-chapter exercises and personalised study plans.",
-  "featureList": [
-    "Gamified JEE and NEET question practice",
-    "Adaptive weak-chapter exercises",
-    "AI-enabled mock-test analysis",
-    "Personalised 7-day and 14-day improvement plans",
-    "Exam news and study coaching"
-  ],
-  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" }
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://prodjee.in/#website",
+      "name": "ProDJEE",
+      "alternateName": "ProDJEE.in",
+      "url": "https://prodjee.in/",
+      "description": "Gamified JEE and NEET practice with ScoreGPS analysis and personalised 7- or 14-day improvement plans."
+    },
+    {
+      "@type": "WebApplication",
+      "@id": "https://prodjee.in/#app",
+      "name": "ProDJEE",
+      "url": "https://prodjee.in/",
+      "isPartOf": { "@id": "https://prodjee.in/#website" },
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Web, Android, iOS",
+      "description": "Gamified JEE and NEET practice meets ScoreGPS. Find exactly why you lose marks and get a personalised 7- or 14-day plan to improve.",
+      "featureList": [
+        "Gamified JEE and NEET question practice",
+        "Adaptive weak-chapter exercises",
+        "ScoreGPS mock-test analysis",
+        "Personalised 7-day and 14-day improvement plans",
+        "Exam news and study coaching"
+      ],
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" }
+    }
+  ]
 }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -167,8 +184,8 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
     var u = PJ.user, a = arenaStats(), m = m2mStats();
     view.innerHTML =
       '<section class="hero">'+
-        '<h1>JEE/NEET prep that <em>actually</em> moves your marks.</h1>'+
-        '<p>Two tools, one sign-in. Practise real previous-year questions like a game, then find out exactly where your mock-test marks are leaking.</p>'+
+        '<h1>Play. <em>Analyse.</em> Improve.</h1>'+
+        '<p>Gamified JEE &amp; NEET practice meets ScoreGPS. Find exactly why you lose marks and get a personalised 7- or 14-day plan to improve.</p>'+
         (u ? '' : '<div class="signed-out-cta"><button class="pj-btn pj-btn-primary" data-pj-act="sign-in">Continue with Google</button><span style="color:var(--pj-ink-faint);font-size:13px">Free to start. Your data stays with you.</span></div>')+
       '</section>'+
       '<div class="cards">'+
