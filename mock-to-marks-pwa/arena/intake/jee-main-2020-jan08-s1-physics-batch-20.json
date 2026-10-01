@@ -1,0 +1,23 @@
+[
+  {
+    "id": "jm20-0108s1-24",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Physics",
+    "chapter": "Current Electricity",
+    "type": "num",
+    "difficulty": 2,
+    "q": "Four resistors of 15 Ω, 12 Ω, 4 Ω and 10 Ω are connected in that cyclic order to form a Wheatstone network. What resistance, in ohms, must be connected in parallel with the 10 Ω resistor to balance the network?",
+    "answer": 10,
+    "hint": "First find the required equivalent resistance of the arm containing 10 Ω from the Wheatstone balance condition.",
+    "solution": "For four arms in cyclic order, balance requires the products of opposite arms to be equal. If R is the new equivalent resistance of the 10 Ω arm, then 15 × 4 = 12 × R, so R = 5 Ω. A 10 Ω resistor in parallel with another 10 Ω resistor gives 5 Ω. Therefore the required added resistance is 10 Ω.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "answerKeyUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-P24",
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
