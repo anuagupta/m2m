@@ -1,0 +1,28 @@
+[
+  {
+    "id": "jm20-0108s1-07",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Physics",
+    "chapter": "Mechanical Properties of Fluids",
+    "type": "mcq",
+    "difficulty": 2,
+    "q": "A leak-proof cylindrical body of length 1 m and negligible thermal expansion floats vertically in water. Its height above the surface is 20 cm at 0°C and 21 cm at 4°C. Approximately what is the ratio of the density of water at 4°C to that at 0°C?",
+    "options": ["1.04", "1.01", "1.26", "1.03"],
+    "answer": 1,
+    "hint": "Equate the body's unchanged weight to the buoyant force at each temperature.",
+    "solution": "The submerged lengths are 80 cm at 0°C and 79 cm at 4°C. With cross-sectional area A, flotation gives ρ₀A(80)g = ρ₄A(79)g. Hence ρ₄/ρ₀ = 80/79 ≈ 1.0127, which is closest to 1.01.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-P07",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://cracku.in/6-a-leak-proof-cylinder-of-length-1-m-made-of-a-meta-x-nta-jee-main-8-jan-2020-shift-1",
+      "https://learn.careers360.com/engineering/jee-main-2020-question-paper-with-solution-jan-8th-first-shift/"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
