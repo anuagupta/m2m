@@ -488,7 +488,14 @@
   window.addEventListener('appinstalled', function () { deferredInstallPrompt = null; hideInstall(); });
   offerInstall();
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(function () {}); });
+    window.addEventListener('load', function () {
+      // Do not let the browser's HTTP cache delay an app-shell update. The
+      // worker itself remains network-first, so this safely upgrades existing
+      // installations without touching any student's local study data.
+      navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+        .then(function (registration) { return registration.update(); })
+        .catch(function () {});
+    });
     // A stale cached bundle isn't just cosmetic - it can mean a student sees
     // an old readiness score or an ungated build. Reload once, automatically,
     // the moment a newer service worker takes control.
