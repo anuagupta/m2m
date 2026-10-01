@@ -436,11 +436,13 @@
     else if (act === 'resume-drive') { e.preventDefault(); resumeDrive(); }
     else if (act === 'dismiss-banner') { e.preventDefault(); try { sessionStorage.setItem(bannerDismissKey(), '1'); } catch (e2) {} paintBanner(); }
     else if (act === 'install-app') {
-      if (!deferredInstallPrompt) return;
-      var p = deferredInstallPrompt; deferredInstallPrompt = null;
-      p.prompt(); p.userChoice.finally(hideInstall);
+      if (deferredInstallPrompt) {
+        var p = deferredInstallPrompt; deferredInstallPrompt = null;
+        p.prompt(); p.userChoice.finally(function () { if (!isStandalone()) hideInstall(); });
+      } else showInstallHelp();
     }
-    else if (act === 'dismiss-install') { lsSet(INSTALL_DISMISS_KEY, '1'); hideInstall(); }
+    else if (act === 'dismiss-install') { try { sessionStorage.setItem(INSTALL_DISMISS_KEY, '1'); } catch (e2) {} hideInstall(); }
+    else if (act === 'close-install-help') { var help = document.getElementById('pj-install-help'); if (help) help.remove(); }
   });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && document.getElementById('pj-gate')) dismissSignInGate();
@@ -467,14 +469,38 @@
     document.body.appendChild(w);
     return w;
   }
+  function isMobileInstallTarget() {
+    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+  }
+  function isIOS() {
+    return /iPhone|iPad|iPod/i.test(navigator.userAgent || '') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+  function installDismissedThisVisit() {
+    try { return sessionStorage.getItem(INSTALL_DISMISS_KEY) === '1'; } catch (e) { return false; }
+  }
+  function showInstallHelp() {
+    var ios = isIOS();
+    scrim(
+      '<button type="button" class="pj-gate-close" data-pj-act="close-install-help" aria-label="Close install instructions">×</button>' +
+      '<h2>Install ProDJEE</h2>' +
+      (ios
+        ? '<p>In Safari, tap the <b>Share</b> button, then choose <b>Add to Home Screen</b> and tap <b>Add</b>.</p>'
+        : '<p>In Chrome, open the <b>⋮ three-dot menu</b> and choose <b>Install app</b> or <b>Add to Home screen</b>.</p>') +
+      '<button type="button" class="pj-btn pj-btn-primary" style="width:100%;margin-top:8px" data-pj-act="close-install-help">Got it</button>',
+      'pj-install-help');
+  }
   function hideInstall() { var w = document.getElementById('pjInstallWrap'); if (w) w.hidden = true; }
+  function offerInstall() {
+    if (isStandalone() || !isMobileInstallTarget() || installDismissedThisVisit()) { hideInstall(); return; }
+    installWrap().hidden = false;
+  }
   window.addEventListener('beforeinstallprompt', function (e) {
     e.preventDefault();
     deferredInstallPrompt = e;
-    if (isStandalone() || lsGet(INSTALL_DISMISS_KEY) === '1') return;
-    installWrap().hidden = false;
+    offerInstall();
   });
   window.addEventListener('appinstalled', function () { deferredInstallPrompt = null; hideInstall(); });
+  offerInstall();
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(function () {}); });
     // A stale cached bundle isn't just cosmetic - it can mean a student sees

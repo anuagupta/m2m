@@ -1,0 +1,19 @@
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+const root = path.join(__dirname, '..');
+const ctx = { window: {} };
+vm.createContext(ctx);
+['questions.js', 'practice.js', 'pyq.js'].forEach((file) => vm.runInContext(fs.readFileSync(path.join(root, 'arena', file), 'utf8'), ctx));
+const count = ctx.window.QBANK.length;
+const home = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const core = fs.readFileSync(path.join(root, 'assets', 'pj-core.js'), 'utf8');
+const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
+const shown = Number((home.match(/<p>([\d,]+) JEE Main &amp; NEET questions currently available/) || [])[1]?.replace(/,/g, ''));
+const failures = [];
+if (shown !== count) failures.push(`Homepage says ${shown}; bank contains ${count}.`);
+if (!core.includes('beforeinstallprompt') || !core.includes('Add to Home Screen') || !core.includes('three-dot menu')) failures.push('Platform install guidance is incomplete.');
+if (!core.includes("navigator.standalone === true") || !core.includes("display-mode: standalone")) failures.push('Installed-app detection is missing.');
+if (manifest.display !== 'standalone' || manifest.start_url !== '/' || !manifest.icons || !manifest.icons.some((x) => x.sizes === '192x192') || !manifest.icons.some((x) => x.sizes === '512x512')) failures.push('Manifest does not meet the expected Chrome PWA shape.');
+if (failures.length) { console.error(failures.join('\n')); process.exit(1); }
+console.log(`Validated homepage total (${count}) and Android/iPhone installation paths.`);
