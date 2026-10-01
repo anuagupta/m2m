@@ -1,0 +1,33 @@
+[
+  {
+    "id": "jm20-0108s1-c05",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Chemistry",
+    "chapter": "Atomic Structure",
+    "type": "mcq",
+    "difficulty": 3,
+    "q": "For the Balmer series of hydrogen, the wavenumber is ν̄ = R_H(1/n₁² − 1/n₂²). Consider the statements: (I) as wavelength decreases, successive lines converge; (II) n₁ = 2; (III) the longest-wavelength line has n₂ = 3; (IV) the ionization energy of ground-state hydrogen can be obtained directly from the wavenumbers of these Balmer lines. Which statements are correct?",
+    "options": [
+      "(I), (II) and (III)",
+      "(II), (III) and (IV)",
+      "(I), (III) and (IV)",
+      "(I), (II) and (IV)"
+    ],
+    "answer": 0,
+    "hint": "In the Balmer series the lower level is fixed at n = 2, and the smallest energy gap occurs for the 3 → 2 transition.",
+    "solution": "For every Balmer line, n₁ = 2 and n₂ = 3, 4, 5, … . The longest wavelength corresponds to the smallest transition energy, so n₂ = 3. As n₂ increases, the wavelengths decrease and the lines approach the series limit, so they converge. Balmer-line wavenumbers describe transitions ending at n = 2; they do not directly give the ground-state (n = 1) ionization energy. Therefore statements (I), (II) and (III) are correct.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-C05",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://cracku.in/26-for-the-balmer-series-in-the-spectrum-of-h-atom-ba-x-nta-jee-main-8-jan-2020-shift-1",
+      "https://pyqbox.com/jee/main/chemistry/structure-of-atom/for-the-balmer-series-in-the-spectrum-of-h-atom-v-r-h-2fcbd7b5/"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
