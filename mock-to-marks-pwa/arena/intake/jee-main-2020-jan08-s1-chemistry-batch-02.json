@@ -1,0 +1,28 @@
+[
+  {
+    "id": "jm20-0108s1-c02",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Chemistry",
+    "chapter": "Chemical Kinetics",
+    "type": "mcq",
+    "difficulty": 3,
+    "q": "At physiological temperature T, a biochemical reaction proceeds 10⁶ times faster with an enzyme than without it. Assuming the pre-exponential factor is unchanged, what is the change in activation energy when the enzyme is added?",
+    "options": ["-6RT", "-6(2.303)RT", "+6RT", "+6(2.303)RT"],
+    "answer": 1,
+    "hint": "Take the ratio of the two Arrhenius rate constants at the same temperature.",
+    "solution": "From k = A exp(-Ea/RT), k_enzyme/k_without = exp[(Ea,without - Ea,enzyme)/RT] = 10⁶. Thus Ea,enzyme - Ea,without = -RT ln(10⁶) = -6RT ln 10 = -6(2.303)RT.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-C02",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://byjus.com/jee/jee-main-2020-question-paper-chemistry-jan-8-shift-1/",
+      "https://learn.careers360.com/engineering/jee-main-2020-question-paper-with-solution-jan-8th-first-shift/"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
