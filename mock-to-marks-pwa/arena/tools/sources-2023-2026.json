@@ -1,21 +1,33 @@
 {
-  "policy": "ExamSIDE/ExamGOAL transcriptions are permitted, but every retained item must be matched to the official NTA/CBSE paper and final key, independently solved, chapter-tagged, rated 0-10 and supplied with a clean redraw when needed. Ambiguous, dropped, bonus, unreadable and answer-mismatched items are quarantined.",
-  "scope": { "JEE": [2023, 2024, 2025, 2026], "NEET": [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026] },
-  "transcriptionSources": [
-    { "name": "ExamSIDE / ExamGOAL", "url": "https://questions.examside.com/past-years/year-wise/jee/jee-main", "permission": "confirmed_by_owner", "use": "question and option transcription only" },
-    { "name": "ExamSIDE / ExamGOAL NEET", "url": "https://questions.examside.com/past-years/medical/neet", "permission": "confirmed_by_owner", "use": "question and option transcription only" }
+  "policy": "No prohibited transcription source may be used. Official NTA/CBSE papers and final keys are the authority. Approved independent archives may only recover or cross-check missing text. Every retained item must be independently solved, chapter-tagged, rated 0-10, and supplied with a clean redraw when needed. Ambiguous, dropped, bonus, unreadable, watermarked, and answer-mismatched items are quarantined.",
+  "scope": {
+    "years": [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026],
+    "JEE": ["Physics", "Chemistry", "Mathematics"],
+    "NEET": ["Physics", "Chemistry", "Botany", "Zoology"]
+  },
+  "authorities": [
+    { "name": "JEE Main NTA documents", "url": "https://jeemain.nta.nic.in/documents/", "use": "official paper notices and final answer keys" },
+    { "name": "JEE Main NTA archive", "url": "https://jeemain.nta.nic.in/document-category/archive/", "use": "official historical notices and final answer keys" },
+    { "name": "NEET UG NTA documents", "url": "https://neet.nta.nic.in/documents/", "use": "official paper notices and final answer keys" },
+    { "name": "NEET UG NTA archive", "url": "https://neet.nta.nic.in/document-category/archive/", "use": "official historical notices and final answer keys" },
+    { "name": "NTA exam-paper repository", "url": "https://www.nta.ac.in/Downloads", "use": "official question-paper PDFs and notices" },
+    { "name": "CBSE archive", "url": "https://www.cbse.gov.in/cbsenew/question-paper.html", "use": "official pre-NTA papers and keys where retained" }
   ],
-  "sources": [
-    { "exam": "JEE", "year": 2023, "documents": "https://jeemain.nta.nic.in/documents/", "status": "pending_official_question_sheets" },
-    { "exam": "JEE", "year": 2024, "documents": "https://jeemain.nta.nic.in/documents/", "status": "partially_present_in_bank" },
-    { "exam": "JEE", "year": 2025, "documents": "https://jeemain.nta.nic.in/documents/", "status": "present_in_bank" },
-    { "exam": "JEE", "year": 2026, "documents": "https://jeemain.nta.nic.in/documents/", "status": "present_in_bank" },
-    { "exam": "NEET", "year": 2020, "documents": "https://neet.nta.nic.in/document-category/archive/page/7/", "questionPaper": "https://www.nta.ac.in/Download/ExamPaper/Paper_20201106060341.pdf", "finalKey": "https://nta.ac.in/Download/Notice/Notice_20201016104324.pdf", "status": "batch_01_imported" },
-    { "exam": "NEET", "year": 2021, "documents": "https://neet.nta.nic.in/archive/", "status": "pending_verified_extraction" },
-    { "exam": "NEET", "year": 2022, "documents": "https://neet.nta.nic.in/archive/", "status": "pending_verified_extraction" },
-    { "exam": "NEET", "year": 2023, "documents": "https://neet.nta.nic.in/documents/", "status": "pending_verified_extraction" },
-    { "exam": "NEET", "year": 2024, "documents": "https://neet.nta.nic.in/documents/", "status": "pending_official_question_sheets" },
-    { "exam": "NEET", "year": 2025, "documents": "https://neet.nta.nic.in/documents/", "status": "pending_official_question_sheets" },
-    { "exam": "NEET", "year": 2026, "documents": "https://neet.nta.nic.in/documents/", "status": "pending_official_question_sheets" }
+  "recoverySources": [
+    { "name": "Careers360 JEE archive", "url": "https://engineering.careers360.com/articles/jee-main-question-papers", "use": "recover or cross-check paper text only; never answer authority" },
+    { "name": "Careers360 NEET archive", "url": "https://medicine.careers360.com/articles/neet-question-paper", "use": "recover or cross-check paper text only; never answer authority" },
+    { "name": "Resonance JEE archive", "url": "https://www.resonance.ac.in/answer-key-solutions/jee-main.aspx", "use": "second-source cross-check only; never answer authority" },
+    { "name": "Aakash paper archive", "url": "https://class-sit.aakash.ac.in/abc-download", "use": "second-source cross-check only; never answer authority" }
+  ],
+  "coverage": [
+    { "exam": "JEE", "years": "2017-2018", "officialOwner": "CBSE", "status": "source_mapping" },
+    { "exam": "JEE", "years": "2019-2022", "officialOwner": "NTA", "status": "source_mapping" },
+    { "exam": "JEE", "year": 2023, "officialOwner": "NTA", "status": "pending_verified_extraction" },
+    { "exam": "JEE", "year": 2024, "officialOwner": "NTA", "status": "partial" },
+    { "exam": "JEE", "years": "2025-2026", "officialOwner": "NTA", "status": "partial" },
+    { "exam": "NEET", "years": "2017-2018", "officialOwner": "CBSE", "status": "source_mapping" },
+    { "exam": "NEET", "year": 2019, "officialOwner": "NTA", "status": "source_mapping" },
+    { "exam": "NEET", "year": 2020, "officialOwner": "NTA", "questionPaper": "https://www.nta.ac.in/Download/ExamPaper/Paper_20201106060341.pdf", "finalKey": "https://nta.ac.in/Download/Notice/Notice_20201016104324.pdf", "status": "partial" },
+    { "exam": "NEET", "years": "2021-2026", "officialOwner": "NTA", "status": "pending_verified_extraction" }
   ]
 }

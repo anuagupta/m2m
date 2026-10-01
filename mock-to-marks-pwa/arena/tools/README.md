@@ -10,17 +10,23 @@
 5. `node render.js paper.pdf pages/p 1.5`: renders page images, so the questions can be read and solved independently.
 6. `node crop.js paper.pdf spec.json`: crops figures at 2× (coordinates in 1.5-scale pixels).
 
-Only use **official NTA response sheets** (with Question ID / Option ID). Coaching "memory-based" papers differ from the real exam.
+Use official NTA or CBSE papers wherever they are retained. A third-party archive
+may recover missing question text, but must never decide the answer. Any recovered
+text is checked against a second independent archive and the official final key.
+Memory-based questions, watermarked images and uncertain diagrams are rejected.
 
 ## Verified intake and chapter tagging
 
-The tracked source inventory is `sources-2023-2026.json`. A final answer key by
+The tracked source inventory is `sources-2023-2026.json` (the filename is retained
+for compatibility; its active scope is 2017–2026). A final answer key by
 itself is not enough: every import needs the official question text, options,
 Question ID, paper date, official response-sheet URL and final-key URL.
 
 Prepare a JSON array with the ordinary Arena fields plus `year`, `examDate`,
 `sourceUrl`, `answerKeyUrl`, `officialQuestionId`, and either an integer
-`difficulty` or `difficultyEvidence`. Validate it first:
+`difficulty` or `difficultyEvidence`. NEET Biology rows also require
+`biologyBranch: "Botany" | "Zoology"`. If an approved independent archive was
+needed to recover text, record it as `recoverySourceUrl`. Validate it first:
 
 `node arena/tools/import-verified.js intake.json`
 
@@ -28,11 +34,9 @@ After human review, append it to the bank:
 
 `node arena/tools/import-verified.js intake.json --apply`
 
-The user has confirmed permission to use ExamSIDE/ExamGOAL transcriptions. The
-official NTA/CBSE paper and final key remain the authority; the third-party URL
-is stored only as `transcriptionUrl` for traceability. The importer rejects
-duplicate IDs, unofficial authority hosts, unapproved transcription hosts,
-invalid answers, JEE years outside 2023–2026, NEET years outside 2017–2026,
+The importer prohibits the excluded transcription services in every intake field.
+It rejects duplicate IDs, unofficial authority hosts, unapproved recovery hosts,
+invalid answers, exam years outside 2017–2026,
 and chapters not present in the Mock Test Analysis dropdown. Every intake row
 must explicitly confirm `answerKeyMatch: true`, `independentSolution: true`, and
 `diagramStatus: "not_required" | "redrawn"`. Ambiguous, dropped and bonus

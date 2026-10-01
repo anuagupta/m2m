@@ -18,13 +18,15 @@ const existing = new Set(ctx.window.QBANK.map((q) => q.id));
 const rows = JSON.parse(fs.readFileSync(path.resolve(input), 'utf8'));
 if (!Array.isArray(rows) || !rows.length) throw new Error('Intake must be a non-empty JSON array.');
 
-const officialHost = /(^|\.)(nta\.ac\.in|nta\.nic\.in|s3waas\.gov\.in)$/i;
+const officialHost = /(^|\.)(nta\.ac\.in|nta\.nic\.in|s3waas\.gov\.in|cbse\.gov\.in|cbse\.nic\.in|cbseacademic\.nic\.in)$/i;
+const recoveryHost = /(^|\.)(careers360\.com|aakash\.ac\.in|resonance\.ac\.in|allen\.in)$/i;
 const clean = rows.map((raw, i) => {
   const label = raw.id || `row ${i + 1}`;
+  if (/examside|examgoal/i.test(JSON.stringify(raw))) throw new Error(`${label}: prohibited transcription source`);
   ['id', 'exam', 'year', 'examDate', 'subject', 'chapter', 'type', 'q', 'answer', 'hint', 'solution', 'sourceUrl', 'answerKeyUrl'].forEach((key) => {
     if (raw[key] === undefined || raw[key] === null || raw[key] === '') throw new Error(`${label}: missing ${key}`);
   });
-  const inScope = (raw.exam === 'JEE' && raw.year >= 2023 && raw.year <= 2026) || (raw.exam === 'NEET' && raw.year >= 2017 && raw.year <= 2026);
+  const inScope = ['JEE', 'NEET'].includes(raw.exam) && raw.year >= 2017 && raw.year <= 2026;
   if (!inScope) throw new Error(`${label}: exam/year is outside this intake`);
   if (existing.has(raw.id)) throw new Error(`${label}: duplicate question id`);
   existing.add(raw.id);
@@ -34,11 +36,15 @@ const clean = rows.map((raw, i) => {
     const url = new URL(value);
     if (!officialHost.test(url.hostname)) throw new Error(`${label}: provenance must use an official NTA host`);
   });
-  if (raw.transcriptionUrl) {
-    const transcription = new URL(raw.transcriptionUrl);
-    if (!/(^|\.)(questions\.examside\.com|examgoal\.net)$/i.test(transcription.hostname)) throw new Error(`${label}: transcription host is not approved`);
+  if (raw.transcriptionUrl) throw new Error(`${label}: transcriptionUrl is no longer accepted; use recoverySourceUrl`);
+  if (raw.recoverySourceUrl) {
+    const recovery = new URL(raw.recoverySourceUrl);
+    if (!recoveryHost.test(recovery.hostname)) throw new Error(`${label}: recovery source is not approved`);
   }
   const legacyOfficialIntake = !!raw.officialQuestionId && raw.answerKeyMatch === undefined;
+  if (raw.exam === 'NEET' && raw.subject === 'Biology' && !legacyOfficialIntake && !['Botany', 'Zoology'].includes(raw.biologyBranch)) {
+    throw new Error(`${label}: NEET Biology requires biologyBranch Botany or Zoology`);
+  }
   if (raw.answerKeyMatch !== true && !legacyOfficialIntake) throw new Error(`${label}: official answer-key match is not confirmed`);
   if (raw.independentSolution !== true && !legacyOfficialIntake) throw new Error(`${label}: independent solution is not confirmed`);
   const hasDiagram = !!raw.img || (Array.isArray(raw.options) && raw.options.some((option) => option && typeof option === 'object' && option.img));
