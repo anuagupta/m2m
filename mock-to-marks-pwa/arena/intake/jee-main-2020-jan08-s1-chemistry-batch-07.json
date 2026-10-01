@@ -1,0 +1,33 @@
+[
+  {
+    "id": "jm20-0108s1-c07",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Chemistry",
+    "chapter": "Periodic Properties",
+    "type": "mcq",
+    "difficulty": 2,
+    "q": "What are the first ionization energies, in kJ mol⁻¹, of Na, Mg, Al and Si, respectively?",
+    "options": [
+      "496, 577, 737, 786",
+      "786, 737, 577, 496",
+      "496, 737, 577, 786",
+      "496, 577, 786, 737"
+    ],
+    "answer": 2,
+    "hint": "Across period 3 the general rise has an exception between Mg and Al because Al loses a 3p electron.",
+    "solution": "The measured values are Na = 496, Mg = 737, Al = 577 and Si = 786 kJ mol⁻¹. Although ionization energy generally rises across the period, Al is below Mg because its electron is removed from the higher-energy 3p subshell, whereas Mg has a filled 3s² subshell. Thus the required sequence is 496, 737, 577, 786.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-C07",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://byjus.com/jee/jee-main-2020-question-paper-chemistry-jan-8-shift-1/",
+      "https://pyqbox.com/jee/main/chemistry/classification-of-elements-and-periodicity-in/the-first-ionization-energy-in-kj-mol-of-na-mg-al-and-5d93b5a5/"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
