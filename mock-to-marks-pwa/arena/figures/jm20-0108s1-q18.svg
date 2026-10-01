@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="420" viewBox="0 0 720 420" role="img" aria-labelledby="title desc">
+  <title id="title">Four candidate graphs for Rutherford scattering</title>
+  <desc id="desc">Four plots of detected alpha particles Y against scattering angle theta from zero to pi: linear decrease, saturating increase, bell curve, and steep inverse decay.</desc>
+  <rect width="720" height="420" rx="18" fill="#ffffff"/>
+  <g font-family="Arial, sans-serif" fill="#171a2b" stroke="#171a2b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="translate(45 35)">
+      <text x="0" y="20" stroke="none" font-size="22" font-weight="700">1</text>
+      <path d="M55 145V25M55 145H285" fill="none"/>
+      <text x="34" y="34" stroke="none" font-size="20">Y</text><text x="264" y="172" stroke="none" font-size="20">π</text><text x="44" y="172" stroke="none" font-size="20">0</text><text x="180" y="172" stroke="none" font-size="20">θ</text>
+      <path d="M65 35L270 132" fill="none" stroke="#3567d6" stroke-width="5"/>
+    </g>
+    <g transform="translate(380 35)">
+      <text x="0" y="20" stroke="none" font-size="22" font-weight="700">2</text>
+      <path d="M55 145V25M55 145H285" fill="none"/>
+      <text x="34" y="34" stroke="none" font-size="20">Y</text><text x="264" y="172" stroke="none" font-size="20">π</text><text x="44" y="172" stroke="none" font-size="20">0</text><text x="180" y="172" stroke="none" font-size="20">θ</text>
+      <path d="M65 137C90 75 145 42 270 38" fill="none" stroke="#3567d6" stroke-width="5"/>
+    </g>
+    <g transform="translate(45 225)">
+      <text x="0" y="20" stroke="none" font-size="22" font-weight="700">3</text>
+      <path d="M55 145V25M55 145H285" fill="none"/>
+      <text x="34" y="34" stroke="none" font-size="20">Y</text><text x="264" y="172" stroke="none" font-size="20">π</text><text x="44" y="172" stroke="none" font-size="20">0</text><text x="180" y="172" stroke="none" font-size="20">θ</text>
+      <path d="M65 137C100 133 112 43 166 40C220 43 232 133 270 137" fill="none" stroke="#3567d6" stroke-width="5"/>
+    </g>
+    <g transform="translate(380 225)">
+      <text x="0" y="20" stroke="none" font-size="22" font-weight="700">4</text>
+      <path d="M55 145V25M55 145H285" fill="none"/>
+      <text x="34" y="34" stroke="none" font-size="20">Y</text><text x="264" y="172" stroke="none" font-size="20">π</text><text x="44" y="172" stroke="none" font-size="20">0</text><text x="180" y="172" stroke="none" font-size="20">θ</text>
+      <path d="M66 32C72 90 90 122 125 134C168 145 220 140 270 139" fill="none" stroke="#3567d6" stroke-width="5"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "jm20-0108s1-18",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Physics",
+    "chapter": "Atoms",
+    "type": "mcq",
+    "difficulty": 2,
+    "q": "Which graph represents the number Y of detected alpha particles as a function of scattering angle θ in Rutherford's gold-foil experiment? The plots are schematic and not to scale.",
+    "img": "figures/jm20-0108s1-q18.svg",
+    "imgAlt": "Four plots of Y against θ from 0 to π: graph 1 decreases linearly, graph 2 rises and saturates, graph 3 is bell-shaped, and graph 4 decreases steeply and then flattens.",
+    "options": ["Graph 1", "Graph 2", "Graph 3", "Graph 4"],
+    "answer": 3,
+    "hint": "Use the angular dependence in Rutherford's scattering formula.",
+    "solution": "Rutherford scattering gives Y proportional to 1/sin⁴(θ/2). Thus the count is very large at small angles and falls steeply as θ increases, approaching a small value near π. This is Graph 4.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-P18",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://byjus.com/jee/jee-main-2020-question-paper-physics-jan-8-shift-1/",
+      "https://learn.careers360.com/engineering/jee-main-2020-question-paper-with-solution-jan-8th-first-shift/"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "redrawn"
+  }
+]
