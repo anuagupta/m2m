@@ -1,0 +1,30 @@
+[
+  {
+    "id": "jm20-0108s1-c01",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Chemistry",
+    "chapter": "Ionic Equilibrium",
+    "type": "mcq",
+    "difficulty": 4,
+    "q": "The graph shows the boundary of saturation for a salt in terms of the equilibrium concentrations of ions X and Y. Which pair gives the salt stoichiometry and its solubility product, respectively?",
+    "img": "figures/jm20-0108s1-c01.svg",
+    "imgAlt": "Decreasing solubility curve of [Y] in mM against [X] in mM, passing through [X] = 1 mM and [Y] = 2 mM.",
+    "options": ["XY, 2 × 10⁻⁶ M²", "XY₂, 4 × 10⁻⁹ M³", "X₂Y, 2 × 10⁻⁹ M³", "XY₂, 1 × 10⁻⁹ M³"],
+    "answer": 1,
+    "hint": "Use the point [X] = 1 mM, [Y] = 2 mM and identify which ionic-product expression remains constant along the curve.",
+    "solution": "The curve is consistent with Ksp = [X][Y]², so the salt is XY₂. At [X] = 1 × 10⁻³ M and [Y] = 2 × 10⁻³ M, Ksp = (1 × 10⁻³)(2 × 10⁻³)² = 4 × 10⁻⁹ M³.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-C01",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://pyqbox.com/jee/main/chemistry/ionic-equilibrium/the-stoichiometry-and-solubility-product-of-a-salt-5605c569/",
+      "https://byjus.com/jee/jee-main-2020-question-paper-chemistry-jan-8-shift-1/"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "redrawn"
+  }
+]
