@@ -1,0 +1,23 @@
+[
+  {
+    "id": "jm20-0108s1-21",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Physics",
+    "chapter": "Kinematics",
+    "type": "num",
+    "difficulty": 3,
+    "q": "Particle 1 moves along the x-axis with x(t) = 10 + 8t - 3t², while particle 2 moves along the y-axis with y(t) = 5 - 8t³. At t = 1 s, the speed of particle 2 measured in the frame of particle 1 is √v m/s. Find v.",
+    "answer": 580,
+    "hint": "Differentiate both position functions, then subtract the velocity vectors.",
+    "solution": "At t = 1 s, particle 1 has velocity (8 - 6t)i = 2i m/s and particle 2 has velocity -24t²j = -24j m/s. Hence the velocity of particle 2 relative to particle 1 is -2i - 24j, whose speed is √(2² + 24²) = √580 m/s. Therefore v = 580.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "answerKeyUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-P21",
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
