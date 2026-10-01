@@ -12,19 +12,19 @@
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
-<title>AI Mock-Test Analysis &amp; Personalised Study Plans | ProDJEE</title>
+<title>ScoreGPS — AI Mock Analysis &amp; Personalised Plans | ProDJEE</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="AI-guided performance analysis that finds why you lose marks and creates personalised 7- or 14-day exercises to improve your JEE or NEET score.">
 <meta name="application-name" content="ProDJEE">
 <link rel="canonical" href="https://prodjee.in/m2m/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ProDJEE">
-<meta property="og:title" content="AI Mock-Test Analysis &amp; Personalised Study Plans | ProDJEE">
+<meta property="og:title" content="ScoreGPS — AI Mock Analysis &amp; Personalised Plans | ProDJEE">
 <meta property="og:description" content="Find the reasons behind lost marks and turn them into personalised, AI-guided exercises for a stronger JEE or NEET score.">
 <meta property="og:image" content="https://prodjee.in/icon-512.png">
 <meta property="og:url" content="https://prodjee.in/m2m/">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="AI Mock-Test Analysis &amp; Personalised Study Plans | ProDJEE">
+<meta name="twitter:title" content="ScoreGPS — AI Mock Analysis &amp; Personalised Plans | ProDJEE">
 <meta name="twitter:description" content="AI-guided analysis and personalised exercises that target weak areas and improve your JEE or NEET score.">
 <meta name="twitter:image" content="https://prodjee.in/icon-512.png">
 <link rel="manifest" href="/manifest.json">
@@ -489,6 +489,7 @@ select,.field input[type=text],.field input[type=number],.field input[type=date]
 .page-back:hover{color:var(--ink);transform:translateX(-3px);}
 .helper{font-size:12.5px;color:var(--ink-faint);margin-top:20px;}
 .empty{text-align:center;padding:44px 20px;color:var(--ink-soft);border:1px dashed var(--border);border-radius:14px;background:var(--surface);}
+.eyebrow{color:var(--accent);font-size:12px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;margin-bottom:10px;}
 @media (max-width:640px){
   .catrow{flex-direction:column;gap:8px;}
   .catrank{width:auto;}
@@ -499,15 +500,15 @@ select,.field input[type=text],.field input[type=number],.field input[type=date]
 <div class="bg-blobs" aria-hidden="true"><span class="blob blob-gold"></span><span class="blob blob-green"></span><span class="blob blob-coral"></span></div>
 <header class="pj-bar pj-static"><div class="pj-bar-inner">
   <div class="pj-brand"><img src="/assets/logo-192.png" alt="ProDJEE logo"><b>Pro<span>DJEE</span></b></div>
-  <nav class="pj-links" aria-label="Sections"><a href="/">Home</a><a href="/arena/">Arena</a><a href="/m2m/" class="on">M2M</a><a href="/news/" class="pj-news-link">News<span class="pj-news-dot"></span></a><a href="/coach/">Coach</a></nav>
+  <nav class="pj-links" aria-label="Sections"><a href="/">Home</a><a href="/arena/">Arena</a><a href="/m2m/" class="on">ScoreGPS</a><a href="/news/" class="pj-news-link">News<span class="pj-news-dot"></span></a><a href="/coach/">Coach</a></nav>
   <button class="pj-avatar" data-pj-avatar data-pj-act="profile" aria-label="Account"></button>
 </div></header>
 <div class="pj-greet" data-pj-greet></div>
 <div class="pj-banner" data-pj-banner></div>
 <div class="page-shell">
-  <nav class="sidenav" id="m2mSidenav" aria-label="AI Score Analysis">
+  <nav class="sidenav" id="m2mSidenav" aria-label="ScoreGPS">
     <div class="side-brand"><img src="/assets/logo-192.png" alt="ProDJEE logo"></div>
-    <div class="side-section-label">AI Score Analysis</div>
+    <div class="side-section-label">ScoreGPS</div>
     <button class="side-link" data-action="toCreate">New mock</button>
     <button class="side-link" data-action="loadDemo">Sample mock</button>
     <button class="side-link" data-action="openProfile">My Mocks</button>
@@ -1579,8 +1580,9 @@ function viewLanding(){
     'Fix: it isn’t "solve faster" — it’s choosing the most recoverable marks first.'
   ];
   return topbar() + '<div class="shell hero">'+
+    '<div class="eyebrow">ScoreGPS · Gaps. Plan. Score.</div>'+
     '<h1>Find out exactly why you\'re losing <span class="accent-text">marks</span>.</h1>'+
-    '<p class="hero-sub">Log your last mock in a minute. Get the real reason behind every lost mark — language, approach, formula recall, calculation slips or time — and a plan built around your actual gaps.</p>'+
+    '<p class="hero-sub">ScoreGPS turns your latest mock into a clear diagnosis and a personalised 7- or 14-day plan built around your actual gaps.</p>'+
     '<div class="hero-cta">'+
       '<button class="btn btn-primary" data-action="loadDemo">See a sample analysis →</button>'+
     '</div>'+

@@ -1,4 +1,4 @@
-// Canonical Mock-to-Marks dropdown catalogue. The automated question-bank
+// Canonical ScoreGPS dropdown catalogue. The automated question-bank
 // check guarantees that every Arena chapter/topic is represented here.
 window.PJ_SUBJECT_CHAPTERS = {
   JEE: {

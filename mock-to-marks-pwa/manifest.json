@@ -16,7 +16,7 @@
   ],
   "shortcuts": [
     { "name": "Play Arena", "short_name": "Arena", "url": "/arena/", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
-    { "name": "New mock", "short_name": "New mock", "url": "/m2m/?route=new", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
-    { "name": "Today's plan", "short_name": "Today", "url": "/m2m/?route=today", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
+    { "name": "New ScoreGPS analysis", "short_name": "ScoreGPS", "url": "/m2m/?route=new", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "ScoreGPS plan", "short_name": "My plan", "url": "/m2m/?route=today", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
   ]
 }

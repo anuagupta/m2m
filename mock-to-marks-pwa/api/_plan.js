@@ -1,4 +1,4 @@
-// The paid part of Mock-to-Marks: turns a diagnosed mock into the 14-day plan.
+// The paid part of ScoreGPS: turns a diagnosed mock into a personalised plan.
 // This lives only on the server so the plan can't be built in the browser
 // without an entitlement (the free tier gets the diagnosis, not the plan).
 const CATEGORY_IDS = ['language', 'situation', 'approach', 'formula', 'silly', 'time'];

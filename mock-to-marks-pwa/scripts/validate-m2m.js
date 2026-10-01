@@ -23,4 +23,4 @@ if (chooseLength < 0 || checkPayment < 0 || chooseLength > checkPayment) {
 if (!html.includes('value="semiannual"') || !html.includes('₹279 / six months')) {
   throw new Error('The six-month ₹279 subscription is missing from a pricing surface');
 }
-console.log(`Validated ${inlineScripts.length} Mock-to-Marks inline scripts and exam-specific analysis controls.`);
+console.log(`Validated ${inlineScripts.length} ScoreGPS inline scripts and exam-specific analysis controls.`);

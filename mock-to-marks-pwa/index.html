@@ -124,7 +124,7 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
 <header class="pj-bar"><div class="pj-bar-inner">
   <div class="pj-brand"><img src="/assets/logo-192.png" alt="ProDJEE logo"><b>Pro<span>DJEE</span></b></div>
   <nav class="pj-links" aria-label="Sections">
-    <a href="/" class="on">Home</a><a href="/arena/">Arena</a><a href="/m2m/">M2M</a><a href="/news/" class="pj-news-link">News<span class="pj-news-dot"></span></a><a href="/coach/">Coach</a>
+    <a href="/" class="on">Home</a><a href="/arena/">Arena</a><a href="/m2m/">ScoreGPS</a><a href="/news/" class="pj-news-link">News<span class="pj-news-dot"></span></a><a href="/coach/">Coach</a>
   </nav>
   <button class="pj-avatar" data-pj-avatar data-pj-act="profile" aria-label="Account"></button>
 </div></header>
@@ -176,10 +176,10 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
           '<p>Practise verified JEE Main and NEET PYQs, earn Gyan Points, keep your streak, and clear your Mistake Vault.</p>'+
           (u && a ? '<div class="statrow"><span>'+n(a.gp)+' GP</span><span>🔥 '+a.streak+'-day streak</span><span>'+n(a.correct)+' correct</span></div>' : '<ul><li>🎯 Chapter-wise PYQ runs</li><li>⚡ Hints, full solutions, timers</li><li>📈 Weak-chapter tracking</li></ul>')+
           '<span class="go">Play Arena →</span></a>'+
-        '<a class="tile m2m" href="/m2m/"><span class="tag">Diagnosis free · Plan from ₹49/mo</span><h2>AI Score Analysis</h2>'+
+        '<a class="tile m2m" href="/m2m/"><span class="tag">Gaps · Plan · Score</span><h2>ScoreGPS</h2>'+
           '<p>Log your last mock and see why you lost marks — concept, formula recall, calculation slips or time. Get a focused 7- or 14-day recovery plan.</p>'+
           (u && m && m.mocks ? '<div class="statrow"><span>'+m.mocks+' mock'+(m.mocks>1?'s':'')+' logged</span><span>'+m.plans+' plan'+(m.plans===1?'':'s')+'</span></div>' : '<ul><li>🔍 Question-by-question diagnosis</li><li>🧭 Root cause per mistake</li><li>🗓️ 14-day plan built on your gaps</li></ul>')+
-          '<span class="go">Open Score Analysis →</span></a>'+
+          '<span class="go">Open ScoreGPS →</span></a>'+
         '<a class="tile arena" href="/coach/"><span class="tag">New · Personalised</span><h2>My Coach</h2><p>Get today’s weak-chapter mission, verified JEE/NEET updates, custom tests, spaced revision, score targets and a complete syllabus tracker.</p><ul><li>🧭 One-time JEE/NEET setup</li><li>🗞 Official exam updates</li><li>✅ Daily roadmap and revision</li></ul><span class="go">Open My Coach →</span></a>'+
       '</div>';
   }
@@ -210,7 +210,7 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
         '<div class="panel"><h3>Arena</h3><div class="kv">'+
           '<div><b>'+n(a.gp)+'</b><small>Gyan Points</small></div><div><b>🔥 '+a.streak+'</b><small>Day streak</small></div>'+
           '<div><b>'+n(a.correct)+'</b><small>Correct answers</small></div><div><b>'+n(a.sessions)+'</b><small>Sessions</small></div></div></div>'+
-        '<div class="panel"><h3>AI Score Analysis</h3><div class="kv">'+
+        '<div class="panel"><h3>ScoreGPS</h3><div class="kv">'+
           '<div><b>'+m.mocks+'</b><small>Mocks logged</small></div><div><b>'+m.plans+'</b><small>Plans</small></div>'+
           '<div><b>'+subValue+'</b><small>'+subSub+'</small></div></div></div>'+
         '<div class="panel"><h3>Your data</h3>'+ driveRow +

@@ -108,7 +108,7 @@ body.immersive .tabbar, body.immersive .sidenav { display: none; }
   }
   .sidenav .brand { padding: 4px 8px 4px; }
   /* Marks this rail as Arena's own navigation, distinct from the shared
-     site nav (Home/Arena/Mock-to-Marks) in the bar above it. */
+     site nav (Home/Arena/ScoreGPS) in the bar above it. */
   .side-section-label { padding: 0 14px 14px; margin-bottom: 6px; border-bottom: 1px solid var(--line); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
   .side-link { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; color: var(--text-2); font-weight: 600; text-align: left; position: relative; }
   .side-link svg { width: 21px; height: 21px; }
