@@ -1,0 +1,28 @@
+[
+  {
+    "id": "jm20-0108s1-09",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Physics",
+    "chapter": "Kinetic Theory",
+    "type": "mcq",
+    "difficulty": 3,
+    "q": "For an ideal gas of fixed number density, how does the mean free time $\\tau$ between successive molecular collisions vary with absolute temperature T?",
+    "options": ["$\\tau\\propto T$", "$\\tau$ decreases linearly with $\\sqrt{T}$", "$\\tau\\propto 1/\\sqrt{T}$", "$\\tau\\propto 1/T$"],
+    "answer": 2,
+    "hint": "Mean free time equals mean free path divided by a characteristic molecular speed.",
+    "solution": "At fixed number density, the mean free path is constant, while the mean molecular speed is proportional to $\\sqrt{T}$. Therefore $\\tau=\\lambda/\\bar v\\propto 1/\\sqrt{T}$.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-P09",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://cdn1.byjus.com/wp-content/uploads/2020/01/JEE-Main-2020-8th-Jan-Shift-1-Physics.pdf",
+      "https://cracku.in/nta-jee-main-8-jan-2020-shift-1-physics-question-paper-solved"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
