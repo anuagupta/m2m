@@ -1,0 +1,28 @@
+[
+  {
+    "id": "jm20-0108s1-17",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Physics",
+    "chapter": "Dual Nature of Matter",
+    "type": "mcq",
+    "difficulty": 4,
+    "q": "Photons of energy 4.0 eV eject photoelectrons from metal A with maximum kinetic energy T_A eV and de Broglie wavelength λ_A. For metal B, photons of energy 4.50 eV produce photoelectrons with maximum kinetic energy T_B = (T_A - 1.5) eV. If λ_B = 2λ_A, what is the work function of metal B?",
+    "options": ["1.5 eV", "4 eV", "3 eV", "2 eV"],
+    "answer": 1,
+    "hint": "For electrons, λ is inversely proportional to the square root of kinetic energy; then use the photoelectric equation.",
+    "solution": "Because λ_B/λ_A = 2, T_A/T_B = 4. With T_B = T_A - 1.5, we get T_A = 2 eV and T_B = 0.5 eV. Therefore the work function of B is 4.50 - 0.50 = 4.0 eV.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-P17",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://pyqbox.com/jee/main/physics/dual-nature-of-matter/when-photon-of-energy-4-0ev-strikes-the-surface-of-a-18ce2b3e/",
+      "https://learn.careers360.com/engineering/jee-main-2020-question-paper-with-solution-jan-8th-first-shift/"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
