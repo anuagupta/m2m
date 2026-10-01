@@ -1,0 +1,30 @@
+[
+  {
+    "id": "jm20-0108s1-c06",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Chemistry",
+    "chapter": "Solutions",
+    "type": "mcq",
+    "difficulty": 2,
+    "q": "The graph compares vapour pressure with temperature for liquids X, Y and Z. Consider: (A) X has stronger intermolecular interactions than Y; (B) X has weaker intermolecular interactions than Y; (C) Z has weaker intermolecular interactions than Y. Which inference is correct?",
+    "img": "figures/jm20-0108s1-c06.svg",
+    "imgAlt": "Vapour-pressure curves ordered X, Y and Z from left to right; X reaches any fixed vapour pressure at the lowest temperature and Z at the highest.",
+    "options": ["(A) only", "(B) only", "(C) only", "(A) and (C)"],
+    "answer": 1,
+    "hint": "At a fixed vapour pressure, the liquid requiring the lower temperature has weaker intermolecular attraction.",
+    "solution": "For a given vapour pressure, X requires the lowest temperature, followed by Y and then Z. Equivalently, at a common temperature X is the most volatile. Thus intermolecular-force strength increases X < Y < Z. Only statement (B), that X has weaker intermolecular interactions than Y, is correct.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-C06",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://cracku.in/36-a-graph-of-vapour-pressure-and-temperature-for-thr-x-nta-jee-main-8-jan-2020-shift-1",
+      "https://pyqbox.com/jee/main/chemistry/solutions/a-graph-of-vapour-pressure-and-temperature-for-three-c161feb4/"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "redrawn"
+  }
+]

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="390" viewBox="0 0 620 390" role="img" aria-labelledby="title desc">
+  <title id="title">Vapour pressure versus temperature for liquids X, Y and Z</title>
+  <desc id="desc">Three rising curves are ordered X, Y and Z from left to right. X reaches a given vapour pressure at the lowest temperature and Z at the highest.</desc>
+  <rect width="620" height="390" rx="18" fill="#ffffff"/>
+  <g stroke="#172033" stroke-width="3" fill="none" stroke-linecap="round">
+    <path d="M105 320H575"/>
+    <path d="M105 320V38"/>
+    <path d="M570 314L580 320L570 326"/>
+  </g>
+  <g stroke="#9aa4b2" stroke-width="1.5">
+    <path d="M98 252H112M98 194H112M98 136H112M98 78H112"/>
+    <path d="M180 313V327M280 313V327M380 313V327M480 313V327"/>
+  </g>
+  <g fill="#172033" font-family="Arial, sans-serif" font-size="18">
+    <text x="71" y="258">200</text><text x="71" y="200">400</text><text x="71" y="142">600</text><text x="71" y="84">800</text>
+    <text x="163" y="350">293</text><text x="263" y="350">313</text><text x="363" y="350">333</text><text x="463" y="350">353</text>
+    <text x="306" y="380">Temperature (K)</text>
+    <text transform="translate(24 250) rotate(-90)">Vapour pressure (mm Hg)</text>
+  </g>
+  <g fill="none" stroke-width="5" stroke-linecap="round">
+    <path d="M152 316C205 306 236 267 252 218C266 174 274 118 282 69" stroke="#2563eb"/>
+    <path d="M249 316C305 302 338 264 354 215C368 169 376 116 384 69" stroke="#7c3aed"/>
+    <path d="M350 316C408 305 442 269 460 222C477 177 486 120 496 69" stroke="#dc2626"/>
+  </g>
+  <g font-family="Arial, sans-serif" font-size="25" font-weight="700">
+    <text x="272" y="55" fill="#2563eb">X</text>
+    <text x="374" y="55" fill="#7c3aed">Y</text>
+    <text x="486" y="55" fill="#dc2626">Z</text>
+  </g>
+</svg>
