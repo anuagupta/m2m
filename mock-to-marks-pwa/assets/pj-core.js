@@ -159,7 +159,7 @@
       '<button type="button" class="pj-gate-close" data-pj-act="dismiss-sign-in" aria-label="Close sign-in" title="Not now">×</button>' +
       '<img class="pj-logo" src="/assets/logo-192.png" alt="ProDJEE logo">' +
       '<h2>Sign in for free</h2>' +
-      '<p>' + esc(message || 'One Google sign-in unlocks Arena and Mock-to-Marks. Your study data stays on this phone and in a private app folder in your own Google Drive.') + '</p>' +
+      '<p>' + esc(message || 'One Google sign-in unlocks ProDJEE Arena and AI Score Analysis. Your study data stays on this phone and in a private app folder in your own Google Drive.') + '</p>' +
       '<p>On the Google screen we’ll ask for your <b>name, email, profile photo</b> and permission to <b>store ProDJEE’s own backup file in your Google Drive</b>. We can’t see any of your other Drive files.</p>' +
       '<button class="pj-btn pj-btn-primary" style="width:100%;margin-top:8px" data-pj-act="sign-in">' + GOOGLE_ICON + ' Continue with Google</button>' +
       '<button type="button" class="pj-btn pj-btn-ghost" style="width:100%;margin-top:10px" data-pj-act="dismiss-sign-in">Not now</button>' +

@@ -15,6 +15,7 @@
 <title>ProDJEE — AI Score Analysis &amp; Improvement Exercises</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="AI-guided performance analysis that finds why you lose marks and creates personalised 7- or 14-day exercises to improve your JEE or NEET score.">
+<meta name="application-name" content="ProDJEE">
 <meta property="og:type" content="website">
 <meta property="og:title" content="ProDJEE — AI Score Analysis &amp; Improvement Exercises">
 <meta property="og:description" content="Find the reasons behind lost marks and turn them into personalised, AI-guided exercises for a stronger JEE or NEET score.">
@@ -39,7 +40,7 @@
 <style>
 /* ProDJEE brand system v4: deep-space navy glass, using the same saturated
    tones as Arena's own UI (gold #ffc23d, crimson #f04848, mint #4ff0a0)
-   rather than paler tints of them, so Mock-to-Marks and Arena read as one
+   rather than paler tints of them, so Score Analysis and Arena read as one
    product. No other hue is used besides these three and the raw logo hues
    reserved for the background blobs.
    Fraunces display + Manrope body + JetBrains Mono for data.
@@ -144,8 +145,7 @@ a{color:var(--primary);}
     backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);}
   .side-brand{padding:4px 8px 4px;}
   .side-brand img{width:36px;height:36px;border-radius:10px;display:block;}
-  /* Marks this rail as Mock-to-Marks' own navigation, distinct from the
-     shared site nav (Home/Arena/Mock-to-Marks) in the bar above it. */
+  /* Marks this rail as analysis navigation, distinct from the shared site nav. */
   .side-section-label{padding:0 14px 14px;margin-bottom:6px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);}
   .side-link{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;
     background:none;border:none;cursor:pointer;text-align:left;
@@ -503,9 +503,9 @@ select,.field input[type=text],.field input[type=number],.field input[type=date]
 <div class="pj-greet" data-pj-greet></div>
 <div class="pj-banner" data-pj-banner></div>
 <div class="page-shell">
-  <nav class="sidenav" id="m2mSidenav" aria-label="Mock-to-Marks">
+  <nav class="sidenav" id="m2mSidenav" aria-label="AI Score Analysis">
     <div class="side-brand"><img src="/assets/logo-192.png" alt="ProDJEE logo"></div>
-    <div class="side-section-label">Mock-to-Marks</div>
+    <div class="side-section-label">AI Score Analysis</div>
     <button class="side-link" data-action="toCreate">New mock</button>
     <button class="side-link" data-action="loadDemo">Sample mock</button>
     <button class="side-link" data-action="openProfile">My Mocks</button>
@@ -1412,7 +1412,7 @@ var App = {
     var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
-    a.href = url; a.download = 'mock-to-marks-backup-'+new Date().toISOString().slice(0,10)+'.json';
+    a.href = url; a.download = 'prodjee-backup-'+new Date().toISOString().slice(0,10)+'.json';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
   },
@@ -1456,7 +1456,7 @@ var App = {
         persist();
         render();
       }catch(e){
-        window.alert('This file could not be read as a Mock-to-Marks backup.');
+        window.alert('This file could not be read as a ProDJEE backup.');
       }
       el.value='';
     };
@@ -1496,7 +1496,7 @@ var App = {
       });
     });
     if(todaysBlock){
-      try{ new Notification('Today’s Mock-to-Marks block', {body: todaysBlock.title+' — '+todaysBlock.timeMin+' min', icon:'/icon-192.png'}); }catch(e){}
+      try{ new Notification('Today’s ProDJEE study block', {body: todaysBlock.title+' — '+todaysBlock.timeMin+' min', icon:'/icon-192.png'}); }catch(e){}
     }
   }
 };
@@ -1538,7 +1538,7 @@ function topbar(){
   }
   return '<div class="topbar"><div class="topbar-inner">'+
     // No logo here: the shared pj-bar right above already shows one, and its
-    // "Mock-to-Marks" link already does what this button's toLanding used to.
+    // The analysis link already does what this button's toLanding used to.
     '<div class="topnav">'+mockLabel+nav2+
     '<span class="topnav-primary-actions" aria-hidden="'+isDesktopNav+'">'+ // duplicated in the desktop sidenav (New mock / My Mocks); hidden there
       '<button class="btn btn-primary btn-sm" data-action="toCreate">New mock</button>'+

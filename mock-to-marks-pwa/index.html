@@ -15,13 +15,14 @@
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
 <script>
-  // Old Mock-to-Marks deep links (e.g. /?route=new from the installed app's shortcuts) now live at /m2m/.
+  // Old analysis deep links (e.g. /?route=new from the installed app's shortcuts) now live at /m2m/.
   (function(){ var q = location.search; if (/[?&]route=/.test(q)) location.replace('/m2m/' + q + location.hash); })();
 </script>
 <meta charset="UTF-8">
 <title>ProDJEE — Gamified Learning &amp; AI Score Improvement</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Gamified JEE and NEET practice with adaptive questions, AI-guided performance analysis, and personalised exercises designed to improve your score.">
+<meta name="application-name" content="ProDJEE">
 <meta property="og:type" content="website">
 <meta property="og:title" content="ProDJEE — Gamified Learning &amp; AI Score Improvement">
 <meta property="og:description" content="Adaptive JEE and NEET practice, AI-guided analysis, and personalised exercises that turn weak chapters into stronger scores.">
@@ -154,10 +155,10 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
           '<p>Practise verified JEE Main and NEET PYQs, earn Gyan Points, keep your streak, and clear your Mistake Vault.</p>'+
           (u && a ? '<div class="statrow"><span>'+n(a.gp)+' GP</span><span>🔥 '+a.streak+'-day streak</span><span>'+n(a.correct)+' correct</span></div>' : '<ul><li>🎯 Chapter-wise PYQ runs</li><li>⚡ Hints, full solutions, timers</li><li>📈 Weak-chapter tracking</li></ul>')+
           '<span class="go">Play Arena →</span></a>'+
-        '<a class="tile m2m" href="/m2m/"><span class="tag">Diagnosis free · Plan from ₹49/mo</span><h2>Mock-to-Marks</h2>'+
+        '<a class="tile m2m" href="/m2m/"><span class="tag">Diagnosis free · Plan from ₹49/mo</span><h2>AI Score Analysis</h2>'+
           '<p>Log your last mock and see why you lost marks — concept, formula recall, calculation slips or time. Get a focused 7- or 14-day recovery plan.</p>'+
           (u && m && m.mocks ? '<div class="statrow"><span>'+m.mocks+' mock'+(m.mocks>1?'s':'')+' logged</span><span>'+m.plans+' plan'+(m.plans===1?'':'s')+'</span></div>' : '<ul><li>🔍 Question-by-question diagnosis</li><li>🧭 Root cause per mistake</li><li>🗓️ 14-day plan built on your gaps</li></ul>')+
-          '<span class="go">Open Mock-to-Marks →</span></a>'+
+          '<span class="go">Open Score Analysis →</span></a>'+
         '<a class="tile arena" href="/coach/"><span class="tag">New · Personalised</span><h2>My Coach</h2><p>Get today’s weak-chapter mission, verified JEE/NEET updates, custom tests, spaced revision, score targets and a complete syllabus tracker.</p><ul><li>🧭 One-time JEE/NEET setup</li><li>🗞 Official exam updates</li><li>✅ Daily roadmap and revision</li></ul><span class="go">Open My Coach →</span></a>'+
       '</div>';
   }
@@ -188,7 +189,7 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
         '<div class="panel"><h3>Arena</h3><div class="kv">'+
           '<div><b>'+n(a.gp)+'</b><small>Gyan Points</small></div><div><b>🔥 '+a.streak+'</b><small>Day streak</small></div>'+
           '<div><b>'+n(a.correct)+'</b><small>Correct answers</small></div><div><b>'+n(a.sessions)+'</b><small>Sessions</small></div></div></div>'+
-        '<div class="panel"><h3>Mock-to-Marks</h3><div class="kv">'+
+        '<div class="panel"><h3>AI Score Analysis</h3><div class="kv">'+
           '<div><b>'+m.mocks+'</b><small>Mocks logged</small></div><div><b>'+m.plans+'</b><small>Plans</small></div>'+
           '<div><b>'+subValue+'</b><small>'+subSub+'</small></div></div></div>'+
         '<div class="panel"><h3>Your data</h3>'+ driveRow +
