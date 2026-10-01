@@ -19,11 +19,11 @@ const rows = JSON.parse(fs.readFileSync(path.resolve(input), 'utf8'));
 if (!Array.isArray(rows) || !rows.length) throw new Error('Intake must be a non-empty JSON array.');
 
 const officialHost = /(^|\.)(nta\.ac\.in|nta\.nic\.in|s3waas\.gov\.in|cbse\.gov\.in|cbse\.nic\.in|cbseacademic\.nic\.in)$/i;
-const recoveryHost = /(^|\.)(careers360\.com|aakash\.ac\.in|resonance\.ac\.in|allen\.in)$/i;
+const recoveryHost = /(^|\.)(careers360\.com|aakash\.ac\.in|resonance\.ac\.in|allen\.in|byjus\.com|cracku\.in|pyqbox\.com)$/i;
 const clean = rows.map((raw, i) => {
   const label = raw.id || `row ${i + 1}`;
   if (/examside|examgoal/i.test(JSON.stringify(raw))) throw new Error(`${label}: prohibited transcription source`);
-  ['id', 'exam', 'year', 'examDate', 'subject', 'chapter', 'type', 'q', 'answer', 'hint', 'solution', 'sourceUrl', 'answerKeyUrl'].forEach((key) => {
+  ['id', 'exam', 'year', 'examDate', 'subject', 'chapter', 'type', 'q', 'answer', 'hint', 'solution', 'sourceUrl'].forEach((key) => {
     if (raw[key] === undefined || raw[key] === null || raw[key] === '') throw new Error(`${label}: missing ${key}`);
   });
   const inScope = ['JEE', 'NEET'].includes(raw.exam) && raw.year >= 2017 && raw.year <= 2026;
@@ -32,10 +32,23 @@ const clean = rows.map((raw, i) => {
   existing.add(raw.id);
   const chapters = ctx.window.PJ_SUBJECT_CHAPTERS[raw.exam] && ctx.window.PJ_SUBJECT_CHAPTERS[raw.exam][raw.subject];
   if (!chapters || !chapters.includes(raw.chapter)) throw new Error(`${label}: chapter is not in the canonical dropdown catalogue`);
-  [raw.sourceUrl, raw.answerKeyUrl].forEach((value) => {
-    const url = new URL(value);
-    if (!officialHost.test(url.hostname)) throw new Error(`${label}: provenance must use an official NTA host`);
-  });
+  const source = new URL(raw.sourceUrl);
+  if (!officialHost.test(source.hostname)) throw new Error(`${label}: question provenance must use an official NTA host`);
+  if (raw.answerKeyUrl) {
+    const answerKey = new URL(raw.answerKeyUrl);
+    if (!officialHost.test(answerKey.hostname)) throw new Error(`${label}: answer-key provenance must use an official NTA host`);
+  } else {
+    if (raw.officialAnswerKeyUnavailable !== true) throw new Error(`${label}: missing official answer key`);
+    if (!Array.isArray(raw.answerKeyRecoveryUrls) || raw.answerKeyRecoveryUrls.length < 2) {
+      throw new Error(`${label}: legacy recovery requires two independent answer-key sources`);
+    }
+    const recoveryHosts = new Set(raw.answerKeyRecoveryUrls.map((value) => {
+      const recovery = new URL(value);
+      if (!recoveryHost.test(recovery.hostname)) throw new Error(`${label}: answer-key recovery source is not approved`);
+      return recovery.hostname.replace(/^www\./, '');
+    }));
+    if (recoveryHosts.size < 2) throw new Error(`${label}: answer-key recovery sources must use two different hosts`);
+  }
   if (raw.transcriptionUrl) throw new Error(`${label}: transcriptionUrl is no longer accepted; use recoverySourceUrl`);
   if (raw.recoverySourceUrl) {
     const recovery = new URL(raw.recoverySourceUrl);
