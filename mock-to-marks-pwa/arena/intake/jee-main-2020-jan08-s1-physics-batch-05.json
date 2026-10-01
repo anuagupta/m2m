@@ -1,0 +1,28 @@
+[
+  {
+    "id": "jm20-0108s1-06",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Physics",
+    "chapter": "Mechanical Properties of Fluids",
+    "type": "mcq",
+    "difficulty": 5,
+    "q": "A solid sphere of radius R has a radially varying mass density $\\rho(r)=\\rho_0(1-r^2/R^2)$ for $0<r\\le R$. What is the minimum density of a liquid in which the sphere can float?",
+    "options": ["$\\dfrac{\\rho_0}{5}$", "$\\dfrac{\\rho_0}{3}$", "$\\dfrac{2\\rho_0}{5}$", "$\\dfrac{2\\rho_0}{3}$"],
+    "answer": 2,
+    "hint": "At the minimum liquid density, the fully submerged sphere is neutrally buoyant; calculate its average density.",
+    "solution": "The sphere's mass is $M=4\\pi\\int_0^R\\rho_0(1-r^2/R^2)r^2dr=8\\pi\\rho_0R^3/15$. Dividing by its volume $4\\pi R^3/3$ gives average density $2\\rho_0/5$. A liquid of this density is the minimum that permits floating.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-P06",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://cdn1.byjus.com/wp-content/uploads/2020/01/JEE-Main-2020-8th-Jan-Shift-1-Physics.pdf",
+      "https://cracku.in/7-consider-a-solid-sphere-of-radius-r-and-mass-densi-x-nta-jee-main-8-jan-2020-shift-1"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
