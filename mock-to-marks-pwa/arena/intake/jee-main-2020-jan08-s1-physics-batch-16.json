@@ -1,0 +1,28 @@
+[
+  {
+    "id": "jm20-0108s1-20",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Physics",
+    "chapter": "Current Electricity",
+    "type": "mcq",
+    "difficulty": 3,
+    "q": "A 1200 cm potentiometer wire carries a current of 60 mA. A cell of emf 5 V and internal resistance 20 Ω gives a null point at 1000 cm. What is the resistance of the entire potentiometer wire?",
+    "options": ["60 Ω", "80 Ω", "100 Ω", "120 Ω"],
+    "answer": 2,
+    "hint": "At balance, the cell emf equals the potential drop across the balancing length.",
+    "solution": "At the null point no current is drawn from the test cell, so its internal resistance is irrelevant. The potential gradient is 5/1000 V cm⁻¹. Hence the drop across 1200 cm is 6 V, and the wire resistance is R = 6/0.060 = 100 Ω.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-P20",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://byjus.com/jee/jee-main-2020-question-paper-physics-jan-8-shift-1/",
+      "https://learn.careers360.com/engineering/jee-main-2020-question-paper-with-solution-jan-8th-first-shift/"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
