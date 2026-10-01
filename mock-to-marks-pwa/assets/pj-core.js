@@ -391,36 +391,11 @@
     });
   }
 
-  /* ---------- compact mobile nav ----------
-     Below 560px, Home/Arena/Mock-to-Marks plus the account button crowded
-     the logo into one tight row. Injects a menu button in front of each
-     .pj-links nav that reveals it as a dropdown instead; CSS keeps the
-     button hidden (and .pj-links inline as before) above that width. */
-  function setupCompactNav() {
-    var navs = document.querySelectorAll('.pj-links');
-    for (var i = 0; i < navs.length; i++) {
-      (function (nav) {
-        if (nav.dataset.pjMenuReady) return;
-        nav.dataset.pjMenuReady = '1';
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'pj-menu-toggle';
-        btn.setAttribute('aria-expanded', 'false');
-        btn.setAttribute('aria-label', 'Menu');
-        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
-        nav.parentNode.insertBefore(btn, nav);
-        function closeMenu() { nav.classList.remove('pj-open'); btn.setAttribute('aria-expanded', 'false'); }
-        function toggleMenu() { var open = nav.classList.toggle('pj-open'); btn.setAttribute('aria-expanded', String(open)); }
-        btn.addEventListener('click', function (e) { e.stopPropagation(); toggleMenu(); });
-        nav.addEventListener('click', function (e) { if (e.target.closest('a')) closeMenu(); });
-        document.addEventListener('click', function (e) { if (nav.classList.contains('pj-open') && !nav.contains(e.target) && e.target !== btn) closeMenu(); });
-        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
-      })(navs[i]);
-    }
-  }
-  setupCompactNav();
-
   /* ---------- events ---------- */
+  document.querySelectorAll('.pj-brand').forEach(function (brand) {
+    brand.removeAttribute('href'); brand.removeAttribute('tabindex'); brand.setAttribute('aria-disabled', 'true');
+  });
+  document.querySelectorAll('.pj-links a[href="/m2m/"]').forEach(function (link) { link.textContent = 'M2M'; });
   function emit() { paint(); listeners.forEach(function (f) { try { f(user); } catch (e) {} }); }
   document.addEventListener('click', function (e) {
     if (e.target && e.target.id === 'pj-gate') { dismissSignInGate(); return; }
@@ -436,12 +411,12 @@
     else if (act === 'resume-drive') { e.preventDefault(); resumeDrive(); }
     else if (act === 'dismiss-banner') { e.preventDefault(); try { sessionStorage.setItem(bannerDismissKey(), '1'); } catch (e2) {} paintBanner(); }
     else if (act === 'install-app') {
-      if (deferredInstallPrompt) {
-        var p = deferredInstallPrompt; deferredInstallPrompt = null;
-        p.prompt(); p.userChoice.finally(function () { if (!isStandalone()) hideInstall(); });
-      } else showInstallHelp();
+      if (!deferredInstallPrompt) return;
+      var p = deferredInstallPrompt; deferredInstallPrompt = null;
+      p.prompt(); p.userChoice.finally(function () { if (!isStandalone()) hideInstall(); });
     }
     else if (act === 'dismiss-install') { try { sessionStorage.setItem(INSTALL_DISMISS_KEY, '1'); } catch (e2) {} hideInstall(); }
+    else if (act === 'show-install-help') { showInstallHelp(); }
     else if (act === 'close-install-help') { var help = document.getElementById('pj-install-help'); if (help) help.remove(); }
   });
   document.addEventListener('keydown', function (e) {
@@ -492,7 +467,18 @@
   function hideInstall() { var w = document.getElementById('pjInstallWrap'); if (w) w.hidden = true; }
   function offerInstall() {
     if (isStandalone() || !isMobileInstallTarget() || installDismissedThisVisit()) { hideInstall(); return; }
-    installWrap().hidden = false;
+    if (isIOS()) {
+      var iosWrap = installWrap();
+      iosWrap.querySelector('.pj-install-btn').textContent = '＋ Add to Home Screen';
+      iosWrap.querySelector('.pj-install-btn').setAttribute('data-pj-act', 'show-install-help');
+      iosWrap.hidden = false;
+      return;
+    }
+    if (!deferredInstallPrompt) { hideInstall(); return; }
+    var androidWrap = installWrap();
+    androidWrap.querySelector('.pj-install-btn').innerHTML = '⬇ Install app';
+    androidWrap.querySelector('.pj-install-btn').setAttribute('data-pj-act', 'install-app');
+    androidWrap.hidden = false;
   }
   window.addEventListener('beforeinstallprompt', function (e) {
     e.preventDefault();

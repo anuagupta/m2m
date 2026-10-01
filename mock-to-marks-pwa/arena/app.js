@@ -45,6 +45,10 @@
   });
   let S = fresh();
   try { const raw = localStorage.getItem(STORE_KEY); if (raw) S = Object.assign(fresh(), JSON.parse(raw)); } catch (e) {}
+  const selectedExam = () => {
+    try { const p = JSON.parse(localStorage.getItem("prodjee.student.v1") || "null"); return p && (p.exam === "JEE" || p.exam === "NEET") ? p.exam : null; } catch (e) { return null; }
+  };
+  if (selectedExam()) S.exam = selectedExam();
   const gpFor = (exam = S.exam) => S.totalGP[exam] || 0;
   // A day's GP entry started as a single combined number (same bug as
   // totalGP: JEE progress showing up in the NEET tab's daily goal and vice
@@ -79,6 +83,8 @@
     // (now removed) becomes the shared name, so switching over doesn't
     // silently drop a nickname someone already set here.
     PJ.onChange((u) => {
+      const exam = selectedExam();
+      if (u && exam && S.exam !== exam) { S.exam = exam; save(); if (app) renderTab(); }
       if (u && S.name && S.name.trim() && S.name.trim() !== (u.displayName || "").trim() && !PJ.hasNameOverride()) PJ.setName(S.name);
       if (u && pendingSignedInAction) { const fn = pendingSignedInAction; pendingSignedInAction = null; fn(); }
     });
@@ -265,7 +271,7 @@
     // A small label + divider under the logo, so this rail reads as
     // Arena's own navigation, not a continuation of the site nav above it.
     $("#sidenav").innerHTML = brand() + `<div class="side-section-label">Arena</div>` + TABS.map(([id, label, ic]) => `<button class="side-link ${tab === id ? "on" : ""}" data-act="tab" data-v="${id}">${ic}${label}${id === "vault" && due ? `<span class="dot-badge">${due}</span>` : ""}</button>`).join("") +
-      `<div class="side-foot">${window.QBANK.filter(isPYQ).length} verified PYQs · saved on this device + your Google Drive</div>`;
+      `<div class="side-foot">Progress is saved on this device and in your Google Drive backup.</div>`;
     syncNavA11y();
   }
   // Only one of tabbar/sidenav is ever visible (the CSS media query at
@@ -286,10 +292,7 @@
   const appbar = (title, opts = {}) => `
     <header class="appbar">
       ${title ? `<h1 style="font-size:24px">${title}</h1>` : (opts.noBrand ? "" : brand())}
-      <div class="chips-row">
-        <div class="seg" role="tablist" aria-label="Exam">${["JEE", "NEET"].map((e) => `<button role="tab" aria-selected="${S.exam === e}" class="${S.exam === e ? "on" : ""}" data-act="exam" data-v="${e}">${e}</button>`).join("")}</div>
-        <button class="icon-btn" data-act="toggle-sound" aria-label="${S.sound ? "Mute" : "Unmute"}">${S.sound ? I.soundOn : I.soundOff}</button>
-      </div>
+      <div class="chips-row"><span class="pill accent">${S.exam}</span><button class="icon-btn" data-act="toggle-sound" aria-label="${S.sound ? "Mute" : "Unmute"}">${S.sound ? I.soundOn : I.soundOff}</button></div>
     </header>`;
   function show(html, opts = {}) {
     document.body.classList.toggle("immersive", !!opts.immersive);
@@ -305,7 +308,6 @@
   };
   const modal = (html) => { overlay.innerHTML = `<div class="modal-back" data-act="modal-bg"><div class="modal glass" role="dialog" aria-modal="true">${html}</div></div>`; typeset(overlay); };
   const closeModal = () => { overlay.innerHTML = ""; };
-  const note = () => { const n = window.QBANK.filter(isPYQ).length, pr = window.QBANK.filter((q) => kindOf(q) === "practice").length; return `<p class="note">Question bank: ${n} previous-year questions · ${pr} practice questions · ${window.QBANK.length - n - pr} samples.</p>`; };
 
   /* ================================= HOME ================================= */
   function renderHome() {
@@ -352,11 +354,10 @@
       </button>
       ${due ? `<button class="glass press mode" style="margin-top:12px" data-act="setup" data-v="vault"><span class="ico" style="color:var(--gold)">${I.vault}</span><span><h3>${due} mistake${due > 1 ? "s" : ""} due for revision</h3><p>Master them to clear the vault and earn badges.</p></span><span class="pill crimson count">Revise</span></button>` : ""}
       <div class="section-title"><h3>Your subjects</h3><button class="link" data-act="tab" data-v="stats">Full analysis ›</button></div>
-      ${note()}
       <div class="subj-grid">${subj.map((x) => `
         <button class="glass press subj" data-act="subject" data-v="${x.s}">
           ${ring(58, 6, x.att ? x.cor / x.att : 0, `<span style="color:var(--text-2)">${SUBJ_ICON[x.s].replace("<svg", '<svg width="20" height="20"')}</span>`)}
-          <span class="meta"><b>${x.s}</b><span>${x.att ? `${pct(x.cor, x.att)}% accuracy · ${x.att} attempted` : `${x.n} questions · not started`}</span></span>
+          <span class="meta"><b>${x.s}</b><span>${x.att ? `${pct(x.cor, x.att)}% accuracy · ${x.att} attempted` : `Not started`}</span></span>
         </button>`).join("")}</div>
       <div class="section-title"><h3>Badges</h3><button class="link" data-act="tab" data-v="profile">${got.length}/${BADGES.length} ›</button></div>
       <div class="badge-strip">${BADGES.map((b) => `<div class="medal ${S.badges[b.id] ? "" : "locked"}" title="${b.name}: ${b.desc}">${b.icon}</div>`).join("")}</div>`);
@@ -382,7 +383,7 @@
           <div>⌛ At ${RULES.floorGP} GP you get ${RULES.graceSec}s more, then the question is skipped.</div>
         </div>
       </div>
-      ${note()}`);
+      `);
   }
 
   /* ================================= SETUP ================================ */
@@ -399,8 +400,8 @@
         <div class="chips" style="margin:8px 0 16px">${SUBJECTS[S.exam].map((s) => `<button class="chip ${setup.subject === s ? "on" : ""}" data-act="subj" data-v="${s}">${s}</button>`).join("")}</div>
         <div class="chips-row" style="justify-content:space-between"><div class="eyebrow">Chapters</div><button class="link" data-act="all-ch">${setup.chapters.size === chs.length && chs.length ? "Clear" : "Select all"}</button></div>
         <div class="chips" style="margin:8px 0 16px">${chs.map((c) => {
-          const st = S.stats[`${S.exam}|${setup.subject}|${c}`], n = bank(S.exam, S.pyqOnly).filter((q) => q.subject === setup.subject && q.chapter === c).length;
-          return `<button class="chip ${setup.chapters.has(c) ? "on" : ""}" data-act="ch" data-v="${esc(c)}">${esc(c)}<small>${st ? pct(st.cor, st.att) + "%" : n + " Q"}</small></button>`;
+          const st = S.stats[`${S.exam}|${setup.subject}|${c}`];
+          return `<button class="chip ${setup.chapters.has(c) ? "on" : ""}" data-act="ch" data-v="${esc(c)}">${esc(c)}${st ? `<small>${pct(st.cor, st.att)}%</small>` : ""}</button>`;
         }).join("") || '<span class="faint">No chapters with questions yet.</span>'}</div>`;
     } else if (mode === "vault") {
       const all = vaultIds(S.exam).length, due = vaultDue(S.exam).length;
@@ -424,7 +425,6 @@
           <button class="btn primary block" style="margin-top:16px" data-act="start" ${pool.length ? "" : "disabled"}>
             ${pool.length ? `${I.play.replace("<svg", '<svg width="18" height="18"')} Start · ${Math.min(pool.length, setup.length)} questions` : mode === "chapter" ? "Select at least one chapter" : "Nothing to play yet"}
           </button>
-          ${pool.length && pool.length < setup.length ? `<p class="faint" style="text-align:center;margin-bottom:0">Only ${pool.length} matching questions in the bank right now.</p>` : ""}
         </div>
       </div>`, { immersive: true, keepScroll: wasSetup });
   }
@@ -853,7 +853,7 @@
       ${subjects.map(({ s, rows }) => `<div class="spacer"></div><div class="glass"><h3 style="margin-bottom:12px">${s} · chapters</h3>${barsHTML(rows)}</div>`).join("")}
       <div class="spacer"></div>
       <button class="btn gold block" data-act="parent-lifetime">${I.share.replace("<svg", '<svg width="18" height="18"')} Send progress report to parents</button>
-      ${note()}`);
+      `);
   }
 
   /* =============================== VAULT TAB ============================== */
@@ -899,7 +899,7 @@
       <div class="ranks">${RANKS.map((x, i) => `<div class="rank-item ${i === r.i ? "cur" : i < r.i ? "done" : ""}"><b class="num">${i < r.i ? "✓ " : i === r.i ? "▶ " : ""}${x.name}</b><span class="faint">${fmt(x.gp)} GP</span></div>`).join("")}</div>
       <div class="section-title"><h3>Badges · ${Object.keys(S.badges).length}/${BADGES.length}</h3></div>
       <div class="badges">${BADGES.map((b) => `<div class="badge-card ${S.badges[b.id] ? "" : "locked"}"><div class="medal">${b.icon}</div><b>${b.name}</b><span>${b.desc}</span></div>`).join("")}</div>
-      ${note()}`);
+      `);
   }
 
   /* ============================ WELCOME / REPORT ========================== */
@@ -957,7 +957,6 @@
       case "tab":
         if (v === "play" && window.PJ && !PJ.user) { pendingSignedInAction = () => { tab = "play"; renderTab("play"); }; PJ.requireSignIn(); break; }
         setup = null; if (G) return; sfx.tap(); renderTab(v); break;
-      case "exam": S.exam = v; save(); renderTab(); break;
       case "quick-play": sfx.tap(); setup = { mode: "mixed", exam: S.exam, subject: SUBJECTS[S.exam][0], chapters: new Set(), length: S.lastLength || 10 }; startGame(); break;
       case "setup": sfx.tap(); renderSetup(v); break;
       case "subject": sfx.tap(); renderSetup("chapter", v); setup.chapters = new Set(chaptersOf(S.exam, v, S.pyqOnly)); renderSetup("chapter"); break;
