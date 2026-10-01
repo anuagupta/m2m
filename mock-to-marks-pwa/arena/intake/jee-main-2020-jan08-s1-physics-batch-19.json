@@ -1,0 +1,23 @@
+[
+  {
+    "id": "jm20-0108s1-23",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Physics",
+    "chapter": "Waves",
+    "type": "num",
+    "difficulty": 3,
+    "q": "A 1 m long organ pipe, open at both ends, contains a gas whose density is twice that of air at STP. If the speed of sound in air at STP is 300 m/s, find in hertz the difference between the second-harmonic frequency and the fundamental frequency of the pipe. Give the nearest integer.",
+    "answer": 106,
+    "hint": "At the same pressure, sound speed varies inversely as the square root of density; for an open pipe, f_n = nv/(2L).",
+    "solution": "The gas has speed v = 300/√2 = 150√2 m/s. For an open pipe, f₂ - f₁ = v/L - v/(2L) = v/(2L). With L = 1 m, the difference is 75√2 ≈ 106.07 Hz, whose nearest integer is 106.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "answerKeyUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-P23",
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
