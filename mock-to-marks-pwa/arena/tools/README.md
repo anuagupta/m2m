@@ -28,9 +28,15 @@ After human review, append it to the bank:
 
 `node arena/tools/import-verified.js intake.json --apply`
 
-The importer rejects duplicate IDs, unofficial hosts, invalid answers, JEE
-years outside 2025–2026, NEET years outside 2020–2026, and chapters not present
-in the Mock Test Analysis dropdown.
+The user has confirmed permission to use ExamSIDE/ExamGOAL transcriptions. The
+official NTA/CBSE paper and final key remain the authority; the third-party URL
+is stored only as `transcriptionUrl` for traceability. The importer rejects
+duplicate IDs, unofficial authority hosts, unapproved transcription hosts,
+invalid answers, JEE years outside 2023–2026, NEET years outside 2017–2026,
+and chapters not present in the Mock Test Analysis dropdown. Every intake row
+must explicitly confirm `answerKeyMatch: true`, `independentSolution: true`, and
+`diagramStatus: "not_required" | "redrawn"`. Ambiguous, dropped and bonus
+questions are rejected rather than silently included.
 Always run `npm test` after importing.
 
 ## Difficulty rubric (0–10)

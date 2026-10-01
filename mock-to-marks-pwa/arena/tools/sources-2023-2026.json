@@ -1,6 +1,10 @@
 {
-  "policy": "Only official NTA question/response sheets paired with the official final answer key are importable. An answer key without question text and option IDs remains pending.",
-  "scope": { "JEE": [2025, 2026], "NEET": [2020, 2021, 2022, 2023, 2024, 2025, 2026] },
+  "policy": "ExamSIDE/ExamGOAL transcriptions are permitted, but every retained item must be matched to the official NTA/CBSE paper and final key, independently solved, chapter-tagged, rated 0-10 and supplied with a clean redraw when needed. Ambiguous, dropped, bonus, unreadable and answer-mismatched items are quarantined.",
+  "scope": { "JEE": [2023, 2024, 2025, 2026], "NEET": [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026] },
+  "transcriptionSources": [
+    { "name": "ExamSIDE / ExamGOAL", "url": "https://questions.examside.com/past-years/year-wise/jee/jee-main", "permission": "confirmed_by_owner", "use": "question and option transcription only" },
+    { "name": "ExamSIDE / ExamGOAL NEET", "url": "https://questions.examside.com/past-years/medical/neet", "permission": "confirmed_by_owner", "use": "question and option transcription only" }
+  ],
   "sources": [
     { "exam": "JEE", "year": 2023, "documents": "https://jeemain.nta.nic.in/documents/", "status": "pending_official_question_sheets" },
     { "exam": "JEE", "year": 2024, "documents": "https://jeemain.nta.nic.in/documents/", "status": "partially_present_in_bank" },

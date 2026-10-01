@@ -21,10 +21,10 @@ if (!Array.isArray(rows) || !rows.length) throw new Error('Intake must be a non-
 const officialHost = /(^|\.)(nta\.ac\.in|nta\.nic\.in|s3waas\.gov\.in)$/i;
 const clean = rows.map((raw, i) => {
   const label = raw.id || `row ${i + 1}`;
-  ['id', 'exam', 'year', 'examDate', 'subject', 'chapter', 'type', 'q', 'answer', 'hint', 'solution', 'sourceUrl', 'answerKeyUrl', 'officialQuestionId'].forEach((key) => {
+  ['id', 'exam', 'year', 'examDate', 'subject', 'chapter', 'type', 'q', 'answer', 'hint', 'solution', 'sourceUrl', 'answerKeyUrl'].forEach((key) => {
     if (raw[key] === undefined || raw[key] === null || raw[key] === '') throw new Error(`${label}: missing ${key}`);
   });
-  const inScope = (raw.exam === 'JEE' && raw.year >= 2025 && raw.year <= 2026) || (raw.exam === 'NEET' && raw.year >= 2020 && raw.year <= 2026);
+  const inScope = (raw.exam === 'JEE' && raw.year >= 2023 && raw.year <= 2026) || (raw.exam === 'NEET' && raw.year >= 2017 && raw.year <= 2026);
   if (!inScope) throw new Error(`${label}: exam/year is outside this intake`);
   if (existing.has(raw.id)) throw new Error(`${label}: duplicate question id`);
   existing.add(raw.id);
@@ -34,11 +34,22 @@ const clean = rows.map((raw, i) => {
     const url = new URL(value);
     if (!officialHost.test(url.hostname)) throw new Error(`${label}: provenance must use an official NTA host`);
   });
+  if (raw.transcriptionUrl) {
+    const transcription = new URL(raw.transcriptionUrl);
+    if (!/(^|\.)(questions\.examside\.com|examgoal\.net)$/i.test(transcription.hostname)) throw new Error(`${label}: transcription host is not approved`);
+  }
+  const legacyOfficialIntake = !!raw.officialQuestionId && raw.answerKeyMatch === undefined;
+  if (raw.answerKeyMatch !== true && !legacyOfficialIntake) throw new Error(`${label}: official answer-key match is not confirmed`);
+  if (raw.independentSolution !== true && !legacyOfficialIntake) throw new Error(`${label}: independent solution is not confirmed`);
+  const hasDiagram = !!raw.img || (Array.isArray(raw.options) && raw.options.some((option) => option && typeof option === 'object' && option.img));
+  const diagramStatus = raw.diagramStatus || (!hasDiagram && legacyOfficialIntake ? 'not_required' : null);
+  if (!['not_required', 'redrawn'].includes(diagramStatus)) throw new Error(`${label}: diagram must be absent or independently redrawn`);
+  if (raw.ambiguous === true || raw.dropped === true || raw.bonus === true) throw new Error(`${label}: ambiguous/dropped/bonus questions cannot be imported`);
   if (raw.type === 'mcq' && (!Array.isArray(raw.options) || raw.options.length < 4 || !Number.isInteger(raw.answer) || raw.answer < 0 || raw.answer >= raw.options.length)) throw new Error(`${label}: invalid MCQ answer/options`);
   if (!['mcq', 'num'].includes(raw.type)) throw new Error(`${label}: unsupported type`);
   const difficulty = raw.difficulty === undefined ? initialDifficulty(raw.difficultyEvidence) : raw.difficulty;
   if (!Number.isInteger(difficulty) || difficulty < 0 || difficulty > 10) throw new Error(`${label}: difficulty must be 0–10`);
-  return Object.assign({}, raw, { difficulty, source: raw.source || `${raw.exam} ${raw.year} · ${raw.examDate}` });
+  return Object.assign({}, raw, { difficulty, diagramStatus, source: raw.source || `${raw.exam} ${raw.year} · ${raw.examDate}` });
 });
 
 if (!apply) {
