@@ -211,7 +211,7 @@
     tap: () => tone(700, 0.03, "sine", 0.05)
   };
   const confetti = (n = 36) => {
-    const cols = ["#ffc21a", "#ffe07a", "#e11d3f", "#ff4d6d", "#22e58a", "#ffffff"];
+    const cols = ["#d9b46f", "#ebcf99", "#bd6f76", "#cf7e88", "#7fc6a4", "#ffffff"];
     for (let i = 0; i < n; i++) {
       const c = document.createElement("i"); c.className = "cf";
       const a = Math.random() * Math.PI * 2, r = 120 + Math.random() * 260;
@@ -243,7 +243,7 @@
     leaf: svg('<path d="M11 20A7 7 0 0 1 4 13c0-6 7-10 16-10 0 9-4 16-10 16z"/><path d="M4 21c4-4 8-7 12-9"/>')
   };
   const SUBJ_ICON = { Physics: I.atom, Chemistry: I.flask, Mathematics: I.sigma, Biology: I.leaf };
-  const gradDefs = '<defs><linearGradient id="gpg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe07a"/><stop offset=".5" stop-color="#ffc21a"/><stop offset="1" stop-color="#f59e0b"/></linearGradient></defs>';
+  const gradDefs = '<defs><linearGradient id="gpg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ebcf99"/><stop offset=".5" stop-color="#d9b46f"/><stop offset="1" stop-color="#ba9255"/></linearGradient></defs>';
   const ring = (size, stroke, frac, label) => {
     const r = (size - stroke) / 2, C = 2 * Math.PI * r;
     return `<div class="ring" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${gradDefs}

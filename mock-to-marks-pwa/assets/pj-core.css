@@ -1,18 +1,16 @@
 /* ProDJEE shared chrome: top bar, avatar, greeting, gates, consent, toasts.
    Uses the prodjee.in brand system: deep-space navy glass, with the same
-   saturated tones as Arena's own UI (gold #ffc23d, crimson #f04848, mint
-   #4ff0a0) rather than paler tints of them, so the shared chrome, the hub
-   and ScoreGPS read as the same product as Arena, not a paler cousin
-   of it. Fraunces display + Manrope body. Everything is namespaced "pj-". */
+   softer pastel accent tones shared by Arena, the hub and ScoreGPS.
+   Fraunces display + Manrope body. Everything is namespaced "pj-". */
 :root{
   --pj-bg:#0a0b14;
   --pj-ink:#f2eff9;
   --pj-ink-soft:#b6b1cf;
   --pj-ink-faint:#8a86a6;
-  --pj-gold:#ffc23d;
-  --pj-gold-strong:#ffe07a;
-  --pj-coral:#f04848;
-  --pj-green:#4ff0a0;
+  --pj-gold:#d9b46f;
+  --pj-gold-strong:#ebcf99;
+  --pj-coral:#cf7e7b;
+  --pj-green:#7fc6a4;
   --pj-glass:color-mix(in srgb, #1c1f36 55%, transparent);
   --pj-glass-2:color-mix(in srgb, #24273f 60%, transparent);
   --pj-border:color-mix(in srgb, #fff 15%, transparent);
@@ -32,7 +30,7 @@
 .pj-links a{color:var(--pj-ink-soft);text-decoration:none;font-size:13.5px;font-weight:600;padding:7px 11px;border-radius:99px;white-space:nowrap;}
 .pj-links a:hover{color:var(--pj-ink);background:var(--pj-glass-2);}
 .pj-links a.on{color:var(--pj-bg);background:var(--pj-gold);}
-.pj-news-link{position:relative}.pj-news-dot{width:7px;height:7px;border-radius:50%;background:#39a7ff;box-shadow:0 0 0 0 rgba(57,167,255,.7);display:inline-block;margin-left:5px;vertical-align:1px;animation:pjNewsPulse 1.5s infinite}@keyframes pjNewsPulse{0%{box-shadow:0 0 0 0 rgba(57,167,255,.65)}70%{box-shadow:0 0 0 7px rgba(57,167,255,0)}100%{box-shadow:0 0 0 0 rgba(57,167,255,0)}}
+.pj-news-link{position:relative}.pj-news-dot{width:7px;height:7px;border-radius:50%;background:#79a9d1;box-shadow:0 0 0 0 rgba(121,169,209,.7);display:inline-block;margin-left:5px;vertical-align:1px;animation:pjNewsPulse 1.5s infinite}@keyframes pjNewsPulse{0%{box-shadow:0 0 0 0 rgba(121,169,209,.65)}70%{box-shadow:0 0 0 7px rgba(121,169,209,0)}100%{box-shadow:0 0 0 0 rgba(121,169,209,0)}}
 .pj-avatar{width:36px;height:36px;border-radius:99px;flex:none;border:1px solid var(--pj-border);
   background:var(--pj-glass-2);color:var(--pj-ink-soft);display:inline-flex;align-items:center;justify-content:center;
   overflow:hidden;cursor:pointer;padding:0;text-decoration:none;transition:transform .12s;}
@@ -68,7 +66,7 @@
 .pj-card .pj-logo{width:56px;height:56px;border-radius:16px;display:block;}
 .pj-card a{color:var(--pj-gold);}
 .pj-check{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.5;color:var(--pj-ink);margin:12px 0;cursor:pointer;}
-.pj-check input{margin-top:3px;width:18px;height:18px;flex:none;accent-color:#ffb500;}
+.pj-check input{margin-top:3px;width:18px;height:18px;flex:none;accent-color:#d9b46f;}
 .pj-fine{font-size:12px !important;color:var(--pj-ink-faint) !important;margin-top:12px !important;}
 .pj-err{color:var(--pj-coral);font-size:13px;margin-top:10px;}
 .pj-toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:1100;
