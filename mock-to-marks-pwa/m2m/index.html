@@ -35,7 +35,7 @@
 <meta name="apple-mobile-web-app-title" content="ProDJEE">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="icon" href="/icon-192.png">
-<link rel="stylesheet" href="/assets/pj-core.css"><script src="/assets/pj-transition.js"></script>
+<link rel="stylesheet" href="/assets/pj-core.css"><script defer src="/assets/pj-transition.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&display=swap" rel="stylesheet">
@@ -519,6 +519,10 @@ select,.field input[type=text],.field input[type=number],.field input[type=date]
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="/assets/subject-chapters.js" charset="utf-8"></script>
+<!-- `defer` deliberately NOT used here: it has no effect on an inline
+     script, and this file's own inline script below calls
+     `firebase.firestore()` synchronously at top level. See the matching
+     note near pj-core.js below for how this broke under real testing. -->
 <script>
 (function(){
 "use strict";
@@ -2293,6 +2297,11 @@ if(window.claude && window.claude.hot){
 }
 })();
 </script>
+<!-- `defer` deliberately NOT used on these two: it has no effect on an
+     inline script (only on `src` scripts), and the inline script right
+     below calls `PJ....` synchronously at top level - deferring pj-core.js
+     while this script stayed non-deferred broke that ordering (confirmed
+     against real network in a Playwright run, not just a stubbed test). -->
 <script src="/assets/pj-core.js" charset="utf-8"></script>
 <script>
   // Shared ProDJEE session: greeting, Drive sync. Sign-in itself is NOT

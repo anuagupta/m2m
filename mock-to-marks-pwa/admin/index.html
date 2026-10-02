@@ -76,6 +76,11 @@
     <form class="card" id="editor" style="display:none"></form>
   </div>
 
+  <!-- `defer` deliberately NOT used here: it has no effect on an inline
+       script, and the inline script below checks `window.PJ` once,
+       synchronously, to wire up PJ.onChange - deferring just the scripts
+       above it would make that check run before pj-core.js had executed,
+       silently skipping sign-in gating on this page forever. -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="/assets/pj-core.js" charset="utf-8"></script>
