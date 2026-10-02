@@ -621,14 +621,27 @@
   window.addEventListener('appinstalled', function () { deferredInstallPrompt = null; hideInstall(); });
   offerInstall();
   if ('serviceWorker' in navigator) {
+    var swRegistration = null, lastUpdateCheck = 0;
+    var UPDATE_CHECK_INTERVAL = 10 * 60 * 1000;
+    function checkForAppUpdate(force) {
+      if (!swRegistration || (!force && Date.now() - lastUpdateCheck < UPDATE_CHECK_INTERVAL)) return Promise.resolve(false);
+      lastUpdateCheck = Date.now();
+      return swRegistration.update().then(function () { return true; }).catch(function () { return false; });
+    }
     window.addEventListener('load', function () {
       // Do not let the browser's HTTP cache delay an app-shell update. The
-      // worker itself remains network-first, so this safely upgrades existing
-      // installations without touching any student's local study data.
+      // worker check runs on every launch, so a newly deployed cache version
+      // activates and reloads before the student continues using stale code.
       navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
-        .then(function (registration) { return registration.update(); })
+        .then(function (registration) { swRegistration = registration; return checkForAppUpdate(true); })
         .catch(function () {});
     });
+    // Mobile operating systems often keep an installed PWA alive in the
+    // background. Recheck after ten minutes away, and also while a long-lived
+    // foreground session remains open, without hammering the network.
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) checkForAppUpdate(false); });
+    window.addEventListener('pageshow', function (e) { if (e.persisted) checkForAppUpdate(true); });
+    setInterval(function () { if (!document.hidden) checkForAppUpdate(false); }, UPDATE_CHECK_INTERVAL);
     // A stale cached bundle isn't just cosmetic - it can mean a student sees
     // an old readiness score or an ungated build. Reload once, automatically,
     // the moment a newer service worker takes control.

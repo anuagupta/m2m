@@ -11,7 +11,8 @@ if (/\b[\d,]+\s+(?:JEE Main &amp; NEET )?questions currently available/i.test(ho
 const arenaTile = home.indexOf('href="/arena/"'), analysisTile = home.indexOf('href="/m2m/"'), coachTile = home.indexOf('href="/coach/"');
 if (!(arenaTile < analysisTile && analysisTile < coachTile)) failures.push('Homepage tile order must be Arena, Analysis, Coach.');
 if (!core.includes('beforeinstallprompt') || !core.includes('p.prompt()') || !core.includes('if (!deferredInstallPrompt) return;')) failures.push('Android install button must use the native browser prompt.');
-if (!core.includes("updateViaCache: 'none'") || !core.includes('registration.update()') || !worker.includes("prodjee-cache-v33")) failures.push('Installed apps must actively fetch the current service worker and app-shell cache.');
+if (!core.includes("updateViaCache: 'none'") || !core.includes('swRegistration.update()') || !worker.includes("prodjee-cache-v34")) failures.push('Installed apps must actively fetch the current service worker and app-shell cache.');
+if (!core.includes('UPDATE_CHECK_INTERVAL = 10 * 60 * 1000') || !core.includes("visibilitychange") || !core.includes("pageshow")) failures.push('Launch and foreground update checks are incomplete.');
 if (!worker.includes("'/arena/pyq.js'") || !worker.includes('caches.match(req)') || !worker.includes('event.waitUntil(fresh') || !worker.includes('cacheCopy(req, res)')) failures.push('Installed apps must serve large static question bundles from the versioned cache while refreshing them safely.');
 if (!core.includes('Add to Home Screen')) failures.push('iPhone Add to Home Screen guidance is missing.');
 if (!core.includes("navigator.standalone === true") || !core.includes("display-mode: standalone")) failures.push('Installed-app detection is missing.');
@@ -24,5 +25,6 @@ if (!arena.includes('selectedExam') || !arena.includes('Biology')) failures.push
 if (!arena.includes('enableSwipeNavigation') || !arena.includes('view === tab') || !arena.includes('e.clientX < 28') || !arena.includes('.badge-strip')) failures.push('Safe mobile swipe navigation is missing or no longer protects active/interactable views.');
 if (!core.includes('enableGlobalSectionSwipe') || !core.includes('pj.sectionArrival') || !arena.includes('PJ.previewSection') || !arena.includes('PJ.navigateSection("/m2m/"')) failures.push('Section-level portal navigation or Arena boundary handoff is missing.');
 if (manifest.display !== 'standalone' || manifest.start_url !== '/' || !manifest.icons || !manifest.icons.some((x) => x.sizes === '192x192') || !manifest.icons.some((x) => x.sizes === '512x512')) failures.push('Manifest does not meet the expected Chrome PWA shape.');
+if (!manifest.icons.some((x) => x.sizes === '192x192' && x.purpose === 'maskable' && fs.existsSync(path.join(root, x.src.replace(/^\//, '')))) || !manifest.icons.some((x) => x.sizes === '512x512' && x.purpose === 'maskable' && fs.existsSync(path.join(root, x.src.replace(/^\//, ''))))) failures.push('Maskable Android icons are missing from the manifest or filesystem.');
 if (failures.length) { console.error(failures.join('\n')); process.exit(1); }
 console.log('Validated native install flow, distinct section and Arena swipe navigation, profile-selected Arena exam, and hidden bank totals.');
