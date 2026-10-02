@@ -11,7 +11,7 @@ if (/\b[\d,]+\s+(?:JEE Main &amp; NEET )?questions currently available/i.test(ho
 const arenaTile = home.indexOf('href="/arena/"'), analysisTile = home.indexOf('href="/m2m/"'), coachTile = home.indexOf('href="/coach/"');
 if (!(arenaTile < analysisTile && analysisTile < coachTile)) failures.push('Homepage tile order must be Arena, Analysis, Coach.');
 if (!core.includes('beforeinstallprompt') || !core.includes('p.prompt()') || !core.includes('if (!deferredInstallPrompt) return;')) failures.push('Android install button must use the native browser prompt.');
-if (!core.includes("updateViaCache: 'none'") || !core.includes('swRegistration.update()') || !worker.includes("prodjee-cache-v42") || !core.includes('Update ready') || !core.includes("act === 'restart-app'")) failures.push('Installed apps must fetch the current service worker and safely offer the latest app shell.');
+if (!core.includes("updateViaCache: 'none'") || !core.includes('swRegistration.update()') || !worker.includes("prodjee-cache-v43") || !core.includes('Update ready') || !core.includes("act === 'restart-app'")) failures.push('Installed apps must fetch the current service worker and safely offer the latest app shell.');
 if (core.includes('e.clientX < 28') || arena.includes('e.clientX < 28')) failures.push('Section swipes must remain available when students start naturally from a screen edge.');
 if (core.includes('Welcome to') || core.includes("'Opening'") || core.includes('Continue to ') || core.includes('pj-section-portal-card')) failures.push('Section transitions must not display opening, arrival or swipe notifications.');
 if (!core.includes('UPDATE_CHECK_INTERVAL = 10 * 60 * 1000') || !core.includes("visibilitychange") || !core.includes("pageshow")) failures.push('Launch and foreground update checks are incomplete.');
@@ -19,6 +19,7 @@ if (!worker.includes("'/arena/pyq.js'") || !worker.includes('caches.match(req)')
 if (!core.includes('Add to Home Screen')) failures.push('iPhone Add to Home Screen guidance is missing.');
 if (!core.includes("navigator.standalone === true") || !core.includes("display-mode: standalone")) failures.push('Installed-app detection is missing.');
 const css = fs.readFileSync(path.join(root, 'assets', 'pj-core.css'), 'utf8');
+if (!css.includes('touch-action:pan-y') || !css.includes('overscroll-behavior-x:none')) failures.push('Shared pages must hand horizontal touch gestures to section navigation.');
 if (!css.includes('.pj-bar-inner > .pj-avatar{margin-left:auto;}')) failures.push('Mobile profile button is not anchored to the top-right.');
 if (core.includes('setupCompactNav') || css.includes('.pj-menu-toggle')) failures.push('The compact hamburger menu must not be present.');
 if (!css.includes('pointer-events:none') || !core.includes("brand.removeAttribute('href')")) failures.push('The ProDJEE logo must be non-interactive.');
