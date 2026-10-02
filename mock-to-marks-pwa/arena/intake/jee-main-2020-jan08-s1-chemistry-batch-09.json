@@ -1,0 +1,33 @@
+[
+  {
+    "id": "jm20-0108s1-c09",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Chemistry",
+    "chapter": "s-Block Elements",
+    "type": "mcq",
+    "difficulty": 1,
+    "q": "What is formed when gypsum is heated to 393 K?",
+    "options": [
+      "Anhydrous CaSO₄",
+      "Dead-burnt plaster",
+      "CaSO₄·0.5H₂O",
+      "CaSO₄·5H₂O"
+    ],
+    "answer": 2,
+    "hint": "At this temperature gypsum loses only part of its water of crystallization.",
+    "solution": "Gypsum is CaSO₄·2H₂O. On heating to about 393 K, it loses 1.5 molecules of water per formula unit: CaSO₄·2H₂O → CaSO₄·0.5H₂O + 1.5H₂O. The calcium sulphate hemihydrate formed is plaster of Paris. Complete dehydration to dead-burnt plaster requires stronger heating.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-C09",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://cracku.in/nta-jee-main-8-jan-2020-shift-1-chemistry-question-paper-solved",
+      "https://byjus.com/jee/plaster-of-paris/"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
