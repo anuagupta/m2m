@@ -116,8 +116,17 @@
     return m ? m[1] + (m[2] || "") : "";
   };
   const byId = Object.fromEntries(window.QBANK.map((q) => [q.id, q]));
-  const bank = (exam, pyq = false) => window.QBANK.filter((q) => q.exam === exam && (!pyq || isPYQ(q)));
-  const chaptersOf = (exam, subject, pyq) => [...new Set(bank(exam, pyq).filter((q) => q.subject === subject).map((q) => q.chapter))].sort();
+  const bankCache = new Map(), chapterCache = new Map();
+  const bank = (exam, pyq = false) => {
+    const key = `${exam}|${pyq ? 1 : 0}`;
+    if (!bankCache.has(key)) bankCache.set(key, window.QBANK.filter((q) => q.exam === exam && (!pyq || isPYQ(q))));
+    return bankCache.get(key);
+  };
+  const chaptersOf = (exam, subject, pyq) => {
+    const key = `${exam}|${subject}|${pyq ? 1 : 0}`;
+    if (!chapterCache.has(key)) chapterCache.set(key, [...new Set(bank(exam, pyq).filter((q) => q.subject === subject).map((q) => q.chapter))].sort());
+    return chapterCache.get(key);
+  };
   // Mixed Arena is a recovery mode: once we have evidence of a weak chapter,
   // every question comes from that weak set. Evidence comes from Arena misses
   // (the vault and chapter accuracy) and non-correct questions tagged while
@@ -153,8 +162,6 @@
   const vaultIds = (exam) => Object.keys(S.vault).filter((id) => byId[id] && byId[id].exam === exam);
   const vaultDue = (exam) => vaultIds(exam).filter((id) => S.vault[id].due <= Date.now());
   const dueIn = (t) => { const h = (t - Date.now()) / 36e5; return h < 1 ? "in <1 h" : h < 24 ? `in ~${Math.round(h)} h` : `in ${Math.round(h / 24)} day${Math.round(h / 24) > 1 ? "s" : ""}`; };
-  const greeting = () => { const h = new Date().getHours(); return h < 5 ? "Burning the midnight oil" : h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; };
-
   // Maths typesetting ($…$ inline, $$…$$ display) once KaTeX has loaded; plain text still works without it.
   const typeset = (el = app) => {
     pyqHydrate(el);
@@ -301,7 +308,7 @@
     const nav = pendingNav; pendingNav = null;
     app.innerHTML = `<div class="view${nav ? ` nav-in-${nav.direction}` : ""}">${html}</div>`;
     layer.innerHTML = opts.layer || "";
-    renderNav(); countUp(); animateRings(); typeset(); typeset(layer);
+    renderNav(); countUp(); animateRings(); typeset(); if (layer.childElementCount) typeset(layer);
     if (nav) requestAnimationFrame(() => window.scrollTo({ top: nav.restore || 0, behavior: "auto" }));
     else if (!opts.keepScroll) window.scrollTo(0, 0);
   }
@@ -336,7 +343,7 @@
     const subj = SUBJECTS[S.exam].map((s) => {
       const rows = Object.entries(S.stats).filter(([k]) => k.startsWith(`${S.exam}|${s}|`));
       const att = rows.reduce((a, [, v]) => a + v.att, 0), cor = rows.reduce((a, [, v]) => a + v.cor, 0);
-      return { s, att, cor, n: bank(S.exam).filter((q) => q.subject === s).length };
+      return { s, att, cor };
     });
     const got = BADGES.filter((b) => S.badges[b.id]);
     show(`

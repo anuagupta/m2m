@@ -11,7 +11,8 @@ if (/\b[\d,]+\s+(?:JEE Main &amp; NEET )?questions currently available/i.test(ho
 const arenaTile = home.indexOf('href="/arena/"'), analysisTile = home.indexOf('href="/m2m/"'), coachTile = home.indexOf('href="/coach/"');
 if (!(arenaTile < analysisTile && analysisTile < coachTile)) failures.push('Homepage tile order must be Arena, Analysis, Coach.');
 if (!core.includes('beforeinstallprompt') || !core.includes('p.prompt()') || !core.includes('if (!deferredInstallPrompt) return;')) failures.push('Android install button must use the native browser prompt.');
-if (!core.includes("updateViaCache: 'none'") || !core.includes('registration.update()') || !worker.includes("prodjee-cache-v32")) failures.push('Installed apps must actively fetch the current service worker and app-shell cache.');
+if (!core.includes("updateViaCache: 'none'") || !core.includes('registration.update()') || !worker.includes("prodjee-cache-v33")) failures.push('Installed apps must actively fetch the current service worker and app-shell cache.');
+if (!worker.includes("'/arena/pyq.js'") || !worker.includes('caches.match(req)') || !worker.includes('event.waitUntil(fresh') || !worker.includes('cacheCopy(req, res)')) failures.push('Installed apps must serve large static question bundles from the versioned cache while refreshing them safely.');
 if (!core.includes('Add to Home Screen')) failures.push('iPhone Add to Home Screen guidance is missing.');
 if (!core.includes("navigator.standalone === true") || !core.includes("display-mode: standalone")) failures.push('Installed-app detection is missing.');
 const css = fs.readFileSync(path.join(root, 'assets', 'pj-core.css'), 'utf8');

@@ -194,17 +194,33 @@
     portal(section, direction, false);
     setTimeout(function () { location.href = target || section.path; }, window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches ? 110 : 390);
   }
+  var previewFrame = 0, previewState = null, previewKey = '';
   function previewSection(id, direction, progress) {
-    var section = SECTIONS.find ? SECTIONS.find(function (s) { return s.id === id; }) : null;
+    var section = null;
+    for (var i = 0; i < SECTIONS.length; i++) if (SECTIONS[i].id === id) { section = SECTIONS[i]; break; }
     if (!section) return;
-    var p = document.getElementById('pj-boundary-preview');
-    if (!p) { p = document.createElement('div'); p.id = 'pj-boundary-preview'; document.body.appendChild(p); }
-    p.className = 'pj-boundary-preview ' + (direction === 'next' ? 'next' : 'prev');
-    p.style.setProperty('--pj-portal-accent', section.accent);
-    p.style.opacity = String(Math.max(0, Math.min(.95, progress || 0)));
-    p.innerHTML = '<span>' + (direction === 'next' ? 'Continue to ' + esc(section.label) + ' →' : '← Back to ' + esc(section.label)) + '</span>';
+    previewState = { section: section, direction: direction, progress: Math.max(0, Math.min(.95, progress || 0)) };
+    if (previewFrame) return;
+    previewFrame = requestAnimationFrame(function () {
+      previewFrame = 0;
+      if (!previewState) return;
+      var state = previewState, key = state.section.id + '|' + state.direction;
+      var p = document.getElementById('pj-boundary-preview');
+      if (!p) { p = document.createElement('div'); p.id = 'pj-boundary-preview'; document.body.appendChild(p); }
+      if (key !== previewKey) {
+        previewKey = key;
+        p.className = 'pj-boundary-preview ' + (state.direction === 'next' ? 'next' : 'prev');
+        p.style.setProperty('--pj-portal-accent', state.section.accent);
+        p.innerHTML = '<span>' + (state.direction === 'next' ? 'Continue to ' + esc(state.section.label) + ' →' : '← Back to ' + esc(state.section.label)) + '</span>';
+      }
+      p.style.opacity = String(state.progress);
+    });
   }
-  function clearSectionPreview() { var p = document.getElementById('pj-boundary-preview'); if (p) p.remove(); }
+  function clearSectionPreview() {
+    previewState = null; previewKey = '';
+    if (previewFrame) { cancelAnimationFrame(previewFrame); previewFrame = 0; }
+    var p = document.getElementById('pj-boundary-preview'); if (p) p.remove();
+  }
   function hasHorizontalScroller(el) {
     while (el && el !== document.body) {
       if (el.scrollWidth > el.clientWidth + 3) { var x = getComputedStyle(el).overflowX; if (x === 'auto' || x === 'scroll') return true; }
