@@ -62,14 +62,17 @@ img { max-width: 100%; }
 @keyframes d2 { 50% { transform: translate(-60px, -40px) scale(1.08); } }
 @keyframes d3 { 50% { transform: translate(-40px, 60px) scale(0.92); } }
 body.bonus .b1, body.bonus .b5, body.bonus .b8 { background: var(--gold); opacity: 0.3; }
-@media (prefers-reduced-motion: reduce) { .blob, .view { animation: none !important; } }
-
 /* ---------------- Shell ---------------- */
 .shell { position: relative; z-index: 1; min-height: 100vh; }
-.app { max-width: 1080px; margin: 0 auto; padding: 14px 16px calc(var(--tabbar-h) + var(--safe-b) + 24px); }
+.app { max-width: 1080px; margin: 0 auto; padding: 14px 16px calc(var(--tabbar-h) + var(--safe-b) + 24px); touch-action: pan-y; }
 body.immersive .app { padding-bottom: 32px; }
 .view { animation: viewIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
 @keyframes viewIn { from { opacity: 0; transform: translateY(10px); } }
+.view.nav-in-next { animation: navInNext 0.28s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.view.nav-in-prev { animation: navInPrev 0.28s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes navInNext { from { opacity: 0.72; transform: translateX(34px); } }
+@keyframes navInPrev { from { opacity: 0.72; transform: translateX(-34px); } }
+@media (prefers-reduced-motion: reduce) { .blob, .view { animation: none !important; transition: none !important; } }
 .narrow { max-width: 640px; margin: 0 auto; }
 
 /* Bottom tab bar (phones) */

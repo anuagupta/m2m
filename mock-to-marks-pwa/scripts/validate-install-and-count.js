@@ -11,7 +11,7 @@ if (/\b[\d,]+\s+(?:JEE Main &amp; NEET )?questions currently available/i.test(ho
 const arenaTile = home.indexOf('href="/arena/"'), analysisTile = home.indexOf('href="/m2m/"'), coachTile = home.indexOf('href="/coach/"');
 if (!(arenaTile < analysisTile && analysisTile < coachTile)) failures.push('Homepage tile order must be Arena, Analysis, Coach.');
 if (!core.includes('beforeinstallprompt') || !core.includes('p.prompt()') || !core.includes('if (!deferredInstallPrompt) return;')) failures.push('Android install button must use the native browser prompt.');
-if (!core.includes("updateViaCache: 'none'") || !core.includes('registration.update()') || !worker.includes("prodjee-cache-v30")) failures.push('Installed apps must actively fetch the current service worker and app-shell cache.');
+if (!core.includes("updateViaCache: 'none'") || !core.includes('registration.update()') || !worker.includes("prodjee-cache-v31")) failures.push('Installed apps must actively fetch the current service worker and app-shell cache.');
 if (!core.includes('Add to Home Screen')) failures.push('iPhone Add to Home Screen guidance is missing.');
 if (!core.includes("navigator.standalone === true") || !core.includes("display-mode: standalone")) failures.push('Installed-app detection is missing.');
 const css = fs.readFileSync(path.join(root, 'assets', 'pj-core.css'), 'utf8');
@@ -20,6 +20,7 @@ if (core.includes('setupCompactNav') || css.includes('.pj-menu-toggle')) failure
 if (!css.includes('pointer-events:none') || !core.includes("brand.removeAttribute('href')")) failures.push('The ProDJEE logo must be non-interactive.');
 if (arena.includes('data-act="exam"') || arena.includes('case "exam"')) failures.push('The redundant Arena exam toggle is still present.');
 if (!arena.includes('selectedExam') || !arena.includes('Biology')) failures.push('Arena must use the profile exam and support the Biology tile.');
+if (!arena.includes('enableSwipeNavigation') || !arena.includes('view === tab') || !arena.includes('e.clientX < 28') || !arena.includes('.badge-strip')) failures.push('Safe mobile swipe navigation is missing or no longer protects active/interactable views.');
 if (manifest.display !== 'standalone' || manifest.start_url !== '/' || !manifest.icons || !manifest.icons.some((x) => x.sizes === '192x192') || !manifest.icons.some((x) => x.sizes === '512x512')) failures.push('Manifest does not meet the expected Chrome PWA shape.');
 if (failures.length) { console.error(failures.join('\n')); process.exit(1); }
-console.log('Validated native install flow, direct mobile navigation, profile-selected Arena exam, and hidden bank totals.');
+console.log('Validated native install flow, safe mobile swipe navigation, profile-selected Arena exam, and hidden bank totals.');

@@ -254,7 +254,8 @@
   const animateRings = (root = app) => requestAnimationFrame(() => root.querySelectorAll("circle.fg[data-off]").forEach((c) => { c.style.strokeDashoffset = c.dataset.off; }));
 
   /* ============================== SHELL / NAV ============================= */
-  let tab = "home", view = "home";
+  let tab = "home", view = "home", pendingNav = null;
+  const tabScroll = Object.create(null);
   // Labelled "Dashboard", not "Home" - the shared site nav right above
   // already has its own "Home" (the prodjee.in hub), and having both
   // visible at once made it unclear which "Home" either one meant.
@@ -297,10 +298,12 @@
   function show(html, opts = {}) {
     document.body.classList.toggle("immersive", !!opts.immersive);
     if (!opts.immersive) document.body.classList.remove("bonus");
-    app.innerHTML = `<div class="view">${html}</div>`;
+    const nav = pendingNav; pendingNav = null;
+    app.innerHTML = `<div class="view${nav ? ` nav-in-${nav.direction}` : ""}">${html}</div>`;
     layer.innerHTML = opts.layer || "";
     renderNav(); countUp(); animateRings(); typeset(); typeset(layer);
-    if (!opts.keepScroll) window.scrollTo(0, 0);
+    if (nav) requestAnimationFrame(() => window.scrollTo({ top: nav.restore || 0, behavior: "auto" }));
+    else if (!opts.keepScroll) window.scrollTo(0, 0);
   }
   const toast = (html, ms = 2600) => {
     let box = $("#toasts"); if (!box) { box = document.createElement("div"); box.id = "toasts"; box.className = "toasts"; document.body.appendChild(box); }
@@ -960,6 +963,60 @@
   /* ================================ EVENTS ================================ */
   const TAB_RENDER = { home: renderHome, play: renderPlay, vault: renderVault, stats: renderStats, profile: renderProfile };
   const renderTab = (t = tab) => (TAB_RENDER[t] || renderHome)();
+  function navigateTab(next, direction) {
+    if (!TAB_RENDER[next] || next === tab || G) return;
+    if (next === "play" && window.PJ && !PJ.user) {
+      pendingSignedInAction = () => navigateTab("play", direction);
+      PJ.requireSignIn();
+      return;
+    }
+    const fromIndex = TABS.findIndex(([id]) => id === tab), toIndex = TABS.findIndex(([id]) => id === next);
+    tabScroll[tab] = window.scrollY;
+    pendingNav = { direction: direction || (toIndex > fromIndex ? "next" : "prev"), restore: tabScroll[next] || 0 };
+    setup = null;
+    sfx.tap();
+    renderTab(next);
+    if (navigator.vibrate) navigator.vibrate(8);
+  }
+  function enableSwipeNavigation() {
+    const mobile = window.matchMedia ? matchMedia("(max-width: 899px) and (pointer: coarse)") : null;
+    let drag = null, suppressClickUntil = 0;
+    const enabled = () => (!mobile || mobile.matches) && !document.body.classList.contains("immersive") && !overlay.innerHTML && view === tab;
+    const resetView = () => {
+      const node = app.querySelector(".view");
+      if (node) { node.style.transition = "transform .18s ease, opacity .18s ease"; node.style.transform = ""; node.style.opacity = ""; setTimeout(() => { if (node.isConnected) node.style.transition = ""; }, 190); }
+    };
+    app.addEventListener("pointerdown", (e) => {
+      if (e.pointerType !== "touch" || !enabled() || e.clientX < 28 || e.clientX > innerWidth - 28) return;
+      if (e.target.closest("input, textarea, select, [contenteditable], .badge-strip")) return;
+      drag = { id: e.pointerId, x: e.clientX, y: e.clientY, at: performance.now(), horizontal: false };
+    }, { passive: true });
+    app.addEventListener("pointermove", (e) => {
+      if (!drag || drag.id !== e.pointerId) return;
+      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (!drag.horizontal && Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx) * 0.8) { drag = null; return; }
+      if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+      drag.horizontal = true;
+      e.preventDefault();
+      const node = app.querySelector(".view");
+      if (node) { const shift = Math.max(-54, Math.min(54, dx * 0.32)); node.style.transition = "none"; node.style.transform = `translate3d(${shift}px,0,0)`; node.style.opacity = String(1 - Math.min(0.16, Math.abs(shift) / 340)); }
+    }, { passive: false });
+    const finish = (e) => {
+      if (!drag || drag.id !== e.pointerId) return;
+      const dx = e.clientX - drag.x, elapsed = Math.max(1, performance.now() - drag.at), horizontal = drag.horizontal;
+      drag = null;
+      resetView();
+      if (!horizontal || (Math.abs(dx) < 70 && Math.abs(dx) / elapsed < 0.35)) return;
+      const index = TABS.findIndex(([id]) => id === tab), nextIndex = index + (dx < 0 ? 1 : -1);
+      if (nextIndex < 0 || nextIndex >= TABS.length) return;
+      suppressClickUntil = performance.now() + 450;
+      navigateTab(TABS[nextIndex][0], dx < 0 ? "next" : "prev");
+    };
+    app.addEventListener("pointerup", finish, { passive: true });
+    app.addEventListener("pointercancel", () => { drag = null; resetView(); }, { passive: true });
+    document.addEventListener("click", (e) => { if (performance.now() < suppressClickUntil) { e.preventDefault(); e.stopImmediatePropagation(); } }, true);
+  }
+  enableSwipeNavigation();
   function quitGame() {
     closeModal(); clearInterval(timer);
     if (G && G.records.length) finishGame(); else { disarmGuard(); G = null; renderTab(); }
@@ -969,9 +1026,7 @@
     const act = el.dataset.act, v = el.dataset.v;
     if (act === "modal-bg" && e.target !== el) return;
     switch (act) {
-      case "tab":
-        if (v === "play" && window.PJ && !PJ.user) { pendingSignedInAction = () => { tab = "play"; renderTab("play"); }; PJ.requireSignIn(); break; }
-        setup = null; if (G) return; sfx.tap(); renderTab(v); break;
+      case "tab": navigateTab(v); break;
       case "quick-play": sfx.tap(); setup = { mode: "mixed", exam: S.exam, subject: SUBJECTS[S.exam][0], chapters: new Set(), length: S.lastLength || 10 }; startGame(); break;
       case "setup": sfx.tap(); renderSetup(v); break;
       case "subject": sfx.tap(); renderSetup("chapter", v); setup.chapters = new Set(chaptersOf(S.exam, v, S.pyqOnly)); renderSetup("chapter"); break;
@@ -1084,5 +1139,13 @@
     setup = { mode: "chapter", exam: S.exam, subject, chapters, length: [10,20,30].includes(+launch.get("length")) ? +launch.get("length") : 10, difficulty: launch.get("difficulty") || "any" };
     renderSetup("chapter");
   } else renderHome();
+  if (!launch.has("mission") && !launch.has("mode") && (!window.matchMedia || matchMedia("(max-width: 899px) and (pointer: coarse)").matches)) {
+    try {
+      if (!localStorage.getItem("prodjee.swipe-hint.v1")) {
+        localStorage.setItem("prodjee.swipe-hint.v1", "1");
+        setTimeout(() => { if (!overlay.innerHTML && view === tab) toast("↔ Swipe left or right to explore Arena", 3600); }, 900);
+      }
+    } catch (e) {}
+  }
   if (!["mission", "mode"].some((key) => launch.has(key))) welcomeBack();
 })();
