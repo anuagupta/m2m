@@ -191,7 +191,7 @@
     clearSectionPreview();
     document.body.classList.add('pj-section-leaving', direction === 'prev' ? 'pj-section-prev' : 'pj-section-next');
     portal(section, direction, false);
-    setTimeout(function () { location.href = target || section.path; }, window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches ? 110 : 590);
+    setTimeout(function () { location.href = target || section.path; }, window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches ? 110 : 290);
   }
   var previewFrame = 0, previewState = null, previewKey = '';
   function previewSection(id, direction, progress) {
@@ -266,7 +266,7 @@
     var current = sectionFor(), raw = null;
     try { raw = sessionStorage.getItem('pj.sectionArrival'); sessionStorage.removeItem('pj.sectionArrival'); } catch (e) {}
     if (raw && current) {
-      try { var a = JSON.parse(raw); portal({ label: current.label, accent: current.accent }, a.direction, true); setTimeout(function () { var p = document.querySelector('.pj-section-portal'); if (p) p.remove(); }, 620); } catch (e2) {}
+      try { var a = JSON.parse(raw); portal({ label: current.label, accent: current.accent }, a.direction, true); setTimeout(function () { var p = document.querySelector('.pj-section-portal'); if (p) p.remove(); }, 320); } catch (e2) {}
     }
     if (current && !location.hash) {
       try { var y = Number(sessionStorage.getItem('pj.sectionScroll.' + current.id) || 0); if (y) requestAnimationFrame(function () { scrollTo({ top: y, behavior: 'auto' }); }); } catch (e3) {}
