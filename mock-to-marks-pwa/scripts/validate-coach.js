@@ -9,7 +9,7 @@ const home = fs.readFileSync('index.html', 'utf8');
 
 [
   'Today’s mission', 'Mistake revision', 'Custom test builder',
-  'Answer-key score calculator', 'Score target', 'Syllabus & revision dashboard'
+  'Answer-key score calculator', 'Coaching goal', 'Syllabus & revision dashboard'
 ].forEach((label) => {
   if (!app.includes(label)) throw new Error(`Coach feature missing: ${label}`);
 });
@@ -20,5 +20,7 @@ if (!arena.includes('cfg.difficulty === "easy"') || !arena.includes('launch.get(
 ['prodjee.student.v1', 'prodjee.syllabus.v1'].forEach((key) => {
   if (!core.includes(`'${key}'`)) throw new Error(`Coach data is not included in backup/account migration: ${key}`);
 });
-if (!app.includes('migrateLegacyProfile()') || !app.includes("legacyAnalysis.mocks")) throw new Error('Legacy JEE/NEET profile migration is missing');
-console.log('Validated Coach onboarding, missions, updates, revision, custom tests, scoring, targets and syllabus tracking.');
+if (!app.includes('migrate()') || !app.includes("legacy.mocks")) throw new Error('Legacy JEE/NEET profile migration is missing');
+['mission','practice','progress','settings'].forEach((tab) => { if (!html.includes(`data-coach-tab="${tab}"`)) throw new Error(`Coach tab missing: ${tab}`); });
+if (!app.includes('Your name, age, exam and Google backup remain in Profile') || !app.includes('Arena sound, GP goal and reset remain in Arena Rewards')) throw new Error('Coach settings ownership is unclear or duplicates global settings.');
+console.log('Validated tabbed Coach missions, revision, custom tests, scoring, targets, syllabus tracking and non-duplicated settings.');

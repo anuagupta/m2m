@@ -261,7 +261,7 @@
   const animateRings = (root = app) => requestAnimationFrame(() => root.querySelectorAll("circle.fg[data-off]").forEach((c) => { c.style.strokeDashoffset = c.dataset.off; }));
 
   /* ============================== SHELL / NAV ============================= */
-  let tab = "home", view = "home", pendingNav = null;
+  let tab = "home", view = "home", pendingNav = null, tabTransitioning = false;
   const tabScroll = Object.create(null);
   // Labelled "Dashboard", not "Home" - the shared site nav right above
   // already has its own "Home" (the prodjee.in hub), and having both
@@ -971,7 +971,7 @@
   const TAB_RENDER = { home: renderHome, play: renderPlay, vault: renderVault, stats: renderStats, profile: renderProfile };
   const renderTab = (t = tab) => (TAB_RENDER[t] || renderHome)();
   function navigateTab(next, direction) {
-    if (!TAB_RENDER[next] || next === tab || G) return;
+    if (!TAB_RENDER[next] || next === tab || G || tabTransitioning) return;
     if (next === "play" && window.PJ && !PJ.user) {
       pendingSignedInAction = () => navigateTab("play", direction);
       PJ.requireSignIn();
@@ -979,10 +979,18 @@
     }
     const fromIndex = TABS.findIndex(([id]) => id === tab), toIndex = TABS.findIndex(([id]) => id === next);
     tabScroll[tab] = window.scrollY;
-    pendingNav = { direction: direction || (toIndex > fromIndex ? "next" : "prev"), restore: tabScroll[next] || 0 };
+    const navDirection = direction || (toIndex > fromIndex ? "next" : "prev");
+    pendingNav = { direction: navDirection, restore: tabScroll[next] || 0 };
     setup = null;
     sfx.tap();
-    renderTab(next);
+    const currentView = app.querySelector(".view");
+    const reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const commit = () => { renderTab(next); tabTransitioning = false; };
+    if (currentView && !reduced) {
+      tabTransitioning = true;
+      currentView.classList.add(`nav-out-${navDirection}`);
+      setTimeout(commit, 110);
+    } else commit();
     if (navigator.vibrate) navigator.vibrate(8);
   }
   function enableSwipeNavigation() {

@@ -190,9 +190,9 @@
       if (section.id === 'arena') sessionStorage.setItem('pj.arena.entry', current && current.id === 'scoregps' && direction === 'prev' ? 'profile' : 'home');
     } catch (e) {}
     clearSectionPreview();
-    document.body.classList.add('pj-section-leaving');
+    document.body.classList.add('pj-section-leaving', direction === 'prev' ? 'pj-section-prev' : 'pj-section-next');
     portal(section, direction, false);
-    setTimeout(function () { location.href = target || section.path; }, window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches ? 110 : 390);
+    setTimeout(function () { location.href = target || section.path; }, window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches ? 110 : 470);
   }
   var previewFrame = 0, previewState = null, previewKey = '';
   function previewSection(id, direction, progress) {
@@ -267,7 +267,7 @@
     var current = sectionFor(), raw = null;
     try { raw = sessionStorage.getItem('pj.sectionArrival'); sessionStorage.removeItem('pj.sectionArrival'); } catch (e) {}
     if (raw && current) {
-      try { var a = JSON.parse(raw); portal({ label: current.label, accent: current.accent }, a.direction, true); setTimeout(function () { var p = document.querySelector('.pj-section-portal'); if (p) p.remove(); }, 440); } catch (e2) {}
+      try { var a = JSON.parse(raw); portal({ label: current.label, accent: current.accent }, a.direction, true); setTimeout(function () { var p = document.querySelector('.pj-section-portal'); if (p) p.remove(); }, 500); } catch (e2) {}
     }
     if (current && !location.hash) {
       try { var y = Number(sessionStorage.getItem('pj.sectionScroll.' + current.id) || 0); if (y) requestAnimationFrame(function () { scrollTo({ top: y, behavior: 'auto' }); }); } catch (e3) {}
@@ -551,6 +551,8 @@
     else if (act === 'dismiss-install') { try { sessionStorage.setItem(INSTALL_DISMISS_KEY, '1'); } catch (e2) {} hideInstall(); }
     else if (act === 'show-install-help') { showInstallHelp(); }
     else if (act === 'close-install-help') { var help = document.getElementById('pj-install-help'); if (help) help.remove(); }
+    else if (act === 'restart-app') { e.preventDefault(); location.reload(); }
+    else if (act === 'dismiss-update') { e.preventDefault(); var updateBar = document.getElementById('pj-update-ready'); if (updateBar) updateBar.remove(); }
   });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && document.getElementById('pj-gate')) dismissSignInGate();
@@ -621,7 +623,7 @@
   window.addEventListener('appinstalled', function () { deferredInstallPrompt = null; hideInstall(); });
   offerInstall();
   if ('serviceWorker' in navigator) {
-    var swRegistration = null, lastUpdateCheck = 0;
+    var swRegistration = null, lastUpdateCheck = 0, appInteracted = false, updatePending = false;
     var UPDATE_CHECK_INTERVAL = 10 * 60 * 1000;
     function checkForAppUpdate(force) {
       if (!swRegistration || (!force && Date.now() - lastUpdateCheck < UPDATE_CHECK_INTERVAL)) return Promise.resolve(false);
@@ -639,7 +641,19 @@
     // Mobile operating systems often keep an installed PWA alive in the
     // background. Recheck after ten minutes away, and also while a long-lived
     // foreground session remains open, without hammering the network.
-    document.addEventListener('visibilitychange', function () { if (!document.hidden) checkForAppUpdate(false); });
+    function markAppInteraction() { appInteracted = true; }
+    document.addEventListener('pointerdown', markAppInteraction, { once: true, passive: true, capture: true });
+    document.addEventListener('keydown', markAppInteraction, { once: true, capture: true });
+    function showUpdateReady() {
+      if (document.getElementById('pj-update-ready')) return;
+      var bar = document.createElement('div'); bar.id = 'pj-update-ready'; bar.className = 'pj-update-ready'; bar.setAttribute('role', 'status');
+      bar.innerHTML = '<span><b>Update ready</b><small>Restart ProDJEE to use the latest version.</small></span><button class="later" data-pj-act="dismiss-update">Later</button><button class="restart" data-pj-act="restart-app">Restart now</button>';
+      document.body.appendChild(bar);
+    }
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { if (updatePending) location.reload(); return; }
+      checkForAppUpdate(false);
+    });
     window.addEventListener('pageshow', function (e) { if (e.persisted) checkForAppUpdate(true); });
     setInterval(function () { if (!document.hidden) checkForAppUpdate(false); }, UPDATE_CHECK_INTERVAL);
     // A stale cached bundle isn't just cosmetic - it can mean a student sees
@@ -647,7 +661,9 @@
     // the moment a newer service worker takes control.
     var swReloaded = false;
     navigator.serviceWorker.addEventListener('controllerchange', function () {
-      if (swReloaded) return; swReloaded = true; location.reload();
+      if (swReloaded) return; swReloaded = true; updatePending = true;
+      if (document.hidden || !appInteracted) { location.reload(); return; }
+      showUpdateReady();
     });
   }
 

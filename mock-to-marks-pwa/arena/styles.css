@@ -68,10 +68,14 @@ body.bonus .b1, body.bonus .b5, body.bonus .b8 { background: var(--gold); opacit
 body.immersive .app { padding-bottom: 32px; }
 .view { animation: viewIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
 @keyframes viewIn { from { opacity: 0; transform: translateY(10px); } }
-.view.nav-in-next { animation: navInNext 0.28s cubic-bezier(0.2, 0.8, 0.2, 1); }
-.view.nav-in-prev { animation: navInPrev 0.28s cubic-bezier(0.2, 0.8, 0.2, 1); }
-@keyframes navInNext { from { opacity: 0.72; transform: translateX(34px); } }
-@keyframes navInPrev { from { opacity: 0.72; transform: translateX(-34px); } }
+.view.nav-in-next { animation: navInNext 0.18s ease-out; }
+.view.nav-in-prev { animation: navInPrev 0.18s ease-out; }
+.view.nav-out-next { animation: navOutNext 0.11s ease-in forwards; }
+.view.nav-out-prev { animation: navOutPrev 0.11s ease-in forwards; }
+@keyframes navInNext { from { opacity: 0; transform:translateX(6px); } }
+@keyframes navInPrev { from { opacity: 0; transform:translateX(-6px); } }
+@keyframes navOutNext { to { opacity:0; transform:translateX(-5px); } }
+@keyframes navOutPrev { to { opacity:0; transform:translateX(5px); } }
 @media (prefers-reduced-motion: reduce) { .blob, .view { animation: none !important; transition: none !important; } }
 .narrow { max-width: 640px; margin: 0 auto; }
 
@@ -491,6 +495,9 @@ h3 { font-size: 16px; font-weight: 700; }
 .tab.on::before { background: var(--accent-grad); }
 .tab .dot-badge, .side-link .dot-badge { background: var(--gold); color: var(--on-accent); }
 .side-link.on { background: linear-gradient(135deg, rgba(255, 194, 26, 0.22), rgba(255, 194, 26, 0.06)); box-shadow: inset 0 0 0 1px rgba(255, 194, 26, 0.35); }
+
+/* A selected Arena destination is a soft illuminated surface, not a solid button. */
+.tab{margin:5px 3px;border-radius:16px;transition:color .18s ease,background .18s ease,box-shadow .18s ease}.tab.on{background:linear-gradient(145deg,rgba(217,180,111,.16),rgba(180,162,207,.08));box-shadow:inset 0 0 0 1px rgba(217,180,111,.18),0 0 22px rgba(217,180,111,.14)}.tab.on::before{display:none}.tab.on svg{filter:drop-shadow(0 0 6px rgba(217,180,111,.38))}.tab.play-tab .play-dot{color:var(--gold);background:rgba(217,180,111,.08);border:1px solid rgba(217,180,111,.25);box-shadow:0 9px 22px -12px rgba(217,180,111,.48),inset 0 1px 0 rgba(255,255,255,.1)}.tab.play-tab .play-dot svg{color:var(--gold)}.tab.play-tab.on .play-dot{background:linear-gradient(145deg,rgba(217,180,111,.24),rgba(180,162,207,.1));box-shadow:0 0 24px rgba(217,180,111,.2),inset 0 0 0 1px rgba(217,180,111,.18)}.side-link{transition:color .18s ease,background .18s ease,box-shadow .18s ease}.side-link.on{background:linear-gradient(135deg,rgba(217,180,111,.15),rgba(180,162,207,.07));box-shadow:inset 0 0 0 1px rgba(217,180,111,.2),0 0 22px rgba(217,180,111,.1)}
 .seg button.on { color: var(--on-accent); background: var(--accent-grad); box-shadow: 0 6px 16px -6px rgba(255, 194, 26, 0.8); }
 .chip.on { color: var(--on-accent); border-color: var(--gold); background: var(--accent-grad); }
 .toggle.on { background: var(--gold); }
