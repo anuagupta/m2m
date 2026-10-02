@@ -93,7 +93,7 @@ body.immersive .app { padding-bottom: 32px; }
 .tab.on svg { color: var(--gold); filter: drop-shadow(0 0 8px rgba(255, 194, 26, 0.55)); }
 .tab.on::before { content: ""; position: absolute; top: 0; width: 28px; height: 3px; border-radius: 0 0 4px 4px; background: linear-gradient(90deg, var(--crimson), var(--gold)); }
 .tab.play-tab .play-dot {
-  width: 48px; height: 48px; margin-top: -18px; border-radius: 16px; display: grid; place-items: center; color: #fff;
+  width: 48px; height: 48px; margin-top: 0; border-radius: 16px; display: grid; place-items: center; color: #fff;
   background: linear-gradient(135deg, var(--crimson-hi), var(--crimson) 50%, var(--crimson-deep));
   box-shadow: 0 10px 24px -8px rgba(255, 64, 64, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
