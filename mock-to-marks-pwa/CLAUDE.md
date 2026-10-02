@@ -48,3 +48,54 @@ question and its answer were verified:
 - `diagramStatus` — `"not_required"` when the question has no figure, or
   `"redrawn"` when it does and `img` points at an original SVG you drew
   (never a copied image).
+
+## Volume target: 20,000 Physics+Chemistry+Maths, 7,000 Biology
+
+Current counts (check `npm test`'s output line for the live number -
+this is a snapshot): Physics 2,359 · Chemistry 985 · Mathematics 963 ·
+Biology 10. Target is roughly 6-7x growth.
+
+**Real PYQs alone cannot reach this.** JEE Main (2020-2026, fully
+harvested) tops out well short of 20,000 across P/C/M. NEET supplies
+Biology at only ~90 questions/year, so even every NEET year available
+tops out in the low thousands, nowhere near 7,000. Do not try to stretch
+the PYQ-verification pipeline to hit these numbers by lowering the bar
+on what counts as "genuinely previously asked" - keep that pipeline
+exactly as rigorous as it already is (see above), running at whatever
+pace real, verifiable PYQs allow.
+
+**The volume comes from original practice questions instead** - a
+second track, going into `arena/practice.js` (or `questions.js`'s
+pattern), never into `pyq.js`. These are not claimed to be past exam
+questions:
+
+- Set `"kind": "practice"` explicitly on every one (the app's `kindOf()`
+  checks this field first, so it's never misclassified as a PYQ
+  regardless of what the `source` string says).
+- `source` should read something honest like `"ProDJEE Practice"` or
+  name the chapter/topic - never attribute it to a coaching institute or
+  any other real entity it didn't come from.
+- Still solve every question yourself and verify your own answer is
+  actually correct before adding it - there's no external key to check
+  against here, which makes getting it right yourself even more
+  important, not less.
+- Still rate difficulty 0-10 and use only chapters already listed in
+  `assets/subject-chapters.js`.
+- Aim for balanced coverage: spread new questions across chapters
+  roughly proportional to each chapter's weight in the real exam
+  (don't dump 500 questions into one easy chapter to hit a count).
+  Biology needs the most new chapters covered from scratch (currently
+  only 10 questions total).
+- No diagram-redrawing constraint applies here (there's no source image
+  to redraw from) - if a question needs a figure, just draw an original
+  one appropriate to the question.
+
+**Pace**: same 100-questions-per-cycle cap applies to this track too -
+it isn't a separate allowance on top of the PYQ cycle's 100, and a cycle
+can mix both kinds of question up to that combined total.
+
+**Quality control**: no separate review gate for this track - ship each
+verified batch the same way as the PYQ pipeline (commit, PR, merge).
+Rely on the in-app "report a question" flow (admin inbox + `/admin/`
+editor) to catch anything wrong after the fact, the same safety net the
+PYQ content already relies on.
