@@ -174,7 +174,6 @@
     var p = document.createElement('div');
     p.className = 'pj-section-portal ' + (direction === 'prev' ? 'prev' : 'next') + (arriving ? ' arrive' : '');
     p.style.setProperty('--pj-portal-accent', section.accent);
-    p.innerHTML = '<div class="pj-section-portal-card"><small>' + (arriving ? 'Welcome to' : 'Opening') + '</small><b>' + esc(section.label) + '</b><i></i></div>';
     document.body.appendChild(p); return p;
   }
   var sectionNavigating = false;

@@ -4,7 +4,7 @@
 // app on every launch. Bumping this cache for every shell release still
 // guarantees that a newly activated worker installs the current files and
 // discards every older copy before it takes control.
-var CACHE_NAME = 'prodjee-cache-v35';
+var CACHE_NAME = 'prodjee-cache-v36';
 var ASSETS = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png', '/icon-maskable-192.png', '/icon-maskable-512.png',
   '/assets/pj-core.css', '/assets/pj-core.js', '/assets/subject-chapters.js', '/assets/logo-192.png', '/m2m/', '/arena/',
   '/arena/styles.css', '/arena/app.js', '/arena/questions.js', '/arena/practice.js', '/arena/pyq.js',
