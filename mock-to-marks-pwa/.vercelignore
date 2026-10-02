@@ -1,0 +1,6 @@
+# Content-authoring inputs and scripts: used to build the question bank
+# locally, never referenced by the deployed app, so they shouldn't be
+# served from the live site (they were previously reachable at
+# /arena/intake/*.json and /arena/tools/*.py etc. for no benefit).
+arena/intake
+arena/tools
