@@ -440,6 +440,17 @@ h3 { font-size: 16px; font-weight: 700; }
 .badge-card.locked { opacity: 0.4; filter: grayscale(1); }
 .badge-card b { display: block; font: 700 13px var(--display); }
 .badge-card span { font-size: 11px; color: var(--text-2); }
+.badge-touch { cursor: pointer; transition: transform 0.18s ease, border-color 0.18s ease, filter 0.18s ease; }
+.badge-touch:hover, .badge-touch:focus-visible { transform: translateY(-2px) scale(1.03); border-color: var(--gold); }
+.badge-touch:active { transform: scale(0.96); }
+.badge-card.badge-touch { width: 100%; color: var(--text); font-family: var(--body); }
+.badge-celebration { text-align: center; padding: 8px 4px 2px; }
+.badge-celebration .medal { width: 86px; height: 86px; margin: 0 auto 16px; font-size: 40px; box-shadow: 0 18px 45px -18px rgba(217, 180, 111, 0.85); }
+.badge-celebration .eyebrow { color: var(--gold); margin-bottom: 4px; }
+.badge-celebration h2 { margin: 0; font-size: 30px; }
+.badge-celebration h3 { margin: 4px 0 8px; color: var(--gold-hi); font-size: 19px; }
+.badge-celebration p { margin: 0 auto 20px; max-width: 390px; color: var(--text-2); }
+.badge-celebration.locked .medal { filter: grayscale(1); opacity: 0.55; box-shadow: none; }
 .ranks { display: grid; gap: 8px; }
 .rank-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-radius: 14px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--line); }
 .rank-item.cur { border-color: var(--gold); background: var(--gold-soft); }

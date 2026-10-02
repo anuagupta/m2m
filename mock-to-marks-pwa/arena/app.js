@@ -308,6 +308,21 @@
   };
   const modal = (html) => { overlay.innerHTML = `<div class="modal-back" data-act="modal-bg"><div class="modal glass" role="dialog" aria-modal="true">${html}</div></div>`; typeset(overlay); };
   const closeModal = () => { overlay.innerHTML = ""; };
+  const showBadge = (id) => {
+    const b = BADGES.find((x) => x.id === id);
+    if (!b) return;
+    const earned = !!S.badges[id];
+    sfx.tap();
+    modal(`<div class="badge-celebration ${earned ? "earned" : "locked"}">
+      <div class="medal" aria-hidden="true">${b.icon}</div>
+      <div class="eyebrow">${earned ? "Achievement unlocked" : "Badge challenge"}</div>
+      <h2>${earned ? "You did it!" : "Keep going!"}</h2>
+      <h3>${esc(b.name)}</h3>
+      <p>${earned ? "This badge celebrates your success: " : "Unlock this badge by reaching this milestone: "}<b>${esc(b.desc)}</b>.</p>
+      <button class="btn ${earned ? "gold" : "ghost"} block" data-act="close-modal">${earned ? "Celebrate!" : "Got it"}</button>
+    </div>`);
+    if (earned) { sfx.badge(); setTimeout(() => confetti(36), 100); }
+  };
 
   /* ================================= HOME ================================= */
   function renderHome() {
@@ -360,7 +375,7 @@
           <span class="meta"><b>${x.s}</b><span>${x.att ? `${pct(x.cor, x.att)}% accuracy · ${x.att} attempted` : `Not started`}</span></span>
         </button>`).join("")}</div>
       <div class="section-title"><h3>Badges</h3><button class="link" data-act="tab" data-v="profile">${got.length}/${BADGES.length} ›</button></div>
-      <div class="badge-strip">${BADGES.map((b) => `<div class="medal ${S.badges[b.id] ? "" : "locked"}" title="${b.name}: ${b.desc}">${b.icon}</div>`).join("")}</div>`);
+      <div class="badge-strip">${BADGES.map((b) => `<button class="medal badge-touch ${S.badges[b.id] ? "" : "locked"}" data-act="badge-info" data-v="${b.id}" title="${b.name}: ${b.desc}" aria-label="${b.name}: ${b.desc}">${b.icon}</button>`).join("")}</div>`);
   }
 
   /* ================================= PLAY ================================= */
@@ -800,7 +815,7 @@
         <div class="spacer"></div>
         <div class="glass"><h3>Chapter-wise: correct / attempted</h3><p class="faint" style="margin:4px 0 14px">Weakest first. Target the red ones in Chapter Practice.</p>${barsHTML(rows)}</div>
         ${newBadges.length ? `<div class="spacer"></div><div class="glass"><h3 style="margin-bottom:12px">New badges</h3>
-          <div class="badges">${newBadges.map((id) => { const b = BADGES.find((x) => x.id === id); return `<div class="badge-card"><div class="medal">${b.icon}</div><b>${b.name}</b><span>${b.desc}</span></div>`; }).join("")}</div>
+          <div class="badges">${newBadges.map((id) => { const b = BADGES.find((x) => x.id === id); return `<button class="badge-card badge-touch" data-act="badge-info" data-v="${b.id}" aria-label="${b.name}: ${b.desc}"><div class="medal">${b.icon}</div><b>${b.name}</b><span>${b.desc}</span></button>`; }).join("")}</div>
           <button class="btn ghost block" style="margin-top:12px" data-act="share-badge" data-v="${newBadges[newBadges.length - 1]}">${I.share.replace("<svg", '<svg width="18" height="18"')} Share achievement</button></div>` : ""}
         <div class="spacer"></div>
         <div class="grid cols-2">
@@ -898,7 +913,7 @@
       <div class="section-title"><h3>Rank ladder</h3></div>
       <div class="ranks">${RANKS.map((x, i) => `<div class="rank-item ${i === r.i ? "cur" : i < r.i ? "done" : ""}"><b class="num">${i < r.i ? "✓ " : i === r.i ? "▶ " : ""}${x.name}</b><span class="faint">${fmt(x.gp)} GP</span></div>`).join("")}</div>
       <div class="section-title"><h3>Badges · ${Object.keys(S.badges).length}/${BADGES.length}</h3></div>
-      <div class="badges">${BADGES.map((b) => `<div class="badge-card ${S.badges[b.id] ? "" : "locked"}"><div class="medal">${b.icon}</div><b>${b.name}</b><span>${b.desc}</span></div>`).join("")}</div>
+      <div class="badges">${BADGES.map((b) => `<button class="badge-card badge-touch ${S.badges[b.id] ? "" : "locked"}" data-act="badge-info" data-v="${b.id}" aria-label="${b.name}: ${b.desc}"><div class="medal">${b.icon}</div><b>${b.name}</b><span>${b.desc}</span></button>`).join("")}</div>
       `);
   }
 
@@ -1028,6 +1043,7 @@
       case "parent-session": shareText(reportText(lastSession)); break;
       case "parent-lifetime": shareText(reportText(null)); break;
       case "share-badge": { const b = BADGES.find((x) => x.id === v); shareText(`${b.icon} I just unlocked "${b.name}" on ProDJEE Arena. ${fmt(gpFor())} Gyan Points and counting. Can you beat me?`); break; }
+      case "badge-info": showBadge(v); break;
       case "toggle-sound": S.sound = !S.sound; save(); if (view === "game") renderGame(); else renderTab(); break;
       case "toggle-sound-set": S.sound = !S.sound; save(); el.classList.toggle("on", S.sound); el.setAttribute("aria-pressed", S.sound); break;
       case "goal": S.dailyGoal = +v; save(); renderProfile(); break;
