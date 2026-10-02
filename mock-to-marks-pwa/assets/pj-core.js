@@ -177,6 +177,9 @@
     document.body.appendChild(p); return p;
   }
   var sectionNavigating = false;
+  function hasNativeSectionTransition() {
+    return 'onpageswap' in window && 'onpagereveal' in window && window.CSS && CSS.supports('view-transition-name: root');
+  }
   function navigateSection(target, direction, label) {
     if (sectionNavigating) return;
     var section = sectionFor(target) || { path: target, label: label || 'Next section', accent: '#d9b46f' };
@@ -184,11 +187,12 @@
     direction = direction || (currentIndex === SECTIONS.length - 1 && targetIndex === 0 ? 'next' : currentIndex === 0 && targetIndex === SECTIONS.length - 1 ? 'prev' : targetIndex >= currentIndex ? 'next' : 'prev');
     sectionNavigating = true;
     try {
-      sessionStorage.setItem('pj.sectionArrival', JSON.stringify({ direction: direction, id: section.id || '', label: section.label, accent: section.accent }));
+      sessionStorage.setItem('pj.sectionArrival', JSON.stringify({ direction: direction, id: section.id || '', label: section.label, accent: section.accent, native: hasNativeSectionTransition() }));
       if (current) sessionStorage.setItem('pj.sectionScroll.' + current.id, String(window.scrollY || 0));
       if (section.id === 'arena') sessionStorage.setItem('pj.arena.entry', current && current.id === 'scoregps' && direction === 'prev' ? 'profile' : 'home');
     } catch (e) {}
     clearSectionPreview();
+    if (hasNativeSectionTransition()) { location.href = target || section.path; return; }
     document.body.classList.add('pj-section-leaving', direction === 'prev' ? 'pj-section-prev' : 'pj-section-next');
     portal(section, direction, false);
     setTimeout(function () { location.href = target || section.path; }, window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches ? 110 : 290);
@@ -266,7 +270,7 @@
     var current = sectionFor(), raw = null;
     try { raw = sessionStorage.getItem('pj.sectionArrival'); sessionStorage.removeItem('pj.sectionArrival'); } catch (e) {}
     if (raw && current) {
-      try { var a = JSON.parse(raw); portal({ label: current.label, accent: current.accent }, a.direction, true); setTimeout(function () { var p = document.querySelector('.pj-section-portal'); if (p) p.remove(); }, 320); } catch (e2) {}
+      try { var a = JSON.parse(raw); if (!a.native) { portal({ label: current.label, accent: current.accent }, a.direction, true); setTimeout(function () { var p = document.querySelector('.pj-section-portal'); if (p) p.remove(); }, 320); } } catch (e2) {}
     }
     if (current && !location.hash) {
       try { var y = Number(sessionStorage.getItem('pj.sectionScroll.' + current.id) || 0); if (y) requestAnimationFrame(function () { scrollTo({ top: y, behavior: 'auto' }); }); } catch (e3) {}
