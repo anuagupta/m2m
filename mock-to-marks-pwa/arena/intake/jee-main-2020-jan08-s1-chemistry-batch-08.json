@@ -1,0 +1,33 @@
+[
+  {
+    "id": "jm20-0108s1-c08",
+    "exam": "JEE",
+    "year": 2020,
+    "examDate": "8 Jan · Shift 1",
+    "subject": "Chemistry",
+    "chapter": "Ionic Equilibrium",
+    "type": "mcq",
+    "difficulty": 2,
+    "q": "Which titration arrangement determines the concentration of an aqueous NaOH solution most accurately, assuming a suitable indicator is used?",
+    "options": [
+      "NaOH solution in a volumetric flask and concentrated H₂SO₄ in a conical flask",
+      "NaOH solution in a burette and concentrated H₂SO₄ in a conical flask",
+      "NaOH solution in a burette and standard aqueous oxalic acid in a conical flask",
+      "NaOH solution measured with a pipette and aqueous oxalic acid in a burette"
+    ],
+    "answer": 2,
+    "hint": "Use a stable primary standard and place the solution being standardized in the burette.",
+    "solution": "NaOH is hygroscopic and absorbs CO₂, so it is a secondary standard whose concentration must be established against a primary standard. Oxalic acid can be prepared at an accurately known concentration, unlike concentrated H₂SO₄. A measured aliquot of standard oxalic acid is placed in the conical flask and titrated with the NaOH solution from the burette. Therefore the third arrangement is the most accurate.",
+    "source": "JEE Main 2020 · 8 Jan · Shift 1",
+    "sourceUrl": "https://www.nta.ac.in/Download/ExamPaper/Paper_20200509203411.pdf",
+    "officialQuestionId": "8Jan-S1-C08",
+    "officialAnswerKeyUnavailable": true,
+    "answerKeyRecoveryUrls": [
+      "https://cracku.in/31-the-strength-of-an-aqueous-naoh-solution-is-most-a-x-nta-jee-main-8-jan-2020-shift-1",
+      "https://pyqbox.com/jee/main/chemistry/redox-reactions/the-strength-of-an-aqueous-naoh-solution-is-most-a14a3b52/"
+    ],
+    "answerKeyMatch": true,
+    "independentSolution": true,
+    "diagramStatus": "not_required"
+  }
+]
