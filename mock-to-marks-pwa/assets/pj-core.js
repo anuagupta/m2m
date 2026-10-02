@@ -238,7 +238,7 @@
     var drag = null, suppressClickUntil = 0;
     function enabled() { return (!mobile || mobile.matches) && !document.querySelector('.pj-scrim,[role="dialog"]') && !sectionNavigating; }
     document.addEventListener('pointerdown', function (e) {
-      if (e.pointerType !== 'touch' || !enabled() || e.clientX < 28 || e.clientX > innerWidth - 28) return;
+      if (e.pointerType !== 'touch' || !enabled()) return;
       if (e.target.closest && e.target.closest('input,textarea,select,[contenteditable],.badge-strip')) return;
       if (hasHorizontalScroller(e.target)) return;
       drag = { id: e.pointerId, x: e.clientX, y: e.clientY, at: performance.now(), horizontal: false };

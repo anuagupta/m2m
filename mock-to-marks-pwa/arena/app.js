@@ -1002,7 +1002,7 @@
       if (node) { node.style.transition = "transform .18s ease, opacity .18s ease"; node.style.transform = ""; node.style.opacity = ""; setTimeout(() => { if (node.isConnected) node.style.transition = ""; }, 190); }
     };
     app.addEventListener("pointerdown", (e) => {
-      if (e.pointerType !== "touch" || !enabled() || e.clientX < 28 || e.clientX > innerWidth - 28) return;
+      if (e.pointerType !== "touch" || !enabled()) return;
       if (e.target.closest("input, textarea, select, [contenteditable], .badge-strip")) return;
       drag = { id: e.pointerId, x: e.clientX, y: e.clientY, at: performance.now(), horizontal: false };
     }, { passive: true });
