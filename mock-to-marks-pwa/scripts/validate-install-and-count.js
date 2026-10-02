@@ -11,7 +11,7 @@ if (/\b[\d,]+\s+(?:JEE Main &amp; NEET )?questions currently available/i.test(ho
 const arenaTile = home.indexOf('href="/arena/"'), analysisTile = home.indexOf('href="/m2m/"'), coachTile = home.indexOf('href="/coach/"');
 if (!(arenaTile < analysisTile && analysisTile < coachTile)) failures.push('Homepage tile order must be Arena, Analysis, Coach.');
 if (!core.includes('beforeinstallprompt') || !core.includes('p.prompt()') || !core.includes('if (!deferredInstallPrompt) return;')) failures.push('Android install button must use the native browser prompt.');
-if (!core.includes("updateViaCache: 'none'") || !core.includes('registration.update()') || !worker.includes("prodjee-cache-v31")) failures.push('Installed apps must actively fetch the current service worker and app-shell cache.');
+if (!core.includes("updateViaCache: 'none'") || !core.includes('registration.update()') || !worker.includes("prodjee-cache-v32")) failures.push('Installed apps must actively fetch the current service worker and app-shell cache.');
 if (!core.includes('Add to Home Screen')) failures.push('iPhone Add to Home Screen guidance is missing.');
 if (!core.includes("navigator.standalone === true") || !core.includes("display-mode: standalone")) failures.push('Installed-app detection is missing.');
 const css = fs.readFileSync(path.join(root, 'assets', 'pj-core.css'), 'utf8');
@@ -21,6 +21,7 @@ if (!css.includes('pointer-events:none') || !core.includes("brand.removeAttribut
 if (arena.includes('data-act="exam"') || arena.includes('case "exam"')) failures.push('The redundant Arena exam toggle is still present.');
 if (!arena.includes('selectedExam') || !arena.includes('Biology')) failures.push('Arena must use the profile exam and support the Biology tile.');
 if (!arena.includes('enableSwipeNavigation') || !arena.includes('view === tab') || !arena.includes('e.clientX < 28') || !arena.includes('.badge-strip')) failures.push('Safe mobile swipe navigation is missing or no longer protects active/interactable views.');
+if (!core.includes('enableGlobalSectionSwipe') || !core.includes('pj.sectionArrival') || !arena.includes('PJ.previewSection') || !arena.includes('PJ.navigateSection("/m2m/"')) failures.push('Section-level portal navigation or Arena boundary handoff is missing.');
 if (manifest.display !== 'standalone' || manifest.start_url !== '/' || !manifest.icons || !manifest.icons.some((x) => x.sizes === '192x192') || !manifest.icons.some((x) => x.sizes === '512x512')) failures.push('Manifest does not meet the expected Chrome PWA shape.');
 if (failures.length) { console.error(failures.join('\n')); process.exit(1); }
-console.log('Validated native install flow, safe mobile swipe navigation, profile-selected Arena exam, and hidden bank totals.');
+console.log('Validated native install flow, distinct section and Arena swipe navigation, profile-selected Arena exam, and hidden bank totals.');

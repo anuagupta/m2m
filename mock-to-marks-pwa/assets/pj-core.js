@@ -151,6 +151,114 @@
     var s = document.createElement('div'); s.className = 'pj-scrim'; s.id = id; s.innerHTML = '<div class="pj-card" role="dialog" aria-modal="true">' + html + '</div>';
     document.body.appendChild(s); return s;
   }
+  /* ---------- section navigation: strong motion between major spaces ---------- */
+  var SECTIONS = [
+    { id: 'home', path: '/', label: 'Home', accent: '#d9b46f' },
+    { id: 'arena', path: '/arena/', label: 'Arena', accent: '#cf7e7b' },
+    { id: 'scoregps', path: '/m2m/', label: 'ScoreGPS', accent: '#7fc6a4' },
+    { id: 'coach', path: '/coach/', label: 'Coach', accent: '#b4a2cf' },
+    { id: 'news', path: '/news/', label: 'News', accent: '#79a9d1' }
+  ];
+  function cleanPath(path) {
+    path = String(path || '/').split('?')[0].split('#')[0];
+    if (path !== '/' && path.slice(-1) !== '/') path += '/';
+    return path;
+  }
+  function sectionFor(path) {
+    path = cleanPath(path || location.pathname);
+    for (var i = 0; i < SECTIONS.length; i++) if (SECTIONS[i].path === path) return SECTIONS[i];
+    return path === '/' ? SECTIONS[0] : null;
+  }
+  function portal(section, direction, arriving) {
+    var old = document.querySelector('.pj-section-portal'); if (old) old.remove();
+    var p = document.createElement('div');
+    p.className = 'pj-section-portal ' + (direction === 'prev' ? 'prev' : 'next') + (arriving ? ' arrive' : '');
+    p.style.setProperty('--pj-portal-accent', section.accent);
+    p.innerHTML = '<div class="pj-section-portal-card"><small>' + (arriving ? 'Welcome to' : 'Opening') + '</small><b>' + esc(section.label) + '</b><i></i></div>';
+    document.body.appendChild(p); return p;
+  }
+  var sectionNavigating = false;
+  function navigateSection(target, direction, label) {
+    if (sectionNavigating) return;
+    var section = sectionFor(target) || { path: target, label: label || 'Next section', accent: '#d9b46f' };
+    var current = sectionFor(), currentIndex = SECTIONS.indexOf(current), targetIndex = SECTIONS.indexOf(section);
+    direction = direction || (currentIndex === SECTIONS.length - 1 && targetIndex === 0 ? 'next' : currentIndex === 0 && targetIndex === SECTIONS.length - 1 ? 'prev' : targetIndex >= currentIndex ? 'next' : 'prev');
+    sectionNavigating = true;
+    try {
+      sessionStorage.setItem('pj.sectionArrival', JSON.stringify({ direction: direction, id: section.id || '', label: section.label, accent: section.accent }));
+      if (current) sessionStorage.setItem('pj.sectionScroll.' + current.id, String(window.scrollY || 0));
+      if (section.id === 'arena') sessionStorage.setItem('pj.arena.entry', current && current.id === 'scoregps' && direction === 'prev' ? 'profile' : 'home');
+    } catch (e) {}
+    clearSectionPreview();
+    document.body.classList.add('pj-section-leaving');
+    portal(section, direction, false);
+    setTimeout(function () { location.href = target || section.path; }, window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches ? 110 : 390);
+  }
+  function previewSection(id, direction, progress) {
+    var section = SECTIONS.find ? SECTIONS.find(function (s) { return s.id === id; }) : null;
+    if (!section) return;
+    var p = document.getElementById('pj-boundary-preview');
+    if (!p) { p = document.createElement('div'); p.id = 'pj-boundary-preview'; document.body.appendChild(p); }
+    p.className = 'pj-boundary-preview ' + (direction === 'next' ? 'next' : 'prev');
+    p.style.setProperty('--pj-portal-accent', section.accent);
+    p.style.opacity = String(Math.max(0, Math.min(.95, progress || 0)));
+    p.innerHTML = '<span>' + (direction === 'next' ? 'Continue to ' + esc(section.label) + ' →' : '← Back to ' + esc(section.label)) + '</span>';
+  }
+  function clearSectionPreview() { var p = document.getElementById('pj-boundary-preview'); if (p) p.remove(); }
+  function hasHorizontalScroller(el) {
+    while (el && el !== document.body) {
+      if (el.scrollWidth > el.clientWidth + 3) { var x = getComputedStyle(el).overflowX; if (x === 'auto' || x === 'scroll') return true; }
+      el = el.parentElement;
+    }
+    return false;
+  }
+  function enableGlobalSectionSwipe() {
+    var current = sectionFor();
+    if (!current || current.id === 'arena') return;
+    var mobile = window.matchMedia ? matchMedia('(max-width: 899px) and (pointer: coarse)') : null;
+    var drag = null, suppressClickUntil = 0;
+    function enabled() { return (!mobile || mobile.matches) && !document.querySelector('.pj-scrim,[role="dialog"]') && !sectionNavigating; }
+    document.addEventListener('pointerdown', function (e) {
+      if (e.pointerType !== 'touch' || !enabled() || e.clientX < 28 || e.clientX > innerWidth - 28) return;
+      if (e.target.closest && e.target.closest('input,textarea,select,[contenteditable],.badge-strip')) return;
+      if (hasHorizontalScroller(e.target)) return;
+      drag = { id: e.pointerId, x: e.clientX, y: e.clientY, at: performance.now(), horizontal: false };
+    }, { passive: true });
+    document.addEventListener('pointermove', function (e) {
+      if (!drag || drag.id !== e.pointerId) return;
+      var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (!drag.horizontal && Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx) * .8) { drag = null; return; }
+      if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+      drag.horizontal = true; e.preventDefault();
+      var index = SECTIONS.indexOf(current), next = SECTIONS[(index + (dx < 0 ? 1 : -1) + SECTIONS.length) % SECTIONS.length];
+      previewSection(next.id, dx < 0 ? 'next' : 'prev', Math.min(.82, Math.abs(dx) / 130));
+    }, { passive: false });
+    function finish(e) {
+      if (!drag || drag.id !== e.pointerId) return;
+      var dx = e.clientX - drag.x, elapsed = Math.max(1, performance.now() - drag.at), horizontal = drag.horizontal;
+      drag = null;
+      if (!horizontal || (Math.abs(dx) < 78 && Math.abs(dx) / elapsed < .38)) { clearSectionPreview(); return; }
+      var index = SECTIONS.indexOf(current), next = SECTIONS[(index + (dx < 0 ? 1 : -1) + SECTIONS.length) % SECTIONS.length];
+      suppressClickUntil = performance.now() + 500;
+      if (navigator.vibrate) navigator.vibrate(12);
+      navigateSection(next.path, dx < 0 ? 'next' : 'prev', next.label);
+    }
+    document.addEventListener('pointerup', finish, { passive: true });
+    document.addEventListener('pointercancel', function () { drag = null; clearSectionPreview(); }, { passive: true });
+    document.addEventListener('click', function (e) { if (performance.now() < suppressClickUntil) { e.preventDefault(); e.stopImmediatePropagation(); } }, true);
+  }
+  function restoreSectionArrival() {
+    var current = sectionFor(), raw = null;
+    try { raw = sessionStorage.getItem('pj.sectionArrival'); sessionStorage.removeItem('pj.sectionArrival'); } catch (e) {}
+    if (raw && current) {
+      try { var a = JSON.parse(raw); portal({ label: current.label, accent: current.accent }, a.direction, true); setTimeout(function () { var p = document.querySelector('.pj-section-portal'); if (p) p.remove(); }, 440); } catch (e2) {}
+    }
+    if (current && !location.hash) {
+      try { var y = Number(sessionStorage.getItem('pj.sectionScroll.' + current.id) || 0); if (y) requestAnimationFrame(function () { scrollTo({ top: y, behavior: 'auto' }); }); } catch (e3) {}
+    }
+  }
+  restoreSectionArrival();
+  enableGlobalSectionSwipe();
   var GOOGLE_ICON = '<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3.01-2.33Z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.59-2.59A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58Z"/></svg>';
 
   /* ---------- sign-in gate ---------- */
@@ -398,6 +506,15 @@
   document.querySelectorAll('.pj-links a[href="/m2m/"]').forEach(function (link) { link.textContent = 'ScoreGPS'; });
   function emit() { paint(); listeners.forEach(function (f) { try { f(user); } catch (e) {} }); }
   document.addEventListener('click', function (e) {
+    var sectionLink = e.target.closest && e.target.closest('a[href]');
+    if (sectionLink && !e.defaultPrevented && e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && sectionLink.target !== '_blank') {
+      try {
+        var linkUrl = new URL(sectionLink.href, location.href), targetSection = linkUrl.origin === location.origin && sectionFor(linkUrl.pathname), currentSection = sectionFor();
+        if (targetSection && currentSection && targetSection.id !== currentSection.id) {
+          e.preventDefault(); navigateSection(linkUrl.pathname + linkUrl.search + linkUrl.hash); return;
+        }
+      } catch (linkErr) {}
+    }
     if (e.target && e.target.id === 'pj-gate') { dismissSignInGate(); return; }
     var el = e.target.closest && e.target.closest('[data-pj-act]'); if (!el) return;
     var act = el.getAttribute('data-pj-act');
@@ -556,6 +673,9 @@
     avatarHTML: avatarHTML,
     toast: toast,
     paint: paint,
-    hasConsent: hasConsent
+    hasConsent: hasConsent,
+    navigateSection: navigateSection,
+    previewSection: previewSection,
+    clearSectionPreview: clearSectionPreview
   };
 })();

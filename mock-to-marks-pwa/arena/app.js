@@ -994,26 +994,32 @@
     app.addEventListener("pointermove", (e) => {
       if (!drag || drag.id !== e.pointerId) return;
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-      if (!drag.horizontal && Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx) * 0.8) { drag = null; return; }
+      if (!drag.horizontal && Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx) * 0.8) { drag = null; if (window.PJ) PJ.clearSectionPreview(); return; }
       if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
       drag.horizontal = true;
       e.preventDefault();
       const node = app.querySelector(".view");
       if (node) { const shift = Math.max(-54, Math.min(54, dx * 0.32)); node.style.transition = "none"; node.style.transform = `translate3d(${shift}px,0,0)`; node.style.opacity = String(1 - Math.min(0.16, Math.abs(shift) / 340)); }
+      const index = TABS.findIndex(([id]) => id === tab);
+      if (window.PJ && index === 0 && dx > 0) PJ.previewSection("home", "prev", Math.min(0.9, Math.abs(dx) / 130));
+      else if (window.PJ && index === TABS.length - 1 && dx < 0) PJ.previewSection("scoregps", "next", Math.min(0.9, Math.abs(dx) / 130));
+      else if (window.PJ) PJ.clearSectionPreview();
     }, { passive: false });
     const finish = (e) => {
       if (!drag || drag.id !== e.pointerId) return;
       const dx = e.clientX - drag.x, elapsed = Math.max(1, performance.now() - drag.at), horizontal = drag.horizontal;
       drag = null;
       resetView();
-      if (!horizontal || (Math.abs(dx) < 70 && Math.abs(dx) / elapsed < 0.35)) return;
+      if (!horizontal || (Math.abs(dx) < 70 && Math.abs(dx) / elapsed < 0.35)) { if (window.PJ) PJ.clearSectionPreview(); return; }
       const index = TABS.findIndex(([id]) => id === tab), nextIndex = index + (dx < 0 ? 1 : -1);
-      if (nextIndex < 0 || nextIndex >= TABS.length) return;
       suppressClickUntil = performance.now() + 450;
+      if (nextIndex < 0) { if (window.PJ) PJ.navigateSection("/", "prev", "Home"); return; }
+      if (nextIndex >= TABS.length) { if (window.PJ) PJ.navigateSection("/m2m/", "next", "ScoreGPS"); return; }
+      if (window.PJ) PJ.clearSectionPreview();
       navigateTab(TABS[nextIndex][0], dx < 0 ? "next" : "prev");
     };
     app.addEventListener("pointerup", finish, { passive: true });
-    app.addEventListener("pointercancel", () => { drag = null; resetView(); }, { passive: true });
+    app.addEventListener("pointercancel", () => { drag = null; resetView(); if (window.PJ) PJ.clearSectionPreview(); }, { passive: true });
     document.addEventListener("click", (e) => { if (performance.now() < suppressClickUntil) { e.preventDefault(); e.stopImmediatePropagation(); } }, true);
   }
   enableSwipeNavigation();
@@ -1138,7 +1144,11 @@
     const chapters = requested && requested !== "all" ? new Set([requested]) : new Set(chaptersOf(S.exam, subject, S.pyqOnly));
     setup = { mode: "chapter", exam: S.exam, subject, chapters, length: [10,20,30].includes(+launch.get("length")) ? +launch.get("length") : 10, difficulty: launch.get("difficulty") || "any" };
     renderSetup("chapter");
-  } else renderHome();
+  } else {
+    let entry = "";
+    try { entry = sessionStorage.getItem("pj.arena.entry") || ""; sessionStorage.removeItem("pj.arena.entry"); } catch (e) {}
+    entry && TAB_RENDER[entry] ? renderTab(entry) : renderHome();
+  }
   if (!launch.has("mission") && !launch.has("mode") && (!window.matchMedia || matchMedia("(max-width: 899px) and (pointer: coarse)").matches)) {
     try {
       if (!localStorage.getItem("prodjee.swipe-hint.v1")) {

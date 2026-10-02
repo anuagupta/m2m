@@ -8,7 +8,7 @@
 // bypass doesn't touch the service worker's own Cache Storage.
 // Bump this for every app-shell release so installed PWAs discard the old
 // shell immediately after the new worker activates.
-var CACHE_NAME = 'prodjee-cache-v31';
+var CACHE_NAME = 'prodjee-cache-v32';
 var ASSETS = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png',
   '/assets/pj-core.css', '/assets/pj-core.js', '/assets/subject-chapters.js', '/assets/logo-192.png', '/m2m/', '/arena/', '/coach/', '/coach/app.js', '/news/'];
 
