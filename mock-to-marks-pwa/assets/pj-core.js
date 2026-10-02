@@ -217,6 +217,10 @@
         p.replaceChildren();
       }
       p.style.opacity = String(state.progress);
+      // The cube-flavored tilt grows with how far the swipe has travelled,
+      // so the edge visibly leans in 3D as you drag - not just after you
+      // let go. Capped well short of a flip (progress itself caps at .82).
+      p.style.setProperty('--pj-tilt', (state.direction === 'next' ? -1 : 1) * state.progress * 11 + 'deg');
     });
   }
   function clearSectionPreview() {

@@ -73,20 +73,39 @@ body{touch-action:pan-y;overscroll-behavior-x:none}.pj-links,.badge-strip{touch-
   font:600 13px var(--pj-sans);box-shadow:0 12px 30px -12px #000;max-width:calc(100vw - 32px);text-align:center;}
 @view-transition{navigation:auto}
 ::view-transition-group(root){animation-duration:.24s;animation-timing-function:cubic-bezier(.22,.72,.2,1)}
-html:active-view-transition-type(next,prev)::view-transition-old(root){animation:pjNativeOut .24s cubic-bezier(.22,.72,.2,1) both}
-html:active-view-transition-type(next,prev)::view-transition-new(root){animation:pjNativeIn .24s cubic-bezier(.22,.72,.2,1) both}
-@keyframes pjNativeOut{to{opacity:0;transform:scale(.985)}}@keyframes pjNativeIn{from{opacity:0;transform:scale(1.012)}}
+/* A cube-flavored tilt, not a full flip: the root snapshot rotates a few
+   degrees on its own vertical edge (perspective folded into the transform
+   itself, so no extra 3D ancestor/layer is needed) rather than the old
+   84-90deg flip that needed a whole fake "portal" overlay to shade the
+   cube's side faces. One layer, one small-angle transform, same duration
+   as the flat fade it replaces - a 10deg rotateY costs the compositor the
+   same as a scale(). Direction-specific now too: "next" and "prev" used to
+   share one direction-agnostic keyframe. */
+html:active-view-transition-type(next)::view-transition-old(root){animation:pjNativeOutNext .24s cubic-bezier(.22,.72,.2,1) both}
+html:active-view-transition-type(next)::view-transition-new(root){animation:pjNativeInNext .24s cubic-bezier(.22,.72,.2,1) both}
+html:active-view-transition-type(prev)::view-transition-old(root){animation:pjNativeOutPrev .24s cubic-bezier(.22,.72,.2,1) both}
+html:active-view-transition-type(prev)::view-transition-new(root){animation:pjNativeInPrev .24s cubic-bezier(.22,.72,.2,1) both}
+@keyframes pjNativeOutNext{to{opacity:0;transform:perspective(900px) rotateY(-9deg) scale(.985)}}
+@keyframes pjNativeInNext{from{opacity:0;transform:perspective(900px) rotateY(8deg) scale(1.01)}}
+@keyframes pjNativeOutPrev{to{opacity:0;transform:perspective(900px) rotateY(9deg) scale(.985)}}
+@keyframes pjNativeInPrev{from{opacity:0;transform:perspective(900px) rotateY(-8deg) scale(1.01)}}
 .pj-section-portal{--pj-portal-accent:var(--pj-gold);position:fixed;inset:0;z-index:2000;pointer-events:none;will-change:transform,opacity;backface-visibility:hidden;background:color-mix(in srgb,var(--pj-portal-accent) 13%,#0b0d17)}
-.pj-section-portal.next,.pj-section-portal.prev{animation:pjPortalIn .22s ease-out both}.pj-section-portal.arrive.next,.pj-section-portal.arrive.prev{animation:pjPortalOut .22s ease-out both}
-.pj-boundary-preview{--pj-portal-accent:var(--pj-gold);position:fixed;inset:0;z-index:25;pointer-events:none;display:flex;align-items:center;opacity:0;
+.pj-section-portal.next{animation:pjPortalInNext .22s ease-out both}.pj-section-portal.prev{animation:pjPortalInPrev .22s ease-out both}
+.pj-section-portal.arrive.next{animation:pjPortalOutNext .22s ease-out both}.pj-section-portal.arrive.prev{animation:pjPortalOutPrev .22s ease-out both}
+.pj-boundary-preview{--pj-portal-accent:var(--pj-gold);--pj-tilt:0deg;position:fixed;inset:0;z-index:25;pointer-events:none;display:flex;align-items:center;opacity:0;
+  transform:perspective(600px) rotateY(var(--pj-tilt));transform-origin:left center;
   background:linear-gradient(90deg,color-mix(in srgb,var(--pj-portal-accent) 18%,transparent),transparent 48%);transition:opacity .08s linear}
-.pj-boundary-preview.next{justify-content:flex-end;background:linear-gradient(270deg,color-mix(in srgb,var(--pj-portal-accent) 18%,transparent),transparent 48%)}
+.pj-boundary-preview.next{justify-content:flex-end;transform-origin:right center;background:linear-gradient(270deg,color-mix(in srgb,var(--pj-portal-accent) 18%,transparent),transparent 48%)}
 body.pj-section-leaving{overflow:hidden}body.pj-section-leaving>*:not(.pj-section-portal):not(script){animation-duration:.2s;animation-timing-function:ease-out;animation-fill-mode:both}
-body.pj-section-leaving.pj-section-next>*:not(.pj-section-portal):not(script),body.pj-section-leaving.pj-section-prev>*:not(.pj-section-portal):not(script){animation-name:pjSectionOut}
-@keyframes pjPortalIn{from{opacity:0}to{opacity:1}}@keyframes pjPortalOut{from{opacity:1}to{opacity:0}}
-@keyframes pjSectionOut{to{opacity:0;transform:scale(.985)}}
+body.pj-section-leaving.pj-section-next>*:not(.pj-section-portal):not(script){animation-name:pjSectionOutNext}
+body.pj-section-leaving.pj-section-prev>*:not(.pj-section-portal):not(script){animation-name:pjSectionOutPrev}
+@keyframes pjPortalInNext{from{opacity:0;transform:perspective(900px) rotateY(8deg)}to{opacity:1;transform:perspective(900px) rotateY(0)}}
+@keyframes pjPortalInPrev{from{opacity:0;transform:perspective(900px) rotateY(-8deg)}to{opacity:1;transform:perspective(900px) rotateY(0)}}
+@keyframes pjPortalOutNext{from{opacity:1}to{opacity:0}}@keyframes pjPortalOutPrev{from{opacity:1}to{opacity:0}}
+@keyframes pjSectionOutNext{to{opacity:0;transform:perspective(900px) rotateY(-9deg) scale(.985)}}
+@keyframes pjSectionOutPrev{to{opacity:0;transform:perspective(900px) rotateY(9deg) scale(.985)}}
 .pj-update-ready{position:fixed;z-index:2300;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(520px,calc(100% - 28px));display:flex;align-items:center;gap:12px;padding:13px 14px;border:1px solid rgba(217,180,111,.34);border-radius:17px;background:rgba(17,20,34,.94);box-shadow:0 18px 60px #0009,0 0 26px rgba(217,180,111,.1);backdrop-filter:blur(18px);color:var(--pj-ink)}.pj-update-ready span{min-width:0;flex:1}.pj-update-ready b{display:block;font-size:14px}.pj-update-ready small{display:block;color:var(--pj-ink-faint);margin-top:2px}.pj-update-ready button{border:0;border-radius:11px;padding:9px 12px;font:700 12px/1 var(--pj-sans);cursor:pointer}.pj-update-ready .restart{background:var(--pj-gold);color:#211b10}.pj-update-ready .later{background:transparent;color:var(--pj-ink-faint);padding-inline:6px}
-@media(prefers-reduced-motion:reduce){.pj-section-portal,.pj-section-portal.arrive,body.pj-section-leaving>*:not(.pj-section-portal):not(script){animation-duration:.12s!important;transform:none!important}.pj-boundary-preview{transition:none}}
+@media(prefers-reduced-motion:reduce){.pj-section-portal,.pj-section-portal.arrive,body.pj-section-leaving>*:not(.pj-section-portal):not(script){animation-duration:.12s!important;transform:none!important}.pj-boundary-preview{transition:none;transform:none!important}}
 @media(prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root){animation-duration:.12s!important;transform:none!important}}
 @media (max-width:560px){
   .pj-brand b{display:none;}
