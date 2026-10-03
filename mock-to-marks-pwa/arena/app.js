@@ -270,7 +270,7 @@
   // Logo only, no text: the shared pj-bar right above already carries the
   // "ProDJEE" wordmark on every page, so repeating it here (as this used to,
   // "ProDJEE Arena") was just a second brand line stacked under the first.
-  const brand = () => `<div class="brand"><img src="logo.png" alt="ProDJEE logo" /></div>`;
+  const brand = () => "";
   function renderNav() {
     const due = vaultDue(S.exam).length;
     $("#tabbar").innerHTML = TABS.map(([id, label, ic]) => id === "play"

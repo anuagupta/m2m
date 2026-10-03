@@ -26,6 +26,8 @@ body{touch-action:pan-y;overscroll-behavior-x:none}.pj-links,.badge-strip{touch-
 .pj-brand img{width:34px;height:34px;border-radius:10px;display:block;}
 .pj-brand b{font-family:var(--pj-serif);font-weight:600;font-size:19px;letter-spacing:-.01em;}
 .pj-brand b span{color:var(--pj-gold);}
+/* Full wordmark logo (transparent PNG): replaces the square icon + "ProDJEE" text */
+.pj-brand img.pj-wordmark{width:auto;height:40px;border-radius:0;margin:-4px 0 -4px 2px;}
 .pj-links{display:flex;gap:4px;margin-left:8px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;}
 .pj-links::-webkit-scrollbar{display:none;}
 .pj-links a{color:var(--pj-ink-soft);text-decoration:none;font-size:13.5px;font-weight:600;padding:7px 11px;border-radius:99px;white-space:nowrap;}
@@ -109,13 +111,15 @@ body.pj-section-leaving.pj-section-prev>*:not(.pj-section-portal):not(script){an
 @media(prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root){animation-duration:.12s!important;transform:none!important}}
 @media (max-width:560px){
   .pj-brand b{display:none;}
+  .pj-brand img.pj-wordmark{height:23px;margin:0;}
+  .pj-bar-inner{gap:6px;}
   .pj-links{margin-left:0;}
 }
 @media (max-width:560px){
   .pj-bar-inner{position:relative;}
   .pj-bar-inner > .pj-avatar{margin-left:auto;}
   .pj-links{display:flex;position:static;gap:0;margin:0;overflow-x:auto;}
-  .pj-links a{font-size:10.5px;padding:7px 6px;}
+  .pj-links a{font-size:10.5px;padding:7px 5px;}
   .pj-news-dot{width:5px;height:5px;margin-left:2px;}
 }
 .pj-static{position:relative;}
