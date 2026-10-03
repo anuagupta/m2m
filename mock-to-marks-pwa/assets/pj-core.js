@@ -307,6 +307,7 @@
     provider.addScope(DRIVE_SCOPE);
     provider.setCustomParameters({ prompt: 'select_account', include_granted_scopes: 'true' });
     return auth.signInWithPopup(provider).then(function (res) {
+      try { if (window.pjTrack) pjTrack(res.additionalUserInfo && res.additionalUserInfo.isNewUser ? 'sign_up' : 'login', { method: 'google' }); } catch (e) {}
       var cred = res.credential;
       if (cred && cred.accessToken) {
         setToken(cred.accessToken, 3500);

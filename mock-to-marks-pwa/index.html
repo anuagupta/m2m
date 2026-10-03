@@ -125,6 +125,29 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
 .pill.warn{background:color-mix(in srgb,var(--pj-gold) 20%,transparent);color:var(--pj-gold);}
 .back{color:var(--pj-ink-soft);text-decoration:none;font-weight:700;font-size:14px;}
 .signed-out-cta{margin-top:22px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+/* hero + try-it + daily goal */
+.hero .cta-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+.hero .cta-row .pj-btn{min-height:48px;padding:0 20px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;}
+.hero .trust{color:var(--pj-ink-faint);font-size:13px;margin-top:10px;}
+.tryit{margin-top:20px;padding:18px;border-radius:22px;background:var(--pj-glass);border:1px solid var(--pj-border);max-width:640px;}
+.tryit h2{font-family:var(--pj-serif);font-weight:600;font-size:20px;margin:0 0 4px;}
+.tryit .sub{color:var(--pj-ink-faint);font-size:13px;margin:0 0 12px;}
+.ti-bar{height:6px;border-radius:99px;background:var(--pj-glass-2);overflow:hidden;margin:0 0 14px;}
+.ti-bar i{display:block;height:100%;background:var(--pj-gold);border-radius:99px;transition:width .25s;}
+.ti-q{font-size:16px;font-weight:600;margin:0 0 12px;}
+.ti-opts{display:grid;gap:8px;}
+.ti-opt{min-height:48px;text-align:left;padding:10px 14px;border-radius:14px;border:1px solid var(--pj-border);background:var(--pj-glass-2);color:var(--pj-ink);font:inherit;cursor:pointer;}
+.ti-opt:hover:not([disabled]){border-color:var(--pj-gold);}
+.ti-opt.right{border-color:var(--pj-green);background:color-mix(in srgb,var(--pj-green) 18%,transparent);}
+.ti-opt.wrong{border-color:var(--pj-coral,#cf7e7b);background:color-mix(in srgb,#cf7e7b 18%,transparent);}
+.ti-note{margin:12px 0 0;font-size:14px;color:var(--pj-ink-soft);}
+.ti-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+.ti-actions .pj-btn,.ti-actions a.pj-btn{min-height:48px;height:auto;padding:10px 18px;box-sizing:border-box;display:inline-flex;align-items:center;text-decoration:none;}
+.goal{margin-top:20px;padding:18px;border-radius:22px;background:var(--pj-glass);border:1px solid var(--pj-border);max-width:640px;}
+.goal b{font-family:var(--pj-serif);font-size:20px;font-weight:600;}
+.goal p{margin:6px 0 12px;color:var(--pj-ink-soft);}
+@media (prefers-reduced-motion:reduce){.ti-bar i{transition:none;}}
+
 </style>
 </head>
 <body>
@@ -178,25 +201,97 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
   function n(x){ return Math.round(x).toLocaleString('en-IN'); }
   function studentProfile(){ try{return JSON.parse(localStorage.getItem('prodjee.student.v1')||'null')||{};}catch(e){return {};} }
 
+  /* ---- no-login taste of the product: 3 original sample questions ---- */
+  var TRY_QS = [
+    {s:'Physics', q:'Light of photon energy 5 eV falls on a metal with work function 2 eV. The stopping potential is:', o:['2 V','3 V','5 V','7 V'], a:1, e:'eV₀ = 5 eV − 2 eV = 3 eV, so V₀ = 3 V.'},
+    {s:'Chemistry', q:'Which of the following molecules has zero dipole moment?', o:['NH₃','H₂O','BF₃','CHCl₃'], a:2, e:'BF₃ is trigonal planar and symmetric, so the three B–F bond dipoles cancel. The others are polar.'},
+    {s:'Mathematics', q:'Two fair dice are thrown. The probability that the sum of the numbers is 7 is:', o:['1/6','5/36','1/12','7/36'], a:0, e:'6 of the 36 outcomes give a sum of 7, so the probability is 6/36 = 1/6.'}
+  ];
+  var tryState = {i:0, score:0, picked:null, started:false, done:false};
+  function track(name, params){ try{ if(window.pjTrack) pjTrack(name, params); }catch(e){} }
+  function tryItHtml(u){
+    var t = tryState, total = TRY_QS.length;
+    if(t.done){
+      var msg = t.score===total ? 'Clean sweep. Now try a full round.' : t.score>0 ? 'Good start. Every miss shows what to fix next.' : 'Tough round. Arena will show you why, one question at a time.';
+      var share = 'https://wa.me/?text='+encodeURIComponent('I scored '+t.score+'/'+total+' on ProDJEE’s quick JEE round. Beat me: https://prodjee.in/?utm_source=share&utm_medium=whatsapp&utm_campaign=tryit');
+      return '<section class="tryit" id="tryit" aria-live="polite"><h2>You scored '+t.score+'/'+total+'</h2><p class="sub">'+msg+'</p>'+
+        '<div class="ti-actions"><a class="pj-btn pj-btn-primary" href="/arena/" data-next="arena_after_tryit">Play a full Arena round →</a>'+
+        '<a class="pj-btn pj-btn-ghost" href="/m2m/" data-next="scoregps_after_tryit">Analyse my last mock</a>'+
+        '<a class="pj-btn pj-btn-ghost" href="'+share+'" target="_blank" rel="noopener" data-share="tryit_result">Challenge a friend</a>'+
+        '<button class="pj-btn pj-btn-ghost" data-ti="again">Retry</button></div>'+
+        (u ? '' : '<p class="sub" style="margin-top:12px">Sign in to save your streak and progress. <button class="pj-btn pj-btn-sm pj-btn-ghost" data-pj-act="sign-in">Continue with Google</button></p>')+'</section>';
+    }
+    var q = TRY_QS[t.i], answered = t.picked!==null;
+    var opts = q.o.map(function(label,idx){
+      var cls = 'ti-opt'; if(answered){ if(idx===q.a) cls+=' right'; else if(idx===t.picked) cls+=' wrong'; }
+      return '<button class="'+cls+'" data-ti="opt" data-i="'+idx+'"'+(answered?' disabled':'')+'>'+esc(label)+'</button>';
+    }).join('');
+    return '<section class="tryit" id="tryit" aria-live="polite"><h2>Try 3 questions. No sign-in.</h2><p class="sub">'+q.s+' · Question '+(t.i+1)+' of '+total+'</p>'+
+      '<div class="ti-bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+total+'" aria-valuenow="'+t.i+'"><i style="width:'+Math.round(100*t.i/total)+'%"></i></div>'+
+      '<p class="ti-q">'+esc(q.q)+'</p><div class="ti-opts">'+opts+'</div>'+
+      (answered ? '<p class="ti-note"><b>'+(t.picked===q.a?'Correct. ':'Not quite. ')+'</b>'+esc(q.e)+'</p><div class="ti-actions"><button class="pj-btn pj-btn-primary" data-ti="next">'+(t.i+1<total?'Next question →':'See my score')+'</button></div>' : '')+'</section>';
+  }
+  /* ---- daily goal + streak for returning players (local Arena data) ---- */
+  var DAILY_GOAL = 5;
+  function todayQuestions(){
+    try{
+      var s = JSON.parse(localStorage.getItem('prodjee.arena.v1')||'null'); if(!s || !s.sessions) return 0;
+      var d = new Date(), k = d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+      return s.sessions.reduce(function(sum,x){ var dt=new Date(x.at), kk=dt.getFullYear()+'-'+('0'+(dt.getMonth()+1)).slice(-2)+'-'+('0'+dt.getDate()).slice(-2); return kk===k ? sum+(x.n||0) : sum; },0);
+    }catch(e){ return 0; }
+  }
+  function goalBlock(u, a){
+    if(!u || !a || !a.sessions) return '';
+    var done = Math.min(todayQuestions(), DAILY_GOAL), left = DAILY_GOAL-done;
+    var msg = left===0 ? 'Daily goal done. Your streak is safe for today.' : (a.streak>0 ? 'Play today to keep your '+a.streak+'-day streak going. '+left+' more question'+(left===1?'':'s')+' hits today’s goal.' : left+' more question'+(left===1?'':'s')+' hits today’s goal.');
+    return '<section class="goal"><b>Today: '+done+'/'+DAILY_GOAL+' questions · 🔥 '+a.streak+'-day streak</b><p>'+msg+'</p>'+
+      '<div class="ti-bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+DAILY_GOAL+'" aria-valuenow="'+done+'"><i style="width:'+Math.round(100*done/DAILY_GOAL)+'%"></i></div>'+
+      '<a class="pj-btn pj-btn-primary" style="min-height:48px;display:inline-flex;align-items:center;text-decoration:none" href="/arena/" data-next="arena_daily_goal">'+(left===0?'Keep going in Arena →':'Continue in Arena →')+'</a></section>';
+  }
+  view.addEventListener('click', function(e){
+    var el = e.target.closest('[data-ti],[data-hero-cta],[data-to],[data-next],[data-share]'); if(!el) return;
+    if(el.dataset.heroCta){
+      track('hero_cta_click', {cta: el.dataset.heroCta});
+      if(el.dataset.heroCta==='try'){ var tryEl=document.getElementById('tryit'); if(tryEl){ e.preventDefault(); tryEl.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth', block:'start'}); } }
+      return;
+    }
+    if(el.dataset.to){ track('cross_feature_click', {from_feature:'home', to_feature:el.dataset.to, placement:'home_tile'}); return; }
+    if(el.dataset.next){ track('cross_feature_click', {from_feature:'home', to_feature:el.dataset.next.split('_')[0], placement:el.dataset.next}); return; }
+    if(el.dataset.share){ track('share_click', {method:'whatsapp', content:el.dataset.share}); return; }
+    var act = el.dataset.ti, t = tryState;
+    if(act==='opt' && t.picked===null){
+      if(!t.started){ t.started = true; track('tryit_started', {}); }
+      t.picked = +el.dataset.i; if(t.picked===TRY_QS[t.i].a) t.score++;
+    } else if(act==='next'){
+      if(t.i+1<TRY_QS.length){ t.i++; t.picked=null; } else { t.done = true; track('tryit_completed', {score:t.score, total:TRY_QS.length}); }
+    } else if(act==='again'){ tryState = {i:0, score:0, picked:null, started:false, done:false}; }
+    else return;
+    var host = document.getElementById('tryit'); if(host){ host.outerHTML = tryItHtml(PJ.user); var nh = document.getElementById('tryit'); var focusEl = nh && nh.querySelector('.ti-opt:not([disabled]),[data-ti],a.pj-btn'); if(focusEl) focusEl.focus({preventScroll:true}); }
+  });
+
   function renderHome(){
     var u = PJ.user, a = arenaStats(), m = m2mStats();
+    var gl = goalBlock(u, a);
     view.innerHTML =
       '<section class="hero">'+
-        '<h1>Play. <em>Analyse.</em> Improve.</h1>'+
-        '<p>Gamified JEE &amp; NEET practice meets ScoreGPS. Find exactly why you lose marks and get a personalised 7- or 14-day plan to improve.</p>'+
-        (u ? '' : '<div class="signed-out-cta"><button class="pj-btn pj-btn-primary" data-pj-act="sign-in">Continue with Google</button><span style="color:var(--pj-ink-faint);font-size:13px">Free to start. Your data stays with you.</span></div>')+
+        '<h1>Lost marks in your last mock? <em>See exactly where they went.</em></h1>'+
+        '<p>Free JEE &amp; NEET practice, plus a mock analysis that shows which mistakes are costing you rank.</p>'+
+        '<div class="cta-row"><a class="pj-btn pj-btn-primary" href="#tryit" data-hero-cta="try">Try 3 questions now</a>'+
+        '<a class="pj-btn pj-btn-ghost" href="/m2m/" data-hero-cta="analyse">Analyse my last mock</a></div>'+
+        '<div class="trust">No sign-in needed to try. Free to start.</div>'+
       '</section>'+
+      (gl || tryItHtml(u))+
       '<div class="cards">'+
-        '<a class="tile arena" href="/arena/"><span class="tag">Free</span><h2>Arena</h2>'+
-          '<p>Practise verified JEE Main and NEET PYQs, earn Gyan Points, keep your streak, and clear your Mistake Vault.</p>'+
+        '<a class="tile arena" href="/arena/" data-to="arena"><span class="tag">Free</span><h2>Arena</h2>'+
+          '<p>Practise like the exam: JEE Main and NEET PYQs plus practice sets, with timers, hints and full solutions. Every miss goes to your Mistake Vault so you fix it before the exam does.</p>'+
           (u && a ? '<div class="statrow"><span>'+n(a.gp)+' GP</span><span>🔥 '+a.streak+'-day streak</span><span>'+n(a.correct)+' correct</span></div>' : '')+
-          '<ul>'+(u && a ? '' : '<li>🎯 Chapter-wise PYQ runs</li><li>⚡ Hints, full solutions, timers</li><li>📈 Weak-chapter tracking</li>')+'<li>📚 <!--BANK_COUNT-->6,975<!--/BANK_COUNT--> questions and growing</li><li>🔄 New questions added every 2 hours</li></ul>'+
+          '<ul>'+(u && a ? '' : '<li>🎯 Drill one chapter at a time</li><li>⚡ Hints and step-by-step solutions</li><li>📈 See your weak chapters turn green</li>')+'<li>📚 <!--BANK_COUNT-->6,975<!--/BANK_COUNT--> questions and growing</li><li>🔄 New questions added every 2 hours</li></ul>'+
           '<span class="go">Play Arena →</span></a>'+
-        '<a class="tile m2m" href="/m2m/"><span class="tag">Gaps · Plan · Score</span><h2>ScoreGPS</h2>'+
-          '<p>Log your last mock and see why you lost marks — concept, formula recall, calculation slips or time. Get a focused 7- or 14-day recovery plan.</p>'+
-          (u && m && m.mocks ? '<div class="statrow"><span>'+m.mocks+' mock'+(m.mocks>1?'s':'')+' logged</span><span>'+m.plans+' plan'+(m.plans===1?'':'s')+'</span></div>' : '<ul><li>🔍 Question-by-question diagnosis</li><li>🧭 Root cause per mistake</li><li>🗓️ 14-day plan built on your gaps</li></ul>')+
+        '<a class="tile m2m" href="/m2m/" data-to="scoregps"><span class="tag">Gaps · Plan · Score</span><h2>ScoreGPS</h2>'+
+          '<p>See which chapters and which kinds of mistakes are costing you the most rank. Log your last mock, find the exact cause behind each lost mark, then follow a 7- or 14-day plan to win them back.</p>'+
+          (u && m && m.mocks ? '<div class="statrow"><span>'+m.mocks+' mock'+(m.mocks>1?'s':'')+' logged</span><span>'+m.plans+' plan'+(m.plans===1?'':'s')+'</span></div>' : '<ul><li>🔍 Know why each mark was lost</li><li>🧭 Fix the biggest leak first</li><li>🗓️ A 14-day plan built on your gaps</li></ul>')+
           '<span class="go">Open ScoreGPS →</span></a>'+
-        '<a class="tile arena" href="/coach/"><span class="tag">New · Personalised</span><h2>My Coach</h2><p>Get today’s weak-chapter mission, verified JEE/NEET updates, custom tests, spaced revision, score targets and a complete syllabus tracker.</p><ul><li>🧭 One-time JEE/NEET setup</li><li>🗞 Official exam updates</li><li>✅ Daily roadmap and revision</li></ul><span class="go">Open My Coach →</span></a>'+
+        '<a class="tile arena" href="/coach/" data-to="coach"><span class="tag">New · Personalised</span><h2>My Coach</h2><p>Know what to study today. Get a weak-chapter mission every day, spaced revision, custom tests and official exam updates, set up once for JEE or NEET.</p><ul><li>🧭 One-time JEE/NEET setup</li><li>🗞 Official exam updates</li><li>✅ Daily roadmap and revision</li></ul><span class="go">Open My Coach →</span></a>'+
       '</div>';
   }
 
