@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "pretest": "node scripts/update-bank-count.js",
-    "test": "node scripts/validate-question-bank.js && node scripts/validate-m2m.js && node scripts/validate-subscriptions.js && node scripts/validate-coach.js && node scripts/validate-reporting.js && node scripts/validate-auth-gate.js && node scripts/validate-install-and-count.js"
+    "test": "node scripts/validate-question-bank.js && node scripts/validate-m2m.js && node scripts/validate-subscriptions.js && node scripts/validate-coach.js && node scripts/validate-reporting.js && node scripts/validate-auth-gate.js && node scripts/validate-install-and-count.js && node scripts/validate-analytics.js"
   },
   "dependencies": {
     "firebase-admin": "^12.6.0"

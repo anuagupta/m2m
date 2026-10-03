@@ -303,6 +303,7 @@
       <div class="chips-row"><span class="pill accent">${S.exam}</span><button class="icon-btn" data-act="toggle-sound" aria-label="${S.sound ? "Mute" : "Unmute"}">${S.sound ? I.soundOn : I.soundOff}</button></div>
     </header>`;
   function show(html, opts = {}) {
+    if (window.pjScreen) pjScreen("arena_" + view);
     document.body.classList.toggle("immersive", !!opts.immersive);
     if (!opts.immersive) document.body.classList.remove("bonus");
     const nav = pendingNav; pendingNav = null;

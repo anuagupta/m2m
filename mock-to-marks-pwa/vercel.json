@@ -1,5 +1,6 @@
 {
   "redirects": [
+    { "source": "/:path(.*)", "has": [{ "type": "host", "value": "www.prodjee.in" }], "destination": "https://prodjee.in/:path", "permanent": true },
     { "source": "/arena", "destination": "/arena/", "permanent": true },
     { "source": "/m2m", "destination": "/m2m/", "permanent": true },
     { "source": "/coach", "destination": "/coach/", "permanent": true },

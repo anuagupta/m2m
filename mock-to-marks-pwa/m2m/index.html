@@ -1,18 +1,10 @@
 <meta charset="UTF-8">
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-FD29SH9PJF"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-FD29SH9PJF');
-</script>
 <!-- Vercel Analytics -->
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
-<title>ScoreGPS — AI Mock Analysis &amp; Personalised Plans | ProDJEE</title>
+<title>ScoreGPS Mock Analysis — ProDJEE</title><script src="/assets/pj-analytics.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="AI-guided performance analysis that finds why you lose marks and creates personalised 7- or 14-day exercises to improve your JEE or NEET score.">
 <meta name="application-name" content="ProDJEE">
@@ -1025,6 +1017,7 @@ function nav(route, params, skipHistory){
     if(navHistory.length > 30) navHistory.shift();
   }
   state.route=route; state.routeParams=params||{}; persist();
+  if(window.pjScreen) pjScreen('scoregps_'+route);
   var apply = function(){ render(); window.scrollTo(0,0); };
   var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(document.startViewTransition && !reduced){
