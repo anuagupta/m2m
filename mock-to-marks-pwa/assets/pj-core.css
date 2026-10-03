@@ -67,6 +67,7 @@ body{touch-action:pan-y;overscroll-behavior-x:none}.pj-links,.badge-strip{touch-
 .pj-card h2{font-family:var(--pj-serif);font-weight:600;font-size:26px;margin:10px 0 6px;letter-spacing:-.01em;}
 .pj-card p{color:var(--pj-ink-soft);font-size:14px;line-height:1.55;margin:0 0 10px;}
 .pj-card .pj-logo{width:56px;height:56px;border-radius:16px;display:block;}
+.pj-card .pj-logo.pj-logo-wide{width:auto;height:52px;border-radius:0;}
 .pj-card a{color:var(--pj-gold);}
 .pj-fine{font-size:12px !important;color:var(--pj-ink-faint) !important;margin-top:12px !important;}
 .pj-err{color:var(--pj-coral);font-size:13px;margin-top:10px;}
