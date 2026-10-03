@@ -971,7 +971,7 @@
   const TAB_RENDER = { home: renderHome, play: renderPlay, vault: renderVault, stats: renderStats, profile: renderProfile };
   const renderTab = (t = tab) => (TAB_RENDER[t] || renderHome)();
   function navigateTab(next, direction) {
-    if (!TAB_RENDER[next] || next === tab || G || tabTransitioning) return;
+    if (!TAB_RENDER[next] || (next === tab && view === tab) || G || tabTransitioning) return;
     if (next === "play" && window.PJ && !PJ.user) {
       pendingSignedInAction = () => navigateTab("play", direction);
       PJ.requireSignIn();
