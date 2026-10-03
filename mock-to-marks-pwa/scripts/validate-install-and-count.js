@@ -10,7 +10,7 @@ const failures = [];
 const arenaTile = home.indexOf('href="/arena/"'), analysisTile = home.indexOf('href="/m2m/"'), coachTile = home.indexOf('href="/coach/"');
 if (!(arenaTile < analysisTile && analysisTile < coachTile)) failures.push('Homepage tile order must be Arena, Analysis, Coach.');
 if (!core.includes('beforeinstallprompt') || !core.includes('p.prompt()') || !core.includes('if (!deferredInstallPrompt) return;')) failures.push('Android install button must use the native browser prompt.');
-if (!core.includes("updateViaCache: 'none'") || !core.includes('swRegistration.update()') || !worker.includes("prodjee-cache-v47") || !core.includes('Update ready') || !core.includes("act === 'restart-app'")) failures.push('Installed apps must fetch the current service worker and safely offer the latest app shell.');
+if (!core.includes("updateViaCache: 'none'") || !core.includes('swRegistration.update()') || !worker.includes("prodjee-cache-v48") || !core.includes('Update ready') || !core.includes("act === 'restart-app'")) failures.push('Installed apps must fetch the current service worker and safely offer the latest app shell.');
 if (core.includes('e.clientX < 28') || arena.includes('e.clientX < 28')) failures.push('Section swipes must remain available when students start naturally from a screen edge.');
 if (core.includes('Welcome to') || core.includes("'Opening'") || core.includes('Continue to ') || core.includes('pj-section-portal-card')) failures.push('Section transitions must not display opening, arrival or swipe notifications.');
 if (!core.includes('UPDATE_CHECK_INTERVAL = 10 * 60 * 1000') || !core.includes("visibilitychange") || !core.includes("pageshow")) failures.push('Launch and foreground update checks are incomplete.');
@@ -29,6 +29,6 @@ if (!core.includes('enableGlobalSectionSwipe') || !core.includes('pj.sectionArri
 if (manifest.display !== 'standalone' || manifest.start_url !== '/' || !manifest.icons || !manifest.icons.some((x) => x.sizes === '192x192') || !manifest.icons.some((x) => x.sizes === '512x512')) failures.push('Manifest does not meet the expected Chrome PWA shape.');
 if (!manifest.icons.some((x) => x.sizes === '192x192' && x.purpose === 'maskable' && fs.existsSync(path.join(root, x.src.replace(/^\//, '')))) || !manifest.icons.some((x) => x.sizes === '512x512' && x.purpose === 'maskable' && fs.existsSync(path.join(root, x.src.replace(/^\//, ''))))) failures.push('Maskable Android icons are missing from the manifest or filesystem.');
 ['index.html','arena/index.html','m2m/index.html','coach/index.html','news/index.html','admin/index.html'].forEach((f) => { const h = fs.readFileSync(path.join(root, f), 'utf8'); if (!h.includes('class="pj-wordmark"') || h.includes('<b>Pro<span>DJEE</span></b>')) failures.push(f + ': top-left brand must be the wordmark logo only.'); });
-if (!fs.existsSync(path.join(root, 'assets', 'logo-wordmark.png'))) failures.push('assets/logo-wordmark.png is missing.');
+if (!fs.existsSync(path.join(root, 'assets', 'logo-wordmark-186.png'))) failures.push('assets/logo-wordmark-186.png is missing.');
 if (failures.length) { console.error(failures.join('\n')); process.exit(1); }
 console.log('Validated native install flow, distinct section and Arena swipe navigation, and profile-selected Arena exam.');
