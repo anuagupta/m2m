@@ -52,8 +52,8 @@ question and its answer were verified:
 ## Volume target: 20,000 Physics+Chemistry+Maths, 7,000 Biology
 
 Current counts (check `npm test`'s output line for the live number -
-this is a snapshot): Physics 2,359 · Chemistry 985 · Mathematics 963 ·
-Biology 10. Target is roughly 6-7x growth.
+this is a snapshot): Physics 2,726 · Chemistry 1,247 · Mathematics 1,220 ·
+Biology 702. Target is roughly 6-7x growth.
 
 **Real PYQs alone cannot reach this.** JEE Main (2020-2026, fully
 harvested) tops out well short of 20,000 across P/C/M. NEET supplies
