@@ -15,7 +15,9 @@ When adding new questions to the Arena question bank (`arena/pyq.js` /
   redrawn as an original SVG (never copy an image). Skip anything
   ambiguous rather than guessing.
 - Dedupe against existing `"id"` values across all three files before
-  appending, and run `npm test` before committing.
+  appending, and run `npm test` before committing. `npm test` first rewrites
+  the exact question total shown on the home-page Arena tile (`index.html`),
+  so always `git add index.html` along with the question files.
 
 ### Question schema (adopted standard, use for every new question)
 
