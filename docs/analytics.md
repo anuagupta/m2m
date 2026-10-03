@@ -37,20 +37,17 @@ Every event carries `page_name`, `page_title`, `page_location`, `page_path`.
 |---|---|---|
 | `page_view` | Once per document load / bfcache restore | `campaign_*`, `referral_code` on a landing with UTM params |
 | `app_screen` | In-app view change inside Arena or ScoreGPS (URL does not change) | `screen_name` e.g. `arena_game`, `arena_results`, `scoregps_diagnosis` |
-| `hero_cta_click` | Home hero button | `cta`: `try` or `analyse` |
-| `tryit_started` | First answer in the no-login round | none |
-| `tryit_completed` | Third answer submitted | `score`, `total` |
 | `sign_up` / `login` | Google sign-in succeeds | `method=google` |
 | `first_arena_completed` | First committed Arena session on this browser | `questions`, `exam` |
 | `first_mock_analysed` | First real (non-demo) ScoreGPS diagnosis opened on this browser | none |
-| `cross_feature_click` | Next-step card or home tile click | `from_feature`, `to_feature`, `placement` |
+| `cross_feature_click` | Next-step card click in Arena or ScoreGPS | `from_feature`, `to_feature`, `placement` |
 | `share_click` | Any share action | `method`, `content` |
 | `streak_day_3`, `_7`, `_14`, `_30` | Streak reaches that length | `streak` |
 
 ## How to read it in GA4
 
 - Group by the custom dimension **page_name** (Explore, or Reports with a comparison) instead of page title.
-- Funnel: `page_view (home)` then `hero_cta_click` then `tryit_started` then `tryit_completed` then `sign_up`.
+- Funnel: `page_view (home)` then `page_view (arena)` or `page_view (scoregps)` then `sign_up`.
 - Feature loop: filter `cross_feature_click`, break down by `placement`.
 - Retention: `streak_day_N` counts, and returning users by `first_touch_source`.
 - In-app depth: `app_screen` by `screen_name`.
@@ -58,9 +55,9 @@ Every event carries `page_name`, `page_title`, `page_location`, `page_path`.
 ## Manual GA4 settings (cannot be done from code)
 
 1. Admin > Data streams > Web stream > Enhanced measurement > gear > turn **off** "Page changes based on browser history events" (Arena uses `history.pushState` for its back-button guard).
-2. Admin > Custom definitions > create event-scoped dimensions: `page_name`, `screen_name`, `placement`, `cta`, `content`; user-scoped: `first_touch_source`, `first_touch_medium`, `first_touch_campaign`, `first_touch_page`; metrics (optional): `score`, `streak`.
+2. Admin > Custom definitions > create event-scoped dimensions: `page_name`, `screen_name`, `placement`, `content`; user-scoped: `first_touch_source`, `first_touch_medium`, `first_touch_campaign`, `first_touch_page`; metrics (optional): `score`, `streak`.
 3. Admin > Data streams > Configure tag settings > Define internal traffic is not needed; instead create a **Data filter** (Admin > Data collection and modification > Data filters) of type Internal Traffic with parameter `traffic_type` = `internal`, state Testing, then Active after checking.
-4. Admin > Events > mark as key events: `sign_up`, `tryit_completed`, `first_arena_completed`, `first_mock_analysed`, `cross_feature_click`, `share_click`. (`hero_cta_click` and `streak_day_*` are useful but are not conversions.)
+4. Admin > Events > mark as key events: `sign_up`, `first_arena_completed`, `first_mock_analysed`, `cross_feature_click`, `share_click`. (`streak_day_*` is useful but not a conversion.)
 5. Reports > Engagement > Pages and screens: switch the primary dimension to "Page path + query string and screen class" or add `page_name` as the dimension.
 6. Open each page once from your own browsers with `?pj_internal=1`.
 
@@ -74,7 +71,7 @@ Record the production deploy date of this change as the cut-over. Data before th
 - [ ] `page_view` per session did not jump unexpectedly (Arena should no longer add history-change views once setting 1 is off).
 - [ ] Home bounce rate (was 48.2%); target under 35%. Use the same definition and only post-cut-over weeks.
 - [ ] ScoreGPS bounce (was 43.3%), Arena (25.8%), compare by `page_name`.
-- [ ] Home funnel: hero_cta_click rate, tryit_started rate, tryit_completed rate, sign_up rate.
+- [ ] Home to feature rate (home `page_view` followed by an Arena or ScoreGPS `page_view` in the same session) and `sign_up` rate.
 - [ ] Share of sessions with a second feature (`cross_feature_click` or page_view of another `page_name`).
 - [ ] Returning users and `streak_day_3` counts.
 - [ ] Direct vs referral vs social split looks plausible (first-touch properties populated, internal traffic excluded).
