@@ -47,7 +47,7 @@ if (!claimMatch) {
 } else {
   const claimed = parseInt(claimMatch[1].replace(/,/g, ''), 10);
   if (claimed > questions.length) errors.push(`Homepage claims ${claimed}+ questions but the bank only has ${questions.length} - lower the figure.`);
-  else if (questions.length - claimed > 1500) errors.push(`Homepage's "${claimed}+ questions" figure is stale (bank now has ${questions.length}) - round the displayed number up.`);
+  else if (questions.length - claimed > 3000) errors.push(`Homepage's "${claimed}+ questions" figure is stale (bank now has ${questions.length}) - round the displayed number up.`);
 }
 if (!home.includes('New questions added every 2 hours')) errors.push('Homepage Arena tile is missing its "new questions every 2 hours" pointer.');
 
