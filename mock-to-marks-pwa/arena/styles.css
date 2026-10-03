@@ -510,3 +510,6 @@ h3 { font-size: 16px; font-weight: 700; }
 .medal { background: radial-gradient(circle at 35% 30%, rgba(255, 224, 122, 0.45), rgba(245, 158, 11, 0.2)); }
 .mode .ico { background: linear-gradient(135deg, var(--gold-soft), rgba(255, 255, 255, 0.04)); }
 .avatar { box-shadow: 0 10px 30px -10px rgba(255, 194, 26, 0.7); }
+
+/* anchor-styled buttons used by the results "next step" card */
+a.btn { display: flex; align-items: center; justify-content: center; text-decoration: none; text-align: center; min-height: 48px; }

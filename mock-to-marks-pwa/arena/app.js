@@ -766,8 +766,12 @@
     if (!S.daily[today] || typeof S.daily[today] !== "object") S.daily[today] = { JEE: 0, NEET: 0 };
     S.daily[today][G.exam] = Math.max(0, (S.daily[today][G.exam] || 0) + G.sessionGP);
     S.totalGP[G.exam] = Math.max(0, gpFor(G.exam) + G.sessionGP);
-    if (S.streak.last !== today) { S.streak.count = S.streak.last === dayKey(daysAgo(1)) ? S.streak.count + 1 : 1; S.streak.last = today; S.streak.best = Math.max(S.streak.best, S.streak.count); }
+    if (S.streak.last !== today) {
+      S.streak.count = S.streak.last === dayKey(daysAgo(1)) ? S.streak.count + 1 : 1; S.streak.last = today; S.streak.best = Math.max(S.streak.best, S.streak.count);
+      if ([3, 7, 14, 30].includes(S.streak.count) && window.pjTrack) pjTrack("streak_day_" + S.streak.count, { streak: S.streak.count });
+    }
     S.counters.sessions++;
+    if (S.counters.sessions === 1 && window.pjTrack) pjTrack("first_arena_completed", { questions: G.records.length, exam: G.exam });
     const sess = { at: Date.now(), exam: G.exam, mode: G.mode, n: G.records.length, correct: G.records.filter((r) => r.result === "correct").length, gp: G.sessionGP,
       time: G.records.reduce((a, r) => a + r.time, 0), hints: G.records.filter((r) => r.hint).length, solutions: G.records.filter((r) => r.result === "solution").length, bestRun: G.bestRun, byChapter };
     S.sessions.push(sess); if (S.sessions.length > 200) S.sessions = S.sessions.slice(-200);
@@ -796,6 +800,7 @@
     const rows = chapterRows(sess.byChapter).sort((a, b) => pct(a.cor, a.att) - pct(b.cor, b.att));
     const count = (res) => records.filter((x) => x.result === res).length;
     const outs = [["correct", "Correct", "var(--mint)"], ["wrong", "Wrong", "var(--crimson)"], ["skip", "Skipped", "#7c7c8a"], ["solution", "Solution", "var(--gold)"]];
+    const weakest = rows[0], chapterUrl = weakest ? `/arena/?mode=chapter&subject=${encodeURIComponent(weakest.subject)}&chapters=${encodeURIComponent(weakest.label)}&exam=${sess.exam}` : "/arena/";
     const head = acc >= 80 ? "Outstanding session." : acc >= 60 ? "Solid work. Keep pushing." : acc >= 40 ? "Good effort. The vault will fix the rest." : "Tough round. Revise the vault and come back.";
     show(`
       <div class="narrow">
@@ -828,6 +833,14 @@
         ${newBadges.length ? `<div class="spacer"></div><div class="glass"><h3 style="margin-bottom:12px">New badges</h3>
           <div class="badges">${newBadges.map((id) => { const b = BADGES.find((x) => x.id === id); return `<button class="badge-card badge-touch" data-act="badge-info" data-v="${b.id}" aria-label="${b.name}: ${b.desc}"><div class="medal">${b.icon}</div><b>${b.name}</b><span>${b.desc}</span></button>`; }).join("")}</div>
           <button class="btn ghost block" style="margin-top:12px" data-act="share-badge" data-v="${newBadges[newBadges.length - 1]}">${I.share.replace("<svg", '<svg width="18" height="18"')} Share achievement</button></div>` : ""}
+        <div class="spacer"></div>
+        <div class="glass next-step">
+          <div class="eyebrow">Your next step</div>
+          ${weakest && pct(weakest.cor, weakest.att) < 75 ? `<a class="btn primary block" data-next="arena_weak_chapter" href="${esc(chapterUrl)}">Drill your weakest chapter: ${esc(weakest.label)}</a><div class="spacer"></div>` : ""}
+          <a class="btn ghost block" data-next="scoregps_after_arena" href="/m2m/">See where your last mock lost marks (ScoreGPS)</a>
+          <div class="spacer"></div>
+          <button class="btn ghost block" data-act="share-score">${I.share.replace("<svg", '<svg width="18" height="18"')} Challenge a friend to beat ${sess.correct}/${sess.n}</button>
+        </div>
         <div class="spacer"></div>
         <div class="grid cols-2">
           <button class="btn gold" data-act="parent-session">${I.share.replace("<svg", '<svg width="18" height="18"')} Send to parents</button>
@@ -1117,9 +1130,10 @@
         break;
       }
       case "again": renderSetup(setup ? setup.mode : "mixed"); break;
-      case "parent-session": shareText(reportText(lastSession)); break;
+      case "parent-session": if (window.pjTrack) pjTrack("share_click", { method: "report", content: "parent_session" }); shareText(reportText(lastSession)); break;
+      case "share-score": if (window.pjTrack) pjTrack("share_click", { method: "whatsapp_or_copy", content: "arena_result" }); shareText(`I scored ${lastSession.correct}/${lastSession.n} (${pct(lastSession.correct, lastSession.n)}%) on ProDJEE Arena. Think you can beat it? https://prodjee.in/arena/?utm_source=share&utm_medium=challenge&utm_campaign=arena_result`); break;
       case "parent-lifetime": shareText(reportText(null)); break;
-      case "share-badge": { const b = BADGES.find((x) => x.id === v); shareText(`${b.icon} I just unlocked "${b.name}" on ProDJEE Arena. ${fmt(gpFor())} Gyan Points and counting. Can you beat me?`); break; }
+      case "share-badge": { if (window.pjTrack) pjTrack("share_click", { method: "badge", content: v }); const b = BADGES.find((x) => x.id === v); shareText(`${b.icon} I just unlocked "${b.name}" on ProDJEE Arena. ${fmt(gpFor())} Gyan Points and counting. Can you beat me?`); break; }
       case "badge-info": showBadge(v); break;
       case "toggle-sound": S.sound = !S.sound; save(); if (view === "game") renderGame(); else renderTab(); break;
       case "toggle-sound-set": S.sound = !S.sound; save(); el.classList.toggle("on", S.sound); el.setAttribute("aria-pressed", S.sound); break;
@@ -1132,6 +1146,10 @@
       case "close-modal": case "modal-bg": closeModal(); break;
     }
   });
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest("a[data-next]");
+    if (a && window.pjTrack) pjTrack("cross_feature_click", { from_feature: "arena", to_feature: a.dataset.next.split("_")[0], placement: a.dataset.next });
+  }, true);
   document.addEventListener("keydown", (e) => {
     if (overlay.innerHTML && e.key === "Escape") return closeModal();
     if (view !== "game" || !G || overlay.innerHTML) return;
