@@ -41,14 +41,9 @@ questions.forEach((question, index) => {
 });
 
 const home = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
-const claimMatch = home.match(/(\d[\d,]*)\+\s*questions and growing/);
-if (!claimMatch) {
-  errors.push('Homepage Arena tile is missing its question-bank-size pointer ("N+ questions and growing").');
-} else {
-  const claimed = parseInt(claimMatch[1].replace(/,/g, ''), 10);
-  if (claimed > questions.length) errors.push(`Homepage claims ${claimed}+ questions but the bank only has ${questions.length} - lower the figure.`);
-  else if (questions.length - claimed > 3000) errors.push(`Homepage's "${claimed}+ questions" figure is stale (bank now has ${questions.length}) - round the displayed number up.`);
-}
+const claimMatch = home.match(/<!--BANK_COUNT-->([\d,]+)<!--\/BANK_COUNT-->/);
+if (!claimMatch) errors.push('Homepage Arena tile is missing its exact question-count marker.');
+else if (parseInt(claimMatch[1].replace(/,/g, ''), 10) !== questions.length) errors.push(`Homepage shows ${claimMatch[1]} questions but the bank has ${questions.length} - run node scripts/update-bank-count.js and commit index.html.`);
 if (!home.includes('New questions added every 2 hours')) errors.push('Homepage Arena tile is missing its "new questions every 2 hours" pointer.');
 
 if (errors.length) {
