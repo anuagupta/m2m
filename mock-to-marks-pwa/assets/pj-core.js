@@ -288,7 +288,7 @@
   function showSignInGate(message) {
     scrim(
       '<button type="button" class="pj-gate-close" data-pj-act="dismiss-sign-in" aria-label="Close sign-in" title="Not now">×</button>' +
-      '<img class="pj-logo pj-logo-wide" src="/assets/logo-wordmark.png" alt="ProDJEE" width="121" height="52">' +
+      '<img class="pj-logo pj-logo-wide" src="/assets/logo-wordmark-121.png" srcset="/assets/logo-wordmark-121.png 121w, /assets/logo-wordmark-182.png 182w, /assets/logo-wordmark-242.png 242w, /assets/logo-wordmark-363.png 363w" sizes="121px" alt="ProDJEE" width="121" height="52">' +
       '<h2>Sign in for free</h2>' +
       '<p>' + esc(message || 'One Google sign-in unlocks ProDJEE Arena and ScoreGPS. Your study data stays on this phone and in a private app folder in your own Google Drive.') + '</p>' +
       '<p>On the Google screen we’ll ask for your <b>name, email, profile photo</b> and permission to <b>store ProDJEE’s own backup file in your Google Drive</b>. We can’t see any of your other Drive files.</p>' +
@@ -467,7 +467,7 @@
       // in the Terms of Use itself (section 2) rather than as a separate
       // tick here.
       var s = scrim(
-        '<img class="pj-logo pj-logo-wide" src="/assets/logo-wordmark.png" alt="" width="121" height="52">' +
+        '<img class="pj-logo pj-logo-wide" src="/assets/logo-wordmark-121.png" srcset="/assets/logo-wordmark-121.png 121w, /assets/logo-wordmark-182.png 182w, /assets/logo-wordmark-242.png 242w, /assets/logo-wordmark-363.png 363w" sizes="121px" alt="" width="121" height="52">' +
         '<h2>Quick check before you start</h2>' +
         '<p>Hi ' + esc(firstName()) + '! One thing before you dive in.</p>' +
         '<button class="pj-btn pj-btn-primary" style="width:100%;margin-top:6px" id="pj-cok">Continue</button>' +
