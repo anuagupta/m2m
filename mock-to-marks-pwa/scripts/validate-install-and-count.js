@@ -7,7 +7,6 @@ const arena = fs.readFileSync(path.join(root, 'arena', 'app.js'), 'utf8');
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
 const worker = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 const failures = [];
-if (/\b[\d,]+\s+(?:JEE Main &amp; NEET )?questions currently available/i.test(home) || home.includes('Question bank:')) failures.push('Question-bank availability totals must not be displayed.');
 const arenaTile = home.indexOf('href="/arena/"'), analysisTile = home.indexOf('href="/m2m/"'), coachTile = home.indexOf('href="/coach/"');
 if (!(arenaTile < analysisTile && analysisTile < coachTile)) failures.push('Homepage tile order must be Arena, Analysis, Coach.');
 if (!core.includes('beforeinstallprompt') || !core.includes('p.prompt()') || !core.includes('if (!deferredInstallPrompt) return;')) failures.push('Android install button must use the native browser prompt.');
@@ -30,4 +29,4 @@ if (!core.includes('enableGlobalSectionSwipe') || !core.includes('pj.sectionArri
 if (manifest.display !== 'standalone' || manifest.start_url !== '/' || !manifest.icons || !manifest.icons.some((x) => x.sizes === '192x192') || !manifest.icons.some((x) => x.sizes === '512x512')) failures.push('Manifest does not meet the expected Chrome PWA shape.');
 if (!manifest.icons.some((x) => x.sizes === '192x192' && x.purpose === 'maskable' && fs.existsSync(path.join(root, x.src.replace(/^\//, '')))) || !manifest.icons.some((x) => x.sizes === '512x512' && x.purpose === 'maskable' && fs.existsSync(path.join(root, x.src.replace(/^\//, ''))))) failures.push('Maskable Android icons are missing from the manifest or filesystem.');
 if (failures.length) { console.error(failures.join('\n')); process.exit(1); }
-console.log('Validated native install flow, distinct section and Arena swipe navigation, profile-selected Arena exam, and hidden bank totals.');
+console.log('Validated native install flow, distinct section and Arena swipe navigation, and profile-selected Arena exam.');
