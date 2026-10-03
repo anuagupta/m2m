@@ -1,18 +1,10 @@
 <meta charset="UTF-8">
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-FD29SH9PJF"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-FD29SH9PJF');
-</script>
 <!-- Vercel Analytics -->
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
-<title>ScoreGPS — AI Mock Analysis &amp; Personalised Plans | ProDJEE</title>
+<title>ScoreGPS Mock Analysis — ProDJEE</title><script src="/assets/pj-analytics.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="AI-guided performance analysis that finds why you lose marks and creates personalised 7- or 14-day exercises to improve your JEE or NEET score.">
 <meta name="application-name" content="ProDJEE">
@@ -497,7 +489,7 @@ select,.field input[type=text],.field input[type=number],.field input[type=date]
 
 <div class="bg-blobs" aria-hidden="true"><span class="blob blob-gold"></span><span class="blob blob-green"></span><span class="blob blob-coral"></span></div>
 <header class="pj-bar pj-static"><div class="pj-bar-inner">
-  <div class="pj-brand"><img src="/assets/logo-192.png" alt="ProDJEE logo"><b>Pro<span>DJEE</span></b></div>
+  <div class="pj-brand"><img class="pj-wordmark" src="/assets/logo-wordmark.png" alt="ProDJEE" width="93" height="40"></div>
   <nav class="pj-links" aria-label="Sections"><a href="/">Home</a><a href="/arena/">Arena</a><a href="/m2m/" class="on">ScoreGPS</a><a href="/coach/">Coach</a><a href="/news/" class="pj-news-link">News<span class="pj-news-dot"></span></a></nav>
   <button class="pj-avatar" data-pj-avatar data-pj-act="profile" aria-label="Account"></button>
 </div></header>
@@ -505,7 +497,6 @@ select,.field input[type=text],.field input[type=number],.field input[type=date]
 <div class="pj-banner" data-pj-banner></div>
 <div class="page-shell">
   <nav class="sidenav" id="m2mSidenav" aria-label="ScoreGPS">
-    <div class="side-brand"><img src="/assets/logo-192.png" alt="ProDJEE logo"></div>
     <div class="side-section-label">ScoreGPS</div>
     <button class="side-link" data-action="toCreate">New mock</button>
     <button class="side-link" data-action="loadDemo">Sample mock</button>
@@ -1012,6 +1003,10 @@ auth.onAuthStateChanged(function(user){
 // every nav() records where it left from, and the back button pops that
 // stack instead of jumping to a hardcoded destination.
 var navHistory = [];
+document.addEventListener('click', function(e){
+  var a = e.target.closest && e.target.closest('a[data-next]');
+  if(a && window.pjTrack) pjTrack('cross_feature_click', {from_feature:'scoregps', to_feature:a.dataset.next.split('_')[0], placement:a.dataset.next});
+}, true);
 function nav(route, params, skipHistory){
   // Only the demo mock itself is free to view signed out - state.demo is a
   // sticky flag (stays true for the rest of the session once "Sample mock"
@@ -1025,6 +1020,10 @@ function nav(route, params, skipHistory){
     if(navHistory.length > 30) navHistory.shift();
   }
   state.route=route; state.routeParams=params||{}; persist();
+  if(window.pjScreen) pjScreen('scoregps_'+route);
+  if(route==='diagnosis' && params && params.mockId && params.mockId!=='demo' && window.pjTrack){
+    try{ if(!localStorage.getItem('pj.ev.first_mock')){ localStorage.setItem('pj.ev.first_mock','1'); pjTrack('first_mock_analysed', {}); } }catch(e){}
+  }
   var apply = function(){ render(); window.scrollTo(0,0); };
   var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(document.startViewTransition && !reduced){
@@ -1792,7 +1791,26 @@ function viewDiagnosis(){
             : '<button class="btn btn-primary" data-action="generatePlan" style="padding:13px 26px;">Generate a Plan for Me →</button>')+
       (state.demo ? '<button class="btn btn-ghost" data-action="toCreate">Analyse my real mock →</button>' : '')+
     '</div>'+
+    nextStepCard(mock)+
   '</div>';
+}
+/* Weakest chapter = the one with the most wrong/unattempted questions in this mock. */
+function weakestChapter(mock){
+  var tally = {};
+  (mock.questions||[]).forEach(function(q){
+    if(!q.chapter || (q.result!=='wrong' && q.result!=='left')) return;
+    var k = (q.subject||'')+'|'+q.chapter; tally[k] = (tally[k]||0)+1;
+  });
+  var best = null;
+  Object.keys(tally).forEach(function(k){ if(!best || tally[k]>tally[best]) best = k; });
+  return best ? {subject: best.split('|')[0], chapter: best.split('|').slice(1).join('|'), count: tally[best]} : null;
+}
+function nextStepCard(mock){
+  var w = weakestChapter(mock), exam = mock.exam || 'JEE';
+  var href = w ? '/arena/?mode=chapter&exam='+encodeURIComponent(exam)+'&subject='+encodeURIComponent(w.subject)+'&chapters='+encodeURIComponent(w.chapter) : '/arena/';
+  return '<div class="card" style="margin-top:22px;text-align:center;"><div class="eyebrow">Your next step</div>'+
+    '<p class="helper" style="margin:8px 0 14px;">'+(w ? 'Most of your lost marks sit in <b>'+esc(w.chapter)+'</b> ('+w.count+' question'+(w.count===1?'':'s')+'). Drill it now while the mistakes are fresh.' : 'Turn this diagnosis into practice while the mistakes are fresh.')+'</p>'+
+    '<a class="btn btn-primary" data-next="arena_after_scoregps" href="'+href+'" style="padding:13px 26px;text-decoration:none;display:inline-block;">'+(w ? 'Practise '+esc(w.chapter)+' in Arena →' : 'Practise in Arena →')+'</a></div>';
 }
 
 /* ---------------- view: calendar ---------------- */
