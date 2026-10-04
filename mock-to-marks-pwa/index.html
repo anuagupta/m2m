@@ -124,7 +124,7 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
 .pill.ok{background:color-mix(in srgb,var(--pj-green) 20%,transparent);color:var(--pj-green);}
 .pill.warn{background:color-mix(in srgb,var(--pj-gold) 20%,transparent);color:var(--pj-gold);}
 .back{color:var(--pj-ink-soft);text-decoration:none;font-weight:700;font-size:14px;}
-.pj-btn-google{background:#fff;border:1px solid #dadce0;width:64px;min-height:48px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:12px;cursor:pointer;}
+.pj-btn-google{background:#fff;color:#1f1f1f;border:1px solid #dadce0;min-height:48px;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;font-weight:700;cursor:pointer;}
 .pj-btn-google:hover{background:#f1f3f4;}
 .pj-btn-google:focus-visible{outline:2px solid var(--pj-gold);outline-offset:3px;}
 .signed-out-cta{margin-top:22px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
@@ -187,7 +187,7 @@ main{max-width:1100px;margin:0 auto;padding:8px 16px 0;}
       '<section class="hero">'+
         '<h1>Play. <em>Analyse.</em> Improve.</h1>'+
         '<p>Gamified JEE &amp; NEET practice meets ScoreGPS. Find exactly why you lose marks and get a personalised 7- or 14-day plan to improve.</p>'+
-        (u ? '' : '<div class="signed-out-cta"><button class="pj-btn pj-btn-google" data-pj-act="sign-in" aria-label="Continue with Google" title="Continue with Google"><svg width="24" height="24" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3.01-2.33Z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.59-2.59A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58Z"/></svg></button><span style="color:var(--pj-ink-faint);font-size:13px">Free to start. Your data stays with you.</span></div>')+
+        (u ? '' : '<div class="signed-out-cta"><button class="pj-btn pj-btn-google" data-pj-act="sign-in" aria-label="Continue with Google" title="Continue with Google"><span>Continue with</span><svg width="20" height="20" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3.01-2.33Z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.59-2.59A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58Z"/></svg></button><span style="color:var(--pj-ink-faint);font-size:13px">Free to start. Your data stays with you.</span></div>')+
       '</section>'+
       '<div class="cards">'+
         '<a class="tile arena" href="/arena/"><span class="tag">Free</span><h2>Arena</h2>'+
