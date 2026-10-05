@@ -45,6 +45,14 @@ async function getFile(path) {
   const r = await fetch(url, { headers: ghHeaders() });
   if (!r.ok) throw new Error(`GitHub read failed for ${path}: ${r.status}`);
   const data = await r.json();
+  // The contents API returns an empty body for files over 1 MB (pyq.js and
+  // practice.js), so fall back to the blobs API, which serves up to 100 MB.
+  if (!data.content || data.encoding === 'none') {
+    const br = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/blobs/${data.sha}`, { headers: ghHeaders() });
+    if (!br.ok) throw new Error(`GitHub blob read failed for ${path}: ${br.status}`);
+    const blob = await br.json();
+    return { sha: data.sha, content: Buffer.from(blob.content, 'base64').toString('utf8') };
+  }
   return { sha: data.sha, content: Buffer.from(data.content, 'base64').toString('utf8') };
 }
 
