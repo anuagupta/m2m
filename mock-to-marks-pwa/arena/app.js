@@ -752,6 +752,46 @@
     save();
   }
 
+  /* ============================ DAILY-NUDGE PUSH ============================ */
+  // The only data the server keeps for a student who opts in: mistakes due, streak,
+  // weakest chapter, last-active time (plus exam/subject to build the deep link).
+  function pushSummary() {
+    const n = new Date(); let sendAt = Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate(), 14, 0); // 7:30 PM IST
+    if (sendAt <= Date.now()) sendAt += 864e5;
+    const exam = S.exam;
+    let weak = null;
+    Object.entries(S.stats).forEach(([k, v]) => {
+      const [e, subject, chapter] = k.split("|");
+      if (e !== exam || v.att < 5) return;
+      const acc = v.cor / v.att;
+      if (acc < 0.75 && (!weak || acc < weak.acc)) weak = { acc, subject, chapter };
+    });
+    const last = S.sessions[S.sessions.length - 1];
+    return { exam, vaultDue: vaultIds(exam).filter((id) => S.vault[id].due <= sendAt).length, streak: S.streak.count, weakChapter: weak ? weak.chapter : "", weakSubject: weak ? weak.subject : "", lastActiveAt: last ? last.at : 0 };
+  }
+  const pushSync = () => { if (window.PJPush) PJPush.sync(pushSummary()); };
+  function maybePushCard() {
+    const host = $("#push-card");
+    if (!host || !window.PJPush || !PJPush.supported() || PJPush.dismissedRecently()) return;
+    PJPush.status().then((st) => {
+      if (st !== "off" || !$("#push-card")) return;
+      host.innerHTML = `<div class="glass"><div class="eyebrow">Daily nudge</div>
+        <p class="muted" style="margin:6px 0 12px">Get one notification a day around 7:30 PM, only when you have mistakes to revise or a streak to keep. You can switch it off any time in Rewards, under Settings.</p>
+        <div class="grid cols-2"><button class="btn primary" data-act="push-on">Turn on</button><button class="btn ghost" data-act="push-later">Not now</button></div></div><div class="spacer"></div>`;
+      if (window.pjTrack) pjTrack("push_optin_shown", {});
+    });
+  }
+  function paintPushRow() {
+    const row = $("#push-row");
+    if (!row || !window.PJPush) return;
+    PJPush.status().then((st) => {
+      if (!$("#push-row") || st === "unsupported") return;
+      const denied = st === "denied";
+      row.hidden = false;
+      row.innerHTML = `<div><b>Daily reminders</b><div class="faint">${denied ? "Blocked in your browser settings. Allow notifications for this site to use it." : "One notification a day around 7:30 PM when you have mistakes to revise or a streak to keep"}</div></div><button class="toggle ${st === "on" ? "on" : ""}" data-act="push-toggle" aria-pressed="${st === "on"}" aria-label="Daily reminders" ${denied ? "disabled" : ""}></button>`;
+    });
+  }
+
   /* ============================== END SESSION ============================= */
   function commitSession() {
     if (!G || !G.records.length || G.committed) return null;
@@ -776,6 +816,7 @@
       time: G.records.reduce((a, r) => a + r.time, 0), hints: G.records.filter((r) => r.hint).length, solutions: G.records.filter((r) => r.result === "solution").length, bestRun: G.bestRun, byChapter };
     S.sessions.push(sess); if (S.sessions.length > 200) S.sessions = S.sessions.slice(-200);
     checkBadges(true); save();
+    pushSync();
     return sess;
   }
   function finishGame() {
@@ -834,6 +875,7 @@
           <div class="badges">${newBadges.map((id) => { const b = BADGES.find((x) => x.id === id); return `<button class="badge-card badge-touch" data-act="badge-info" data-v="${b.id}" aria-label="${b.name}: ${b.desc}"><div class="medal">${b.icon}</div><b>${b.name}</b><span>${b.desc}</span></button>`; }).join("")}</div>
           <button class="btn ghost block" style="margin-top:12px" data-act="share-badge" data-v="${newBadges[newBadges.length - 1]}">${I.share.replace("<svg", '<svg width="18" height="18"')} Share achievement</button></div>` : ""}
         <div class="spacer"></div>
+        <div id="push-card"></div>
         <div class="glass next-step">
           <div class="eyebrow">Your next step</div>
           ${weakest && pct(weakest.cor, weakest.att) < 75 ? `<a class="btn primary block" data-next="arena_weak_chapter" href="${esc(chapterUrl)}">Drill your weakest chapter: ${esc(weakest.label)}</a><div class="spacer"></div>` : ""}
@@ -849,6 +891,7 @@
         <div class="spacer"></div>
         <button class="btn ghost block" data-act="tab" data-v="home">Done</button>
       </div>`, { immersive: true });
+    maybePushCard();
     if (r.i > prevRank.i) setTimeout(() => confetti(90), 250);
     else if (acc >= 80) setTimeout(() => confetti(70), 250);
   }
@@ -930,6 +973,7 @@
         <div class="setting-row"><div><b>Sound & vibration</b><div class="faint">Chimes, buzzers, fanfare, haptics</div></div><button class="toggle ${S.sound ? "on" : ""}" data-act="toggle-sound-set" aria-pressed="${S.sound}" aria-label="Sound"></button></div>
         <div class="setting-row"><div><b>Real PYQs only</b><div class="faint">Hide practice samples in every mode</div></div><button class="toggle ${S.pyqOnly ? "on" : ""}" data-act="pyq" aria-pressed="${S.pyqOnly}" aria-label="PYQs only"></button></div>
         <div class="setting-row" style="display:block"><b>Daily GP goal</b><div class="chips" style="margin-top:8px">${[500, 1000, 2000, 3000].map((g) => `<button class="chip gold ${S.dailyGoal === g ? "on" : ""}" data-act="goal" data-v="${g}">${fmt(g)}</button>`).join("")}</div></div>
+        <div class="setting-row" id="push-row" hidden></div>
         <div class="setting-row"><div><b>Parent report</b><div class="faint">Share overall progress on WhatsApp</div></div><button class="btn gold sm" data-act="parent-lifetime">Send</button></div>
         <div class="setting-row"><div><b>Account &amp; backup</b><div class="faint">${window.PJ && PJ.user ? esc(PJ.user.email || "") + " · Drive backup " + (PJ.driveStatus() === "on" ? "on" : "off") : "Signed out"} — change your name here too</div></div><a class="btn ghost sm" href="/#profile" style="text-decoration:none">Manage</a></div>
         <div class="setting-row"><div><b>Reset all progress</b><div class="faint">Clears GP, badges, vault and history</div></div><button class="btn ghost sm" data-act="reset">Reset</button></div>
@@ -939,6 +983,7 @@
       <div class="section-title"><h3>Badges · ${Object.keys(S.badges).length}/${BADGES.length}</h3></div>
       <div class="badges">${BADGES.map((b) => `<button class="badge-card badge-touch ${S.badges[b.id] ? "" : "locked"}" data-act="badge-info" data-v="${b.id}" aria-label="${b.name}: ${b.desc}"><div class="medal">${b.icon}</div><b>${b.name}</b><span>${b.desc}</span></button>`).join("")}</div>
       `);
+    paintPushRow();
   }
 
   /* ============================ WELCOME / REPORT ========================== */
@@ -1052,6 +1097,8 @@
     document.addEventListener("click", (e) => { if (performance.now() < suppressClickUntil) { e.preventDefault(); e.stopImmediatePropagation(); } }, true);
   }
   enableSwipeNavigation();
+  { const q = new URLSearchParams(location.search); if (q.get("utm_source") === "push" && window.pjTrack) pjTrack("push_opened", { campaign: q.get("utm_campaign") || "" }); }
+  if (window.PJ && PJ.onChange) PJ.onChange(() => { if (PJ.user) pushSync(); });
   function quitGame() {
     closeModal(); clearInterval(timer);
     if (G && G.records.length) finishGame(); else { disarmGuard(); G = null; renderTab(); }
@@ -1130,6 +1177,22 @@
         break;
       }
       case "again": renderSetup(setup ? setup.mode : "mixed"); break;
+      case "push-on":
+        el.disabled = true;
+        PJPush.enable(pushSummary()).then((st) => {
+          if (window.pjTrack) pjTrack(st === "on" ? "push_enabled" : "push_permission_" + st, { source: "results_card" });
+          if ($("#push-card")) $("#push-card").innerHTML = st === "on" ? `<div class="glass"><b>Daily nudge is on.</b> <span class="muted">Switch it off any time in Rewards, under Settings.</span></div><div class="spacer"></div>` : "";
+        }).catch(() => { el.disabled = false; toast("Couldn't turn on notifications. Please sign in and try again."); });
+        break;
+      case "push-later": PJPush.dismiss(); if (window.pjTrack) pjTrack("push_optin_dismissed", {}); if ($("#push-card")) $("#push-card").innerHTML = ""; break;
+      case "push-toggle": {
+        const turningOn = !el.classList.contains("on"); el.disabled = true;
+        (turningOn ? PJPush.enable(pushSummary()) : PJPush.disable()).then((st) => {
+          if (window.pjTrack) pjTrack(st === "on" ? "push_enabled" : st === "off" ? "push_disabled" : "push_permission_" + st, { source: "profile" });
+          paintPushRow();
+        }).catch(() => { toast("Couldn't change notifications. Please sign in and try again."); paintPushRow(); });
+        break;
+      }
       case "parent-session": if (window.pjTrack) pjTrack("share_click", { method: "report", content: "parent_session" }); shareText(reportText(lastSession)); break;
       case "share-score": if (window.pjTrack) pjTrack("share_click", { method: "whatsapp_or_copy", content: "arena_result" }); shareText(`I scored ${lastSession.correct}/${lastSession.n} (${pct(lastSession.correct, lastSession.n)}%) on ProDJEE Arena. Think you can beat it? https://prodjee.in/arena/?utm_source=share&utm_medium=challenge&utm_campaign=arena_result`); break;
       case "parent-lifetime": shareText(reportText(null)); break;

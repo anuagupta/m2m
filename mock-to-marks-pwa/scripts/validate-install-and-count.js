@@ -10,7 +10,7 @@ const failures = [];
 const arenaTile = home.indexOf('href="/arena/"'), analysisTile = home.indexOf('href="/m2m/"'), coachTile = home.indexOf('href="/coach/"');
 if (!(arenaTile < analysisTile && analysisTile < coachTile)) failures.push('Homepage tile order must be Arena, Analysis, Coach.');
 if (!core.includes('beforeinstallprompt') || !core.includes('p.prompt()') || !core.includes('if (!deferredInstallPrompt) return;')) failures.push('Android install button must use the native browser prompt.');
-if (!core.includes("updateViaCache: 'none'") || !core.includes('swRegistration.update()') || !worker.includes("prodjee-cache-v50") || !core.includes('Update ready') || !core.includes("act === 'restart-app'")) failures.push('Installed apps must fetch the current service worker and safely offer the latest app shell.');
+if (!core.includes("updateViaCache: 'none'") || !core.includes('swRegistration.update()') || !worker.includes("prodjee-cache-v51") || !core.includes('Update ready') || !core.includes("act === 'restart-app'")) failures.push('Installed apps must fetch the current service worker and safely offer the latest app shell.');
 if (core.includes('e.clientX < 28') || arena.includes('e.clientX < 28')) failures.push('Section swipes must remain available when students start naturally from a screen edge.');
 if (core.includes('Welcome to') || core.includes("'Opening'") || core.includes('Continue to ') || core.includes('pj-section-portal-card')) failures.push('Section transitions must not display opening, arrival or swipe notifications.');
 if (!core.includes('UPDATE_CHECK_INTERVAL = 10 * 60 * 1000') || !core.includes("visibilitychange") || !core.includes("pageshow")) failures.push('Launch and foreground update checks are incomplete.');

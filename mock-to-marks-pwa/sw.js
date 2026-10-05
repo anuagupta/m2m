@@ -4,9 +4,9 @@
 // app on every launch. Bumping this cache for every shell release still
 // guarantees that a newly activated worker installs the current files and
 // discards every older copy before it takes control.
-var CACHE_NAME = 'prodjee-cache-v50';
+var CACHE_NAME = 'prodjee-cache-v51';
 var ASSETS = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png', '/icon-maskable-192.png', '/icon-maskable-512.png',
-  '/assets/pj-core.css', '/assets/pj-core.js', '/assets/pj-analytics.js', '/assets/pj-transition.js', '/assets/subject-chapters.js', '/assets/logo-192.png', '/assets/logo-wordmark-186.png', '/assets/logo-wordmark-106.png', '/m2m/', '/arena/',
+  '/assets/pj-core.css', '/assets/pj-core.js', '/assets/pj-analytics.js', '/assets/pj-push.js', '/assets/pj-transition.js', '/assets/subject-chapters.js', '/assets/logo-192.png', '/assets/logo-wordmark-186.png', '/assets/logo-wordmark-106.png', '/m2m/', '/arena/',
   '/arena/styles.css', '/arena/app.js', '/arena/questions.js', '/arena/practice.js', '/arena/pyq.js',
   '/arena/vendor/katex/katex.min.css', '/arena/vendor/katex/katex.min.js', '/arena/vendor/katex/contrib/auto-render.min.js',
   '/coach/', '/coach/app.js', '/news/'];
@@ -30,6 +30,23 @@ function cacheCopy(req, res) {
   var copy = res.clone();
   return caches.open(CACHE_NAME).then(function (c) { return c.put(req, copy); });
 }
+// Daily-nudge push (sent by api/push.js). The payload is {title, body, url, tag}.
+self.addEventListener('push', function (event) {
+  var d = {};
+  try { d = event.data ? event.data.json() : {}; } catch (e) {}
+  event.waitUntil(self.registration.showNotification(d.title || 'ProDJEE', {
+    body: d.body || '', icon: '/icon-192.png', badge: '/icon-192.png', tag: d.tag || 'prodjee-daily',
+    data: { url: typeof d.url === 'string' && d.url.charAt(0) === '/' ? d.url : '/arena/' }
+  }));
+});
+self.addEventListener('notificationclick', function (event) {
+  event.notification.close();
+  var url = (event.notification.data && event.notification.data.url) || '/arena/';
+  event.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
+    for (var i = 0; i < list.length; i++) { if ('focus' in list[i]) { if ('navigate' in list[i]) list[i].navigate(url).catch(function () {}); return list[i].focus(); } }
+    return self.clients.openWindow(url);
+  }));
+});
 self.addEventListener('fetch', function (event) {
   var req = event.request;
   if (req.method !== 'GET') return;
