@@ -776,8 +776,9 @@
     PJPush.status().then((st) => {
       if (st !== "off" || !$("#push-card")) return;
       host.innerHTML = `<div class="glass"><div class="eyebrow">Daily nudge</div>
-        <p class="muted" style="margin:6px 0 12px">Get one notification a day around 7:30 PM, only when you have mistakes to revise or a streak to keep. You can switch it off any time in Rewards, under Settings.</p>
-        <div class="grid cols-2"><button class="btn primary" data-act="push-on">Turn on</button><button class="btn ghost" data-act="push-later">Not now</button></div></div><div class="spacer"></div>`;
+        <p style="margin:6px 0 4px;font-weight:700;font-size:17px;line-height:1.3">Toppers don't wait for motivation. Want one evening nudge to keep you on track?</p>
+        <p class="muted" style="margin:0 0 12px">You'll get one notification a day around 7:30 PM, only when you have mistakes to revise or a streak to keep. You can switch it off any time in Rewards, under Settings.</p>
+        <div class="grid cols-2"><button class="btn primary" data-act="push-on">Yes, nudge me</button><button class="btn ghost" data-act="push-later">Not now</button></div></div><div class="spacer"></div>`;
       if (window.pjTrack) pjTrack("push_optin_shown", {});
     });
   }
