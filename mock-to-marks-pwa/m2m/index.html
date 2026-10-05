@@ -919,7 +919,7 @@ var APPLE_SIGNIN_ENABLED = false;
 function signInGateHtml(){
   return '<div class="gate-bg" data-action="closeGate"><div class="gate-card">'+
     '<h3>Sign in for free</h3>'+
-    '<p class="gate-sub">Sign in to save your mocks and pick up where you left off on any device. Your diagnosis is free — you only pay to unlock your recovery plan.</p>'+
+    '<p class="gate-sub">Sign in to save your mocks and pick up where you left off on any device. Your diagnosis is free. You only pay if you choose to unlock the recovery plan.</p>'+
     '<button class="btn btn-primary" data-action="signIn" style="width:100%;margin-top:20px;display:flex;align-items:center;justify-content:center;gap:10px;">'+GOOGLE_ICON+' Continue with Google</button>'+
     (APPLE_SIGNIN_ENABLED ? '<button class="btn btn-apple" data-action="signInApple" style="width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:10px;">'+APPLE_ICON+' Continue with Apple</button>' : '')+
     '<div class="gate-error" id="gateError" hidden></div>'+
@@ -930,25 +930,25 @@ function payGateHtml(preselectPlan){
   var semiannual = preselectPlan==='semiannual';
   return '<div class="gate-bg" data-action="closeGate"><div class="gate-card">'+
     '<h3>Unlock your recovery plan</h3>'+
-    '<p class="gate-sub">Your diagnosis is free. Subscribe to unlock the full recovery plan — plus unlimited future mocks and plans.</p>'+
+    '<p class="gate-sub">Your diagnosis is free. Subscribe only when you want the full 7- or 14-day recovery plan — future diagnoses stay free while subscribed.</p>'+
     '<ul class="checklist" style="margin:16px 0;">'+
       '<li>✓ A 7- or 14-day plan built from your actual mistakes</li>'+
-      '<li>✓ Unlimited mock analyses and plans while subscribed</li>'+
+      '<li>✓ Unlimited diagnoses, with plans unlocked while subscribed</li>'+
     '</ul>'+
     '<div class="chiprow" id="planChoice" style="justify-content:center;">'+
       '<label class="chip"><input type="radio" name="planChoice" value="monthly"'+(monthly?' checked':'')+'><span>₹49/month</span></label>'+
       '<label class="chip"><input type="radio" name="planChoice" value="semiannual"'+(semiannual?' checked':'')+'><span>₹279 / six months</span></label>'+
       '<label class="chip"><input type="radio" name="planChoice" value="yearly"'+(!monthly&&!semiannual?' checked':'')+'><span>₹499/year — best value</span></label>'+
     '</div>'+
-    '<button class="btn btn-primary" data-action="startPayment" style="width:100%;margin-top:16px;">Build My Improvement Plan</button>'+
+    '<button class="btn btn-primary" data-action="startPayment" style="width:100%;margin-top:16px;">Unlock My Recovery Plan</button>'+
     '<div class="gate-error" id="gateError" hidden></div>'+
     '<p class="helper" style="text-align:center;margin-top:14px;">Payments secured by Razorpay.</p>'+
   '</div></div>';
 }
 function planLengthGateHtml(){
   return '<div class="gate-bg" data-action="closeGate"><div class="gate-card">'+
-    '<h3>Choose your plan length</h3>'+
-    '<p class="gate-sub">Both are built from the same diagnosis - pick whichever fits how long you have before your next mock.</p>'+
+    '<h3>Free diagnosis. Paid recovery plan. length</h3>'+
+    '<p class="gate-sub">Your diagnosis is already done - pick the plan length that fits how long you have before your next mock.</p>'+
     '<div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;">'+
       '<button class="btn btn-primary" data-action="choosePlanLength" data-v="7" style="width:100%;">7-day plan — faster, more intense</button>'+
       '<button class="btn btn-primary" data-action="choosePlanLength" data-v="14" style="width:100%;">14-day plan — steadier pace</button>'+
@@ -1348,12 +1348,12 @@ var App = {
         prefill: { email: authUser.email || '', name: authUser.displayName || '' },
         theme: { color: '#d9b46f' },
         handler: function(response){ App.verifyPayment(response); },
-        modal: { ondismiss: function(){ if(btn){ btn.disabled=false; btn.textContent='Build My Improvement Plan'; } } }
+        modal: { ondismiss: function(){ if(btn){ btn.disabled=false; btn.textContent='Unlock My Recovery Plan'; } } }
       });
       rp.open();
     }).catch(function(err){
       if(errEl){ errEl.hidden = false; errEl.textContent = err.message || 'Could not start payment. Try again.'; }
-      if(btn){ btn.disabled = false; btn.textContent = 'Build My Improvement Plan'; }
+      if(btn){ btn.disabled = false; btn.textContent = 'Unlock My Recovery Plan'; }
     });
   },
   verifyPayment: function(response){
@@ -1378,7 +1378,7 @@ var App = {
       if(resume) resume();
     }).catch(function(err){
       if(errEl){ errEl.hidden = false; errEl.textContent = err.message; }
-      if(btn){ btn.disabled = false; btn.textContent = 'Build My Improvement Plan'; }
+      if(btn){ btn.disabled = false; btn.textContent = 'Unlock My Recovery Plan'; }
     });
   },
   openProfile: function(){ nav('profile'); },
@@ -1583,9 +1583,9 @@ function viewLanding(){
   return topbar() + '<div class="shell hero">'+
     '<div class="eyebrow">ScoreGPS · Gaps. Plan. Score.</div>'+
     '<h1>Find out exactly why you\'re losing <span class="accent-text">marks</span>.</h1>'+
-    '<p class="hero-sub">ScoreGPS turns your latest mock into a clear diagnosis and a personalised 7- or 14-day plan built around your actual gaps.</p>'+
+    '<p class="hero-sub">ScoreGPS turns your latest mock into a free diagnosis. If it is useful, unlock a personalised 7- or 14-day recovery plan built around your actual gaps.</p>'+
     '<div class="hero-cta">'+
-      '<button class="btn btn-primary" data-action="loadDemo">See a sample analysis →</button>'+
+      '<button class="btn btn-primary" data-action="loadDemo">See a free sample diagnosis →</button>'+
     '</div>'+
     '<div class="loop">'+ LOOP_STEPS.map(function(s){
       return '<div class="loop-step"><div class="icon-tile">'+s.icon+'</div><div class="loop-label">'+s.label+'</div><div class="loop-desc">'+s.desc+'</div></div>';
@@ -1602,7 +1602,7 @@ function viewLanding(){
   '<div class="section" style="padding-top:22px;"><div class="shell">'+
     '<div class="card" style="text-align:center;padding:36px 24px;">'+
       '<h2 style="font-size:24px;color:var(--primary);">Stuck at the same mock-test score?</h2>'+
-      '<p class="section-lead" style="margin:10px auto 0;">Turn your latest mock into a personalised 7/14 day improvement plan — created by AI using a system designed by veteran JEE &amp; NEET mentors. Get two focused study sessions each day, so you always know what to do next.</p>'+
+      '<p class="section-lead" style="margin:10px auto 0;">Analyse your latest mock for free. ScoreGPS shows the root causes behind your lost marks first; pay only when you want the personalised 7/14-day recovery plan with two focused study sessions each day.</p>'+
       '<ul class="fixlist" style="text-align:left;max-width:560px;margin:20px auto 0;">'+
         '<li><b>Burst Mode</b> — improve accuracy, reduce silly mistakes and avoid negative marking</li>'+
         '<li><b>Search &amp; Destroy</b> — sharpen question selection and manage exam time better</li>'+
@@ -1610,20 +1610,20 @@ function viewLanding(){
         '<li><b>Targeted unsolved-question practice</b> — strengthen weak topics and close concept gaps</li>'+
         '<li><b>Planned chapter revision &amp; formula derivation</b> — improve recall and retention</li>'+
       '</ul>'+
-      '<p class="helper" style="margin-top:16px;">Unlimited mock analyses and improvement plans, with secure access through your Google account.</p>'+
+      '<p class="helper" style="margin-top:16px;">Unlimited free diagnoses. Paid plans unlock the exact 7- or 14-day action steps, with secure access through your Google account.</p>'+
       (authUser && isEntitled() ?
         '<div style="margin-top:20px;"><span style="border:1px solid var(--good);background:color-mix(in srgb, var(--good) 14%, var(--surface-2));border-radius:99px;padding:6px 14px;font-weight:600;font-size:13.5px;color:var(--good);">✓ You\'re subscribed'+(entitlement.entitledUntil?' — valid till '+fmtDate(entitlement.entitledUntil):'')+'</span></div>'+
         '<button class="btn btn-primary" style="margin-top:20px;" disabled>Already Subscribed</button>'
       :
         '<div style="margin-top:20px;">'+
-          '<div class="section-lead" style="font-weight:700;margin-bottom:8px;">Choose your plan</div>'+
+          '<div class="section-lead" style="font-weight:700;margin-bottom:8px;">Free diagnosis. Paid recovery plan.</div>'+
           '<div class="chiprow" id="landingPlanChoice" style="justify-content:center;">'+
             '<label class="chip"><input type="radio" name="landingPlanChoice" value="monthly"><span>₹49/month</span></label>'+
             '<label class="chip"><input type="radio" name="landingPlanChoice" value="semiannual"><span>₹279 / six months</span></label>'+
             '<label class="chip"><input type="radio" name="landingPlanChoice" value="yearly" checked><span>₹499/year — best value</span></label>'+
           '</div>'+
         '</div>'+
-        '<button class="btn btn-primary" data-action="buildImprovementPlan" style="margin-top:20px;">Build My Improvement Plan</button>'
+        '<button class="btn btn-primary" data-action="buildImprovementPlan" style="margin-top:20px;">Unlock My Recovery Plan</button>'
       )+
       '<p class="helper" style="margin-top:12px;">Practise smarter. Improve with a plan.</p>'+
     '</div>'+
