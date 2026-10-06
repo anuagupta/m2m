@@ -12,7 +12,7 @@
   // Canonical path -> stable analytics identity. Keep in sync with each
   // page's <title> (scripts/validate-analytics.js enforces this).
   var PAGES = {
-    '/': { name: 'home', title: 'Home — ProDJEE' },
+    '/': { name: 'home', title: 'ScoreGPS Mock Analysis for JEE &amp; NEET — ProDJEE' },
     '/arena/': { name: 'arena', title: 'Arena Practice — ProDJEE' },
     '/m2m/': { name: 'scoregps', title: 'ScoreGPS Mock Analysis — ProDJEE' },
     '/coach/': { name: 'coach', title: 'My Coach — ProDJEE' },
