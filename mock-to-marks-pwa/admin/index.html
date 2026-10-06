@@ -73,6 +73,14 @@
       <div id="reportList"><p class="muted">Loading reports…</p></div>
     </section>
 
+    <section class="card" id="reviewQueue" style="display:none" aria-labelledby="reviewTitle">
+      <div class="row" style="align-items:center">
+        <div><h2 id="reviewTitle" style="font-size:18px;margin:0">Student reviews</h2><p class="muted" style="margin:4px 0 0">Approve a review to publish it on the Reviews tab. Waiting ones first.</p></div>
+        <button class="btn-ghost" id="refreshReviews" style="flex:none">Refresh</button>
+      </div>
+      <div id="reviewList"><p class="muted">Loading reviews…</p></div>
+    </section>
+
     <form class="card" id="editor" style="display:none"></form>
   </div>
 
@@ -179,6 +187,38 @@
       }).catch(function (e) { list.innerHTML = '<div class="msg err">' + esc(e.message) + '</div>'; });
     }
 
+    function loadReviews() {
+      var list = document.getElementById('reviewList');
+      list.innerHTML = '<p class="muted">Loading reviews…</p>';
+      return authedFetch('/admin-list-reports', { kind: 'reviews' }).then(function (r) {
+        if (r.status !== 200 || !r.body.ok) throw new Error((r.body && r.body.error) || 'Could not load reviews.');
+        var rows = r.body.reviews || [];
+        if (!rows.length) { list.innerHTML = '<p class="muted">No reviews yet.</p>'; return; }
+        list.innerHTML = rows.map(function (x) {
+          var st = x.status || 'pending';
+          return '<article class="report" data-review="' + esc(x.id) + '">' +
+            '<div class="report-head"><span class="status ' + (st === 'pending' ? 'open' : '') + '">' + esc(st) + '</span><b>' + esc(x.name || 'Student') + '</b><span class="muted">' + esc('★'.repeat(x.rating || 0)) + ' · ' + esc(x.exam || '') + '</span></div>' +
+            '<p style="margin:8px 0;white-space:pre-wrap">' + esc(x.text) + '</p>' +
+            '<div class="muted">' + esc(x.email || '') + '</div>' +
+            '<div class="report-actions">' +
+              (st !== 'approved' ? '<button class="btn-primary" data-rv="approved">Approve</button>' : '') +
+              (st !== 'hidden' ? '<button class="btn-ghost" data-rv="hidden">Hide</button>' : '') +
+              (st !== 'pending' ? '<button class="btn-ghost" data-rv="pending">Back to waiting</button>' : '') +
+            '</div></article>';
+        }).join('');
+      }).catch(function (e) { list.innerHTML = '<div class="msg err">' + esc(e.message) + '</div>'; });
+    }
+    document.getElementById('refreshReviews').addEventListener('click', loadReviews);
+    document.getElementById('reviewList').addEventListener('click', function (e) {
+      var article = e.target.closest('[data-review]'), btn = e.target.closest('[data-rv]');
+      if (!article || !btn) return;
+      btn.disabled = true;
+      authedFetch('/admin-resolve-report', { kind: 'review', reviewId: article.getAttribute('data-review'), status: btn.getAttribute('data-rv') }).then(function (r) {
+        if (r.status !== 200 || !r.body.ok) throw new Error((r.body && r.body.error) || 'Could not update review.');
+        return loadReviews();
+      }).catch(function (err) { btn.disabled = false; window.alert(err.message); });
+    });
+
     document.getElementById('loadBtn').addEventListener('click', function () {
       loadQuestion(qidInput.value.trim(), null);
     });
@@ -229,7 +269,7 @@
     if (window.PJ) {
       PJ.onChange(function (u) {
         if (u) {
-          gate.style.display = 'none'; loader.style.display = ''; queue.style.display = ''; loadReports();
+          gate.style.display = 'none'; loader.style.display = ''; queue.style.display = ''; document.getElementById('reviewQueue').style.display = ''; loadReports(); loadReviews();
           var p = new URLSearchParams(location.search), questionId = p.get('question');
           if (questionId) loadQuestion(questionId, p.get('report'));
         }

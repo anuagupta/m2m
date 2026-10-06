@@ -6,7 +6,7 @@ const failures = [];
 // Pull the route registry straight out of the module so there is one source of truth.
 const pages = {};
 mod.replace(/'([^']+)':\s*\{\s*name:\s*'([^']+)',\s*title:\s*'([^']+)'\s*\}/g, (_, p, name, title) => { pages[p] = { name, title }; });
-const files = { '/': 'index.html', '/arena/': 'arena/index.html', '/m2m/': 'm2m/index.html', '/coach/': 'coach/index.html', '/news/': 'news/index.html', '/privacy.html': 'privacy.html', '/terms.html': 'terms.html', '/disclaimer.html': 'disclaimer.html' };
+const files = { '/': 'index.html', '/arena/': 'arena/index.html', '/m2m/': 'm2m/index.html', '/coach/': 'coach/index.html', '/news/': 'news/index.html', '/reviews/': 'reviews/index.html', '/privacy.html': 'privacy.html', '/terms.html': 'terms.html', '/disclaimer.html': 'disclaimer.html' };
 Object.entries(files).forEach(([route, file]) => {
   const html = fs.readFileSync(path.join(root, file), 'utf8');
   const page = pages[route];

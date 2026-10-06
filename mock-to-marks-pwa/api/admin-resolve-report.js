@@ -6,6 +6,12 @@ module.exports = async (req, res) => {
   if (!cors(req, res)) return;
   const who = await verifyAdmin(req);
   if (!who) return res.status(403).json({ ok: false, error: 'admin sign-in required' });
+  if ((req.body || {}).kind === 'review') {
+    try {
+      const out = await require('./_reviews').adminSet(who, req.body.reviewId, String(req.body.status || ''));
+      return res.status(out.code || 200).json(out);
+    } catch (e) { return res.status(502).json({ ok: false, error: 'could not update review' }); }
+  }
   const id = String((req.body || {}).reportId || '').trim();
   const status = String((req.body || {}).status || 'resolved');
   if (!id || !['resolved', 'dismissed', 'open'].includes(status)) return res.status(400).json({ ok: false, error: 'bad report update' });

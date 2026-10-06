@@ -6,6 +6,10 @@ module.exports = async (req, res) => {
   if (!cors(req, res)) return;
   const who = await verifyAdmin(req);
   if (!who) return res.status(403).json({ ok: false, error: 'admin sign-in required' });
+  if ((req.body || {}).kind === 'reviews') {
+    try { return res.status(200).json(await require('./_reviews').adminList()); }
+    catch (e) { return res.status(502).json({ ok: false, error: 'could not load reviews' }); }
+  }
   try {
     const snap = await admin.firestore().collection('questionReports').orderBy('createdAt', 'desc').limit(100).get();
     const reports = snap.docs.map((doc) => {

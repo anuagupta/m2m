@@ -17,6 +17,7 @@
     '/m2m/': { name: 'scoregps', title: 'ScoreGPS Mock Analysis — ProDJEE' },
     '/coach/': { name: 'coach', title: 'My Coach — ProDJEE' },
     '/news/': { name: 'news', title: 'Exam News — ProDJEE' },
+    '/reviews/': { name: 'reviews', title: 'Student Reviews — ProDJEE' },
     '/privacy.html': { name: 'legal_privacy', title: 'Privacy Policy — ProDJEE' },
     '/terms.html': { name: 'legal_terms', title: 'Terms of Use — ProDJEE' },
     '/disclaimer.html': { name: 'legal_disclaimer', title: 'Disclaimer — ProDJEE' }
