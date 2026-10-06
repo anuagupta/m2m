@@ -123,6 +123,7 @@ body.pj-section-leaving.pj-section-prev>*:not(.pj-section-portal):not(script){an
   .pj-links a{font-size:10.5px;padding:7px 5px;}
   .pj-news-dot{width:5px;height:5px;margin-left:2px;}
 }
+@media (max-width:420px){.pj-links a{font-size:10px;padding:7px 3.5px;}}
 .pj-static{position:relative;}
 body.immersive .pj-bar, body.immersive .pj-greet, body.immersive .pj-banner{display:none;}
 
