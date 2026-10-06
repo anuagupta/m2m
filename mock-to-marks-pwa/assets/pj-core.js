@@ -157,7 +157,8 @@
     { id: 'arena', path: '/arena/', label: 'Arena', accent: '#cf7e7b' },
     { id: 'scoregps', path: '/m2m/', label: 'ScoreGPS', accent: '#7fc6a4' },
     { id: 'coach', path: '/coach/', label: 'Coach', accent: '#b4a2cf' },
-    { id: 'news', path: '/news/', label: 'News', accent: '#79a9d1' }
+    { id: 'news', path: '/news/', label: 'News', accent: '#79a9d1' },
+    { id: 'reviews', path: '/reviews/', label: 'Reviews', accent: '#d9b46f' }
   ];
   function cleanPath(path) {
     path = String(path || '/').split('?')[0].split('#')[0];

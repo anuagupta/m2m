@@ -1,0 +1,76 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Student Reviews — ProDJEE</title><script src="/assets/pj-analytics.js"></script><link rel="canonical" href="https://prodjee.in/reviews/"><meta name="description" content="What JEE and NEET students say about ProDJEE, and a place to share your own review."><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/assets/pj-core.css"><script defer src="/assets/pj-transition.js"></script><link rel="manifest" href="/manifest.json"><style>
+body{font-family:var(--pj-sans)!important;line-height:1.55;-webkit-font-smoothing:antialiased}.head h1{font-family:var(--pj-serif)!important;font-weight:600!important;line-height:1.08!important;letter-spacing:-.02em}
+.eyebrow,.source{color:#d9b46f!important}.settings{color:#d9b46f!important}
+body{margin:0;background:#080a14;color:#f7f4ec;font:15px/1.5 Inter,system-ui,sans-serif}.wrap{width:min(820px,calc(100% - 28px));margin:38px auto 80px}.head{margin-bottom:22px}.head h1{font-size:clamp(34px,6vw,58px);margin:4px 0;line-height:1}.eyebrow{color:#39a7ff;font-size:12px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.muted{color:#a7acc1}.card{background:#111526;border:1px solid #29304a;border-radius:20px;padding:20px;margin-top:14px}.update{display:flex;justify-content:space-between;gap:16px;padding:16px 0;border-top:1px solid #29304a}.update:first-child{border-top:0}.update a{color:#f7f4ec;text-decoration:none;font-weight:750}.update small{display:block;color:#a7acc1;margin-top:4px}.source{color:#39a7ff}.settings{display:inline-block;margin-top:12px;color:#ffc23d;text-decoration:none}
+</style><style>
+.rv-sum{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.rv-avg{font-size:44px;font-weight:800;line-height:1;font-family:var(--pj-serif)}.rv-stars{color:#d9b46f;letter-spacing:2px;font-size:18px}.rv-stars .off{color:#3a4160}
+.rv-item{display:flex;gap:12px;padding:16px 0;border-top:1px solid #29304a}.rv-item:first-child{border-top:0}.rv-pic{width:42px;height:42px;border-radius:50%;flex:none;object-fit:cover;background:#29304a;display:flex;align-items:center;justify-content:center;font-weight:800;color:#d9b46f}
+.rv-name{font-weight:750}.rv-meta{color:#a7acc1;font-size:12.5px}.rv-text{margin:6px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.rv-form textarea{width:100%;box-sizing:border-box;min-height:110px;background:#0b0e1c;color:#f7f4ec;border:1px solid #29304a;border-radius:14px;padding:12px;font:inherit;resize:vertical}
+.rv-pick{display:flex;gap:6px;margin:8px 0 12px}.rv-pick button{background:none;border:0;font-size:30px;line-height:1;color:#3a4160;cursor:pointer;padding:2px}.rv-pick button.on{color:#d9b46f}
+.rv-btn{background:#d9b46f;color:#16130b;border:0;border-radius:99px;padding:12px 22px;font:inherit;font-weight:800;cursor:pointer}.rv-btn[disabled]{opacity:.55;cursor:default}
+.rv-note{color:#a7acc1;font-size:12.5px;margin:8px 0 0}.rv-status{display:inline-block;font-size:12px;font-weight:800;padding:3px 10px;border-radius:99px;background:#29304a;margin-bottom:8px}.rv-msg{margin-top:10px;font-weight:650}
+</style></head><body><header class="pj-bar"><div class="pj-bar-inner"><div class="pj-brand"><img class="pj-wordmark" src="/assets/logo-wordmark-186.png" srcset="/assets/logo-wordmark-53.png 53w, /assets/logo-wordmark-80.png 80w, /assets/logo-wordmark-93.png 93w, /assets/logo-wordmark-106.png 106w, /assets/logo-wordmark-140.png 140w, /assets/logo-wordmark-159.png 159w, /assets/logo-wordmark-186.png 186w, /assets/logo-wordmark-279.png 279w" sizes="(max-width:560px) 53px, 93px" alt="ProDJEE" width="93" height="40"></div><nav class="pj-links"><a href="/">Home</a><a href="/arena/">Arena</a><a href="/m2m/">ScoreGPS</a><a href="/coach/">Coach</a><a href="/news/" class="pj-news-link">News<span class="pj-news-dot"></span></a><a href="/reviews/" class="on">Reviews</a></nav><button class="pj-avatar" data-pj-avatar data-pj-act="profile" aria-label="Account"></button></div></header><main class="wrap"><section class="head"><div class="eyebrow" id="examLabel">Student reviews</div><h1>What students say</h1><p class="muted">Honest feedback from students using ProDJEE. Reviews appear after we check them.</p></section>
+<section class="card" id="summary"><p class="muted">Loading reviews…</p></section>
+<section class="card rv-form" id="formCard" aria-labelledby="formTitle"><h2 id="formTitle" style="margin:0 0 6px;font-size:20px">Write a review</h2><div id="formBody"><p class="muted">Loading…</p></div></section>
+<section class="card" id="list" aria-label="Reviews"></section></main><script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script defer src="/assets/pj-core.js"></script><script defer>
+(function(){
+'use strict';
+var API=/(^|\.)prodjee\.in$|\.vercel\.app$/.test(location.hostname)?'/api':'https://m2m-two.vercel.app/api';
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function read(k){try{return JSON.parse(localStorage.getItem(k)||'null')||{};}catch(e){return {};}}
+var p=read('prodjee.student.v1'),a=read('prodjee.arena.v1');
+var exam=p.exam==='NEET'||(!p.exam&&a.exam==='NEET')?'NEET':'JEE';
+var MIN=20,MAX=500,rating=0,existing=null;
+function stars(n){var h='';for(var i=1;i<=5;i++)h+='<span class="'+(i<=n?'':'off')+'">★</span>';return '<span class="rv-stars" aria-label="'+n+' out of 5 stars">'+h+'</span>';}
+function when(ms){if(!ms)return '';try{return new Date(ms).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}catch(e){return '';}}
+function pic(r){var init=esc((r.name||'S').charAt(0).toUpperCase());return r.photo?'<img class="rv-pic" src="'+esc(r.photo)+'" alt="" width="42" height="42" referrerpolicy="no-referrer" loading="lazy" onerror="this.outerHTML=\'<span class=&quot;rv-pic&quot;>'+init+'</span>\'">':'<span class="rv-pic">'+init+'</span>';}
+function loadList(){
+  return fetch(API+'/exam-updates?type=reviews').then(function(r){return r.ok?r.json():Promise.reject();}).then(function(d){
+    var sum=document.getElementById('summary'),list=document.getElementById('list');
+    if(!d.count){sum.innerHTML='<p class="muted" style="margin:0">No reviews yet. Be the first to share yours.</p>';list.style.display='none';return;}
+    sum.innerHTML='<div class="rv-sum"><div class="rv-avg">'+esc(d.average.toFixed(1))+'</div><div>'+stars(Math.round(d.average))+'<div class="rv-meta">'+d.count+' review'+(d.count===1?'':'s')+'</div></div></div>';
+    list.style.display='';
+    list.innerHTML=d.reviews.map(function(r){return '<article class="rv-item">'+pic(r)+'<div><div class="rv-name">'+esc(r.name||'A ProDJEE student')+'</div><div class="rv-meta">'+stars(r.rating)+' '+esc([r.exam,when(r.at)].filter(Boolean).join(' · '))+'</div><p class="rv-text">'+esc(r.text)+'</p></div></article>';}).join('');
+  }).catch(function(){document.getElementById('summary').innerHTML='<p class="muted" style="margin:0">Reviews are temporarily unavailable. Please try again later.</p>';document.getElementById('list').style.display='none';});
+}
+function authed(payload){
+  return PJ.user.getIdToken().then(function(t){return fetch(API+'/report-question',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+t},body:JSON.stringify(payload)});}).then(function(r){return r.json().catch(function(){return {};}).then(function(b){return {status:r.status,body:b};});});
+}
+function statusLabel(s){return s==='approved'?'Published':s==='hidden'?'Not published':'Waiting for approval';}
+function renderForm(){
+  var box=document.getElementById('formBody');
+  if(!window.PJ||!PJ.user){box.innerHTML='<p class="muted" style="margin:0 0 12px">Sign in to share your experience. Your first name and Google photo are shown with your review.</p><button class="rv-btn" id="signin">Sign in with Google</button>';document.getElementById('signin').onclick=function(){PJ.signIn();};return;}
+  rating=existing?existing.rating:0;
+  var text=existing?existing.text:'';
+  box.innerHTML=(existing?'<span class="rv-status">'+statusLabel(existing.status)+'</span>':'')+
+   '<div class="rv-pick" id="pick" role="radiogroup" aria-label="Your rating">'+[1,2,3,4,5].map(function(i){return '<button type="button" role="radio" data-v="'+i+'" aria-label="'+i+' star'+(i>1?'s':'')+'">★</button>';}).join('')+'</div>'+
+   '<textarea id="rvText" maxlength="'+MAX+'" placeholder="What has ProDJEE helped you with? ('+MIN+' to '+MAX+' characters)">'+esc(text)+'</textarea>'+
+   '<p class="rv-note"><span id="cnt">0</span>/'+MAX+'</p>'+
+   '<p class="rv-note">Your first name and Google photo will be shown publicly with your review. Reviews appear after approval. '+(existing?'Editing sends it for approval again. ':'')+'See our <a href="/privacy.html" style="color:#d9b46f">Privacy Policy</a>.</p>'+
+   '<div style="margin-top:14px"><button class="rv-btn" id="send">'+(existing?'Update review':'Submit review')+'</button></div><div class="rv-msg" id="msg" role="status"></div>';
+  var ta=document.getElementById('rvText'),cnt=document.getElementById('cnt'),pick=document.getElementById('pick'),send=document.getElementById('send'),msg=document.getElementById('msg');
+  function paint(){[].forEach.call(pick.children,function(b){var on=Number(b.getAttribute('data-v'))<=rating;b.className=on?'on':'';b.setAttribute('aria-checked',Number(b.getAttribute('data-v'))===rating?'true':'false');});cnt.textContent=ta.value.trim().length;}
+  pick.onclick=function(e){var b=e.target.closest('button');if(!b)return;rating=Number(b.getAttribute('data-v'));paint();};
+  ta.oninput=paint;paint();
+  send.onclick=function(){
+    var t=ta.value.trim();
+    if(!rating){msg.textContent='Please choose a star rating.';return;}
+    if(t.length<MIN||t.length>MAX){msg.textContent='Please write between '+MIN+' and '+MAX+' characters.';return;}
+    send.disabled=true;msg.textContent='Sending…';
+    authed({kind:'review',action:'submit',rating:rating,text:t,exam:exam}).then(function(r){
+      if(r.status===200&&r.body.ok){existing={rating:rating,text:t,status:'pending'};if(window.pjTrack)pjTrack('review_submitted',{rating:rating});renderForm();document.getElementById('msg').textContent='Thank you. Your review will appear once it is approved.';}
+      else{send.disabled=false;msg.textContent=(r.body&&r.body.error)||'Could not send your review. Please try again.';}
+    }).catch(function(){send.disabled=false;msg.textContent='Network error. Please try again.';});
+  };
+}
+function loadMine(){
+  if(!window.PJ||!PJ.user){existing=null;renderForm();return;}
+  authed({kind:'review',action:'mine'}).then(function(r){existing=r.status===200&&r.body&&r.body.review?r.body.review:null;renderForm();}).catch(function(){existing=null;renderForm();});
+}
+loadList();
+function showTab(){var l=document.querySelector('.pj-links'),on=l&&l.querySelector('a.on');if(on)l.scrollLeft=l.scrollWidth;}
+showTab();window.addEventListener('load',function(){showTab();setTimeout(showTab,400);});
+var tries=0;(function wait(){if(window.PJ){PJ.onChange(function(){loadMine();});return;}if(++tries<100)setTimeout(wait,100);else renderForm();})();
+})();
+</script></body></html>

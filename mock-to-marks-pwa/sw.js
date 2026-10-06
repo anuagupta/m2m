@@ -4,12 +4,12 @@
 // app on every launch. Bumping this cache for every shell release still
 // guarantees that a newly activated worker installs the current files and
 // discards every older copy before it takes control.
-var CACHE_NAME = 'prodjee-cache-v52';
+var CACHE_NAME = 'prodjee-cache-v53';
 var ASSETS = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png', '/icon-maskable-192.png', '/icon-maskable-512.png',
   '/assets/pj-core.css', '/assets/pj-core.js', '/assets/pj-analytics.js', '/assets/pj-push.js', '/assets/pj-transition.js', '/assets/subject-chapters.js', '/assets/logo-192.png', '/assets/logo-wordmark-186.png', '/assets/logo-wordmark-106.png', '/m2m/', '/arena/',
   '/arena/styles.css', '/arena/app.js', '/arena/questions.js', '/arena/practice.js', '/arena/pyq.js',
   '/arena/vendor/katex/katex.min.css', '/arena/vendor/katex/katex.min.js', '/arena/vendor/katex/contrib/auto-render.min.js',
-  '/coach/', '/coach/app.js', '/news/'];
+  '/coach/', '/coach/app.js', '/news/', '/reviews/'];
 
 self.addEventListener('install', function (event) {
   event.waitUntil(caches.open(CACHE_NAME).then(function (cache) { return cache.addAll(ASSETS); }).catch(function () {}));

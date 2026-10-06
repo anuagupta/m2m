@@ -21,7 +21,7 @@ const events = (page) => page.evaluate(() => (window.dataLayer || []).filter((a)
   const check = (label, ok, extra) => { if (!ok) bad++; console.log((ok ? 'PASS ' : 'FAIL ') + label + (extra ? '  ' + extra : '')); };
   const newPage = async (ctx) => { const p = await ctx.newPage(); await p.route(/gstatic\.com|googletagmanager|_vercel/, (r) => r.fulfill({ contentType: 'application/javascript', body: /gstatic/.test(r.request().url()) ? stub : '' })); return p; };
   const ctx = await browser.newContext({ viewport: { width: 390, height: 800 } });
-  const routes = [['/', 'home', 'Home — ProDJEE'], ['/arena/', 'arena', 'Arena Practice — ProDJEE'], ['/m2m/', 'scoregps', 'ScoreGPS Mock Analysis — ProDJEE'], ['/coach/', 'coach', 'My Coach — ProDJEE'], ['/news/', 'news', 'Exam News — ProDJEE'], ['/privacy.html', 'legal_privacy', 'Privacy Policy — ProDJEE'], ['/terms.html', 'legal_terms', 'Terms of Use — ProDJEE'], ['/disclaimer.html', 'legal_disclaimer', 'Disclaimer — ProDJEE']];
+  const routes = [['/', 'home', 'Home — ProDJEE'], ['/arena/', 'arena', 'Arena Practice — ProDJEE'], ['/m2m/', 'scoregps', 'ScoreGPS Mock Analysis — ProDJEE'], ['/coach/', 'coach', 'My Coach — ProDJEE'], ['/news/', 'news', 'Exam News — ProDJEE'], ['/reviews/', 'reviews', 'Student Reviews — ProDJEE'], ['/privacy.html', 'legal_privacy', 'Privacy Policy — ProDJEE'], ['/terms.html', 'legal_terms', 'Terms of Use — ProDJEE'], ['/disclaimer.html', 'legal_disclaimer', 'Disclaimer — ProDJEE']];
   for (const [route, name, title] of routes) {
     const page = await newPage(ctx);
     await page.goto(`http://prodjee.in:${port}${route}?utm_source=wa&utm_medium=share&fbclid=XYZ#frag`, { waitUntil: 'load' });

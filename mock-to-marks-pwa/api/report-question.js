@@ -12,6 +12,15 @@ module.exports = async (req, res) => {
   if (!uid) { res.status(401).json({ ok: false, error: 'sign in required' }); return; }
 
   const body = req.body || {};
+  if (body.kind === 'review') {
+    // Student reviews share this endpoint (the project is at its function limit).
+    try {
+      const reviews = require('./_reviews');
+      const out = body.action === 'mine' ? await reviews.mine(uid) : await reviews.submit(uid, body);
+      res.status(out.code || 200).json(out);
+    } catch (e) { res.status(502).json({ ok: false, error: 'could not save review' }); }
+    return;
+  }
   const questionId = String(body.questionId || '').slice(0, 100);
   const reason = String(body.reason || '').slice(0, 60);
   if (!questionId || !reason) { res.status(400).json({ ok: false, error: 'missing question or reason' }); return; }
